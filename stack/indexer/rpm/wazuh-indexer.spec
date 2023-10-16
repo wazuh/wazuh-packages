@@ -328,178 +328,167 @@ rm -fr %{buildroot}
 
 
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/NOTICE.txt
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/*.txt
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-job-scheduler/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-job-scheduler/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-job-scheduler/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-job-scheduler/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/plugin-security.policy
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/*.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-ml/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/*.jar
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/
-%attr(740, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/securityadmin.sh
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/SECURITY_ADMIN_TESTS.md
-%attr(740, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/audit_config_migrater.sh
-%attr(740, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/hash.sh
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/plugin-security.policy
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/plugin-descriptor.properties
+%attr(740, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/*.sh
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/*.md
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/*.yml
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/*.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-index-management/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-index-management/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-index-management/NOTICE.txt
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-index-management/LICENSE.txt
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-index-management/plugin-security.policy
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-index-management/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-index-management/*.txt
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-index-management/*.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-index-management/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-neural-search/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-neural-search/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-neural-search/NOTICE.txt
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-neural-search/LICENSE.txt
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-neural-search/plugin-security.policy
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-neural-search/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-neural-search/*.txt
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-neural-search/*.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-neural-search/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications/plugin-security.policy
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications/*.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-asynchronous-search/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-asynchronous-search/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-asynchronous-search/plugin-security.policy
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-asynchronous-search/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-asynchronous-search/*.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-asynchronous-search/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-alerting/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-alerting/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-alerting/plugin-security.policy
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-alerting/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-alerting/*.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-alerting/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/NOTICE.txt
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/LICENSE.txt
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/plugin-security.policy
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/*.txt
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/*.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-sql/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-geospatial/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-geospatial/NOTICE.txt
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-geospatial/*.txt
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-geospatial/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-geospatial/LICENSE.txt
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-geospatial/plugin-descriptor.properties
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-geospatial/plugin-security.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-geospatial/*.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-geospatial/*.policy
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-reports-scheduler/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-reports-scheduler/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-reports-scheduler/plugin-security.policy
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-reports-scheduler/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-reports-scheduler/*.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-reports-scheduler/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-cross-cluster-replication/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-cross-cluster-replication/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-cross-cluster-replication/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-cross-cluster-replication/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-custom-codecs/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-custom-codecs/LICENSE.txt
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-custom-codecs/NOTICE.txt
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-custom-codecs/*.txt
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-custom-codecs/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-custom-codecs/plugin-descriptor.properties
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-custom-codecs/plugin-security.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-custom-codecs/*.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-custom-codecs/*.policy
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-knn/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-knn/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-knn/LICENSE.txt
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-knn/plugin-security.policy
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-knn/plugin-descriptor.properties
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-knn/NOTICE.txt
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-knn/*.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-knn/*.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-knn/*.txt
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-knn/lib/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-knn/lib/libopensearchknn_common.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-knn/lib/libopensearchknn_nmslib.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-knn/lib/libgomp.so.1
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-knn/lib/libopensearchknn_faiss.so
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-knn/lib/*.so.1
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-knn/lib/*.so
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-anomaly-detection/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-anomaly-detection/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-anomaly-detection/plugin-security.policy
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-anomaly-detection/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-anomaly-detection/*.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-anomaly-detection/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/plugin-security.policy
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/*.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-notifications-core/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security-analytics/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security-analytics/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security-analytics/plugin-security.policy
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security-analytics/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security-analytics/*.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security-analytics/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-observability/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-observability/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-observability/plugin-security.policy
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-observability/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-observability/*.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-observability/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/plugin-security.policy
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/*.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-performance-analyzer/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/ingest-common/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/ingest-common/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/ingest-common/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/ingest-common/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/repository-url/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/repository-url/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/repository-url/plugin-security.policy
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/repository-url/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/repository-url/*.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/repository-url/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/percolator/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/percolator/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/percolator/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/percolator/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/search-pipeline-common/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/search-pipeline-common/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/search-pipeline-common/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/search-pipeline-common/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/opensearch-dashboards/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/opensearch-dashboards/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/opensearch-dashboards/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/opensearch-dashboards/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/lang-painless/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/lang-painless/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/lang-painless/plugin-security.policy
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/lang-painless/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/lang-painless/*.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/lang-painless/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/analysis-common/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/analysis-common/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/analysis-common/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/analysis-common/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/rank-eval/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/rank-eval/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/rank-eval/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/rank-eval/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/aggs-matrix-stats/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/aggs-matrix-stats/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/aggs-matrix-stats/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/aggs-matrix-stats/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/geo/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/geo/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/geo/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/geo/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/mapper-extras/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/mapper-extras/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/mapper-extras/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/mapper-extras/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/ingest-user-agent/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/ingest-user-agent/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/ingest-user-agent/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/ingest-user-agent/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/systemd/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/systemd/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/systemd/plugin-security.policy
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/systemd/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/systemd/*.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/systemd/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/transport-netty4/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/transport-netty4/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/transport-netty4/plugin-security.policy
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/transport-netty4/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/transport-netty4/*.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/transport-netty4/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/parent-join/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/parent-join/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/parent-join/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/parent-join/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/lang-mustache/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/lang-mustache/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/lang-mustache/plugin-security.policy
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/lang-mustache/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/lang-mustache/*.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/lang-mustache/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/ingest-geoip/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/ingest-geoip/GeoLite2-ASN.mmdb
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/ingest-geoip/*.mmdb
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/ingest-geoip/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/ingest-geoip/GeoLite2-Country.mmdb
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/ingest-geoip/GeoLite2-City.mmdb
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/ingest-geoip/plugin-security.policy
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/ingest-geoip/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/ingest-geoip/*.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/ingest-geoip/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/plugin-security.policy
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/*.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/transport-netty4/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/transport-netty4/plugin-security.policy
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/transport-netty4/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/transport-netty4/*.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/transport-netty4/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/parent-join/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/parent-join/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/reindex/parent-join/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/lang-expression/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/lang-expression/plugin-security.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/lang-expression/*.policy
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/lang-expression/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/lang-expression/plugin-descriptor.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/modules/lang-expression/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/tools/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/lib/tools/upgrade-cli/
@@ -512,225 +501,58 @@ rm -fr %{buildroot}
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/jmap.1
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/jconsole.1
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/jstack.1
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/jrunscript.1
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/jstatd.1
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/jdb.1
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/jinfo.1
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/javap.1
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/javadoc.1
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/javac.1
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/keytool.1
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/java.1
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/jcmd.1
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/jstat.1
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/jhsdb.1
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/jshell.1
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/jps.1
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/jfr.1
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/jdeprscan.1
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/jar.1
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/jlink.1
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/serialver.1
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/jmod.1
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/rmiregistry.1
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/jpackage.1
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/jdeps.1
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/jarsigner.1
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/man/man1/*.1
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/java.xml.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/java.management.rmi.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.attach.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.localedata.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.internal.opt.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/java.naming.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/java.sql.rowset.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.internal.le.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.dynalink.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.jfr.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/java.smartcardio.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.editpad.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/java.security.jgss.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.crypto.cryptoki.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.nio.mapmode.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.jsobject.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.incubator.vector.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.accessibility.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.compiler.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/java.prefs.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.jdwp.agent.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/java.instrument.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.javadoc.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.unsupported.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.internal.vm.compiler.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.xml.dom.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.jstatd.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.internal.jvmstat.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.security.auth.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.security.jgss.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/java.sql.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.management.agent.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.naming.dns.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.zipfs.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/java.transaction.xa.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/java.management.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.internal.ed.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.incubator.foreign.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.crypto.ec.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.jshell.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/java.xml.crypto.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.jcmd.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.management.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.jpackage.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/java.compiler.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/java.logging.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/java.se.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.unsupported.desktop.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.httpserver.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.charsets.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/java.datatransfer.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.naming.rmi.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/java.scripting.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.jlink.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.jartool.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/java.rmi.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.net.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/java.net.http.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.management.jfr.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.hotspot.agent.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/java.security.sasl.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.sctp.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.jdeps.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.random.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.internal.vm.ci.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/java.desktop.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/java.base.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.jdi.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.jconsole.jmod
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/jdk.internal.vm.compiler.management.jmod
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/jmods/*.jmod
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/NOTICE
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/include/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/include/classfile_constants.h
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/include/*.h
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/include/linux/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/include/linux/jni_md.h
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/include/linux/jawt_md.h
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/include/jdwpTransport.h
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/include/jvmticmlr.h
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/include/jni.h
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/include/jvmti.h
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/include/jawt.h
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/include/linux/*.h
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/jvm.cfg
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libawt_xawt.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libawt_headless.so
-%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/security/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/security/blocked.certs
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/security/default.policy
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/security/cacerts
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/security/public_suffix_list.dat
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libjava.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libextnet.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libjimage.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libnio.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libprefs.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libjaas.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libjawt.so
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/*.cfg
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/*.so
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/jspawnhelper
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libjdwp.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libawt.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/psfont.properties.ja
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libmanagement.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libjsig.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/tzdb.dat
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/*.properties.ja
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/*.dat
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/*.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/*.sym
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/classlist
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/*.jar
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/jexec
+%dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/security/
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/security/*.certs
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/security/*.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/security/cacerts
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/security/*.dat
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/modules
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/server/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/server/libjsig.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/server/classes.jsa
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/server/classes_nocoops.jsa
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/server/libjvm.so
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/server/*.so
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/server/*.jsa
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/jfr/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/jfr/profile.jfc
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/jfr/default.jfc
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libattach.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libdt_socket.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libjsound.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/psfontj2d.properties
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libjavajpeg.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/ct.sym
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libnet.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/classlist
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libj2gss.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libmanagement_agent.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libsplashscreen.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libj2pcsc.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libverify.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/*.jar
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libsyslookup.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libmanagement_ext.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libj2pkcs11.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libjsvml.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libsaproc.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libinstrument.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libjli.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libsctp.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libfontmanager.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/liblcms.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/librmi.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/jexec
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libzip.so
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/libmlib_image.so
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/lib/jfr/*.jfc
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/javadoc
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jmod
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jpackage
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jrunscript
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jhsdb
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jstat
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jdb
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jdeprscan
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/java
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/rmiregistry
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/javac
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jconsole
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jlink
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jfr
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jinfo
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/serialver
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jps
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jcmd
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/javap
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/keytool
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jstatd
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jstack
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jdeps
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jshell
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jimage
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jmap
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jarsigner
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/jar
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/bin/*
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/release
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.instrument/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.net/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.crypto.cryptoki/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.crypto.cryptoki/pkcs11cryptotoken.md
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.crypto.cryptoki/pkcs11wrapper.md
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.crypto.cryptoki/*.md
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.security.auth/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.smartcardio/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.smartcardio/pcsclite.md
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.smartcardio/*.md
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.zipfs/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.localedata/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.localedata/thaidict.md
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.localedata/*.md
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.prefs/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.dynalink/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.dynalink/dynalink.md
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.dynalink/*.md
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.jpackage/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.management/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.internal.jvmstat/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.xml.crypto/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.xml.crypto/santuario.md
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.xml.crypto/*.md
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.net.http/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.unsupported/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.datatransfer/
@@ -745,26 +567,16 @@ rm -fr %{buildroot}
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.editpad/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.httpserver/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.base/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.base/c-libutl.md
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.base/icu.md
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.base/aes.md
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.base/cldr.md
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.base/public_suffix.md
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.base/*.md
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.base/ASSEMBLY_EXCEPTION
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.base/ADDITIONAL_LICENSE_INFO
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.base/asm.md
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.base/unicode.md
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.base/LICENSE
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.jcmd/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.internal.opt/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.internal.opt/jopt-simple.md
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.internal.opt/*.md
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.scripting/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.xml/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.xml/xalan.md
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.xml/bcel.md
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.xml/jcup.md
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.xml/xerces.md
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.xml/dom.md
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.xml/*.md
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.jdeps/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.jstatd/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.management.agent/
@@ -790,7 +602,7 @@ rm -fr %{buildroot}
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.naming.rmi/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.xml.dom/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.internal.le/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.internal.le/jline.md
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.internal.le/*.md
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.jsobject/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.jdwp.agent/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.se/
@@ -798,90 +610,62 @@ rm -fr %{buildroot}
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.incubator.foreign/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.jshell/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.javadoc/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.javadoc/jquery.md
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.javadoc/jqueryUI.md
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.javadoc/*.md
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.compiler/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.security.jgss/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.jconsole/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.naming.dns/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.management.rmi/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.desktop/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.desktop/xwd.md
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.desktop/harfbuzz.md
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.desktop/libpng.md
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.desktop/jpeg.md
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.desktop/colorimaging.md
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.desktop/mesa3d.md
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.desktop/giflib.md
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.desktop/lcms.md
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/java.desktop/*.md
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/legal/jdk.jlink/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/security/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/security/java.policy
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/security/java.security
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/security/*.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/security/*.security
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/security/policy/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/security/policy/limited/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/security/policy/limited/exempt_local.policy
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/security/policy/limited/default_local.policy
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/security/policy/limited/default_US_export.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/security/policy/limited/*.policy
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/security/policy/unlimited/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/security/policy/unlimited/default_local.policy
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/security/policy/unlimited/default_US_export.policy
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/security/policy/README.txt
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/logging.properties
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/net.properties
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/sound.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/security/policy/unlimited/*.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/security/policy/*.txt
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/sdp/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/sdp/sdp.conf.template
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/sdp/*.template
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/management/
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/management/jmxremote.access
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/management/management.properties
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/management/jmxremote.password.template
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/management/*.access
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/management/*.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/jdk/conf/management/*.template
 %dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/
-%config(noreplace) %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/internal_users.yml
-%config(noreplace) %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/audit.yml
-%config(noreplace) %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/opensearch.yml.example
-%config(noreplace) %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/roles.yml
-%config(noreplace) %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/tenants.yml
-%config(noreplace) %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/whitelist.yml
-%config(noreplace) %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/action_groups.yml
-%config(noreplace) %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/allowlist.yml
-%config(noreplace) %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/roles_mapping.yml
-%config(noreplace) %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/nodes_dn.yml
-%config(noreplace) %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/config.yml
+%config(noreplace) %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/*.yml
+%config(noreplace) %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-security/*.example
 %dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-notifications/
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-notifications/notifications.yml
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-notifications/*.yml
 %config(noreplace) %attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/jvm.options
 %dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}/jvm.options.d/
 %dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-reports-scheduler/
-%attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-reports-scheduler/reports-scheduler.yml
-%config(noreplace) %attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/log4j2.properties
+%attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-reports-scheduler/*.yml
+%config(noreplace) %attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/*.properties
 %dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-notifications-core/
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-notifications-core/notifications-core.yml
-%config(noreplace) %attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch.yml
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-notifications-core/*.yml
+%config(noreplace) %attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/*.yml
 %dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-observability/
-%attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-observability/observability.yml
+%attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-observability/*.yml
 %dir %attr(750, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/
 %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/agent-stats-metadata
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/rca_cluster_manager.conf
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/rca_idle_cluster_manager.conf
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/log4j2.xml
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/rca.conf
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/performance-analyzer.properties
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/*.conf
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/*.xml
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/*.properties
 %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/plugin-stats-metadata
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/supervisord.conf
-%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/opensearch_security.policy
+%attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/*.policy
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config/agent-stats-metadata
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config/rca_cluster_manager.conf
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config/rca_idle_cluster_manager.conf
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config/log4j2.xml
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config/rca.conf
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config/performance-analyzer.properties
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config/*.conf
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config/*.xml
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config/*.properties
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config/plugin-stats-metadata
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config/supervisord.conf
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config/opensearch_security.policy
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config/*.policy
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/lib/*.jar
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/bin/
@@ -897,16 +681,12 @@ rm -fr %{buildroot}
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-node
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-env
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-env-from-file
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/indexer-security-init.sh
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-keystore
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-performance-analyzer/
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-performance-analyzer/performance-analyzer-agent-cli
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-performance-analyzer/performance-analyzer-agent
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/LICENSE.txt
 %attr(440, %{USER}, %{GROUP}) %{INSTALL_DIR}/VERSION
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/indexer-security-init.sh
-%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/config.yml
-%attr(740, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/wazuh-certs-tool.sh
-%attr(740, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/wazuh-passwords-tool.sh
 
 
 %changelog
