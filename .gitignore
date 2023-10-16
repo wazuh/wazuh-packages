@@ -22,7 +22,7 @@ ova/Config_files/filebeat.yml
 stack/dashboard/base/output
 stack/indexer/base/output
 stack/indexer/rpm/output
-stack/indexer/debian/output
+stack/indexer/deb/output
 .cache
 .m2
 wpk/versions
