@@ -154,7 +154,7 @@ brotli -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.
 
 # Define categories
 category_explore='{id:"explore",label:"Explore",order:500,euiIconType:"managementApp"}'
-category_dashboard_management='{id:"management",label:"Indexer/dashboard Management",order:5e3,euiIconType:"managementApp"}'
+category_dashboard_management='{id:"management",label:"Indexer/dashboard Management",order:5e3,euiIconType:"search"}'
 
 # Add custom categories (explore) to the built-in
 sed -i -e "s|DEFAULT_APP_CATEGORIES=Object.freeze({|DEFAULT_APP_CATEGORIES=Object.freeze({explore:${category_explore},|" ./src/core/target/public/core.entry.js
