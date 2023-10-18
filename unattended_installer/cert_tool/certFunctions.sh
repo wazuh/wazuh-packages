@@ -438,7 +438,7 @@ function cert_setpermisions() {
 
 function cert_convertCRLFtoLF() {
     if [[ ! -d "/tmp/wazuh-install-files" ]]; then
-        mkdir "/tmp/wazuh-install-files" "${debug}"
+        eval "mkdir /tmp/wazuh-install-files ${debug}"
     fi
     eval "chmod -R 755 /tmp/wazuh-install-files ${debug}"
     eval "tr -d '\015' < $1 > /tmp/wazuh-install-files/new_config.yml"
