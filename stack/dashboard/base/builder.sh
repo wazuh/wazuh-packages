@@ -153,8 +153,8 @@ gzip -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js
 brotli -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js > ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js.br
 
 # Define categories
-category_explore='{id:"explore",label:"Explore",order:500,euiIconType:"managementApp"}'
-category_dashboard_management='{id:"management",label:"Indexer/dashboard Management",order:5e3,euiIconType:"search"}'
+category_explore='{id:"explore",label:"Explore",order:500,euiIconType:"search"}'
+category_dashboard_management='{id:"management",label:"Indexer/dashboard Management",order:5e3,euiIconType:"managementApp"}'
 
 # Add custom categories (explore) to the built-in
 sed -i -e "s|DEFAULT_APP_CATEGORIES=Object.freeze({|DEFAULT_APP_CATEGORIES=Object.freeze({explore:${category_explore},|" ./src/core/target/public/core.entry.js
