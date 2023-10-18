@@ -72,7 +72,7 @@ for changelog_file in changelog_files:
         filedata=file.read()
         install_type=re.search(r'(wazuh-(agent|manager|indexer|dashboard))',
                                filedata).group(1)
-        changelog_string=(f"wazuh-{install_type} ({version}-RELEASE) stable; "
+        changelog_string=(f"{install_type} ({version}-RELEASE) stable; "
             "urgency=low\n\n  * More info: https://documentation.wazuh.com/"
             f"current/release-notes/release-{version.major}-{version.minor}-"
             f"{version.micro}.html\n\n -- "
@@ -128,9 +128,9 @@ for pkgproj_file in pkgproj_files:
         REGEX=r'<string>(\d+\.\d+\.\d+)-(\d+)</string>'
         filedata=re.sub(REGEX, f'<string>{version}-{args.revision}</string>',
                           filedata)
-        REGEX=r'<string>wazuh-agent-(\d+\.\d+\.\d+)-(\d+)</string>'
+        REGEX=r'<string>wazuh-agent-(\d+\.\d+\.\d+)-(\d+)'
         filedata=re.sub(REGEX,
-                    f'<string>wazuh-agent-{version}-{args.revision}</string>',
+                    f'<string>wazuh-agent-{version}-{args.revision}',
                     filedata)
 
     with open(pkgproj_file, 'w', encoding="utf-8") as file:
