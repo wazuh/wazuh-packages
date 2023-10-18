@@ -153,7 +153,7 @@ gzip -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js
 brotli -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js > ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js.br
 
 # Define categories
-category_explore='{id:"explore",label:"Explore",order:5,euiIconType:"managementApp"}'
+category_explore='{id:"explore",label:"Explore",order:500,euiIconType:"managementApp"}'
 category_dashboard_management='{id:"management",label:"Indexer/dashboard Management",order:5e3,euiIconType:"managementApp"}'
 
 # Add custom categories (explore) to the built-in
@@ -186,14 +186,46 @@ sed -i -e "s|category:DEFAULT_APP_CATEGORIES.management|category:${category_expl
 # Replace app category to Index Management app 
 sed -i -e "s|category:DEFAULT_APP_CATEGORIES.management|category:${category_dashboard_management}|g" ./plugins/indexManagementDashboards/target/public/indexManagementDashboards.plugin.js
 
-## Replace app category to Dev Tools app
+# Replace app category to Dev Tools app
 sed -i -e "s|category:public_["DEFAULT_APP_CATEGORIES"].management|category:${category_dashboard_management}|g" ./src/plugins/dev_tools/target/public/devTools.plugin.js
 
-## Replace app category to Dashboards Management (Stack management) app
+# Replace app category to Dashboards Management (Stack management) app
 sed -i -e "s|category:public_["DEFAULT_APP_CATEGORIES"].management|category:${category_dashboard_management}|g" ./src/plugins/management/target/public/management.plugin.js
 
-## Replace app category to Security app
+# Replace app category to Security app
 sed -i -e "s|category:DEFAULT_APP_CATEGORIES.management|category:${category_dashboard_management}|g" ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
+
+# Replace app order to Discover app
+app_order_discover=1000
+sed -i -e "s|order:1e3|order:${app_order_discover}|g" ./src/plugins/discover/target/public/discover.plugin.js
+
+# Replace app order to Discover app
+app_order_dashboard=1010
+sed -i -e "s|order:2500|order:${app_order_dashboard}|g" ./src/plugins/dashboard/target/public/dashboard.plugin.js
+
+# Replace app order to Visualize app
+app_order_visualize=1020
+sed -i -e "s|order:8e3|order:${app_order_visualize}|g" ./src/plugins/visualize/target/public/visualize.plugin.js
+
+# Replace app order to Dev tools app
+app_order_dev_tools=9010
+sed -i -e "s|order:9070|order:${app_order_dev_tools}|g" ./src/plugins/dev_tools/target/public/devTools.plugin.js
+
+# Replace app order to Dashboard management app
+app_order_management=9020
+sed -i -e "s|order:9030|order:${app_order_management}|g" ./src/plugins/management/target/public/management.plugin.js
+
+# Replace app order to Security app
+app_order_management=9030
+sed -i -e "s|order:9050|order:${app_order_management}|g" ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
+
+# Replace app order to Index management app
+app_order_management=9040
+sed -i -e "s|order:9010|order:${app_order_management}|g" ./plugins/indexManagementDashboards/target/public/indexManagementDashboards.plugin.js
+
+# Replace app order to Snapshot management app
+app_order_management=9050
+sed -i -e "s|order:9020|order:${app_order_management}|g" ./plugins/indexManagementDashboards/target/public/indexManagementDashboards.plugin.js
 
 files_to_recreate=(
     ./src/core/target/public/core.entry.js
