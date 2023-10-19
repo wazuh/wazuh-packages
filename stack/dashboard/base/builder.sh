@@ -212,20 +212,26 @@ app_order_dev_tools=9010
 sed -i -e "s|order:9070|order:${app_order_dev_tools}|g" ./src/plugins/dev_tools/target/public/devTools.plugin.js
 
 # Replace app order to Dashboard management app
-app_order_management=9020
-sed -i -e "s|order:9030|order:${app_order_management}|g" ./src/plugins/management/target/public/management.plugin.js
+app_order_dashboard_management=9020
+sed -i -e "s|order:9030|order:${app_order_dashboard_management}|g" ./src/plugins/management/target/public/management.plugin.js
 
 # Replace app order to Security app
-app_order_management=9030
-sed -i -e "s|order:9050|order:${app_order_management}|g" ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
+app_order_security=9030
+sed -i -e "s|order:9050|order:${app_order_security}|g" ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
 
 # Replace app order to Index management app
-app_order_management=9040
-sed -i -e "s|order:9010|order:${app_order_management}|g" ./plugins/indexManagementDashboards/target/public/indexManagementDashboards.plugin.js
+app_order_index_management=9040
+sed -i -e "s|order:9010|order:${app_order_index_management}|g" ./plugins/indexManagementDashboards/target/public/indexManagementDashboards.plugin.js
 
 # Replace app order to Snapshot management app
-app_order_management=9050
-sed -i -e "s|order:9020|order:${app_order_management}|g" ./plugins/indexManagementDashboards/target/public/indexManagementDashboards.plugin.js
+app_order_snapshot_management=9050
+sed -i -e "s|order:9020|order:${app_order_snapshot_management}|g" ./plugins/indexManagementDashboards/target/public/indexManagementDashboards.plugin.js
+
+# Avoid the management Overview application is registered to feature catalogue
+sed -i -e "s|home.featureCatalogue|false \&\& home.featureCatalogue|g" ./src/plugins/management_overview/target/public/managementOverview.plugin.js
+
+# Avoid the management Overview application is registered (appear on side menu)
+sed -i -e "s|application.register|false \&\& application.register|g" ./src/plugins/management_overview/target/public/managementOverview.plugin.js
 
 files_to_recreate=(
     ./src/core/target/public/core.entry.js
@@ -240,6 +246,7 @@ files_to_recreate=(
     ./src/plugins/dev_tools/target/public/devTools.plugin.js
     ./src/plugins/management/target/public/management.plugin.js
     ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
+    ./src/plugins/management_overview/target/public/managementOverview.plugin.js
 )
 
 for value in "${files_to_recreate[@]}"
