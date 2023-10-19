@@ -38,6 +38,7 @@ pkgproj_files=glob.glob('**/*.pkgproj', recursive=True)
 test_files=glob.glob('**/test-*.sh', recursive=True)
 install_variables_files=glob.glob('**/installVariables.sh', recursive=True)
 changelog_md_files=glob.glob('**/CHANGELOG.md', recursive=True)
+VERSION_files=glob.glob('**/VERSION', recursive=True)
 
 ## Bump version in .spec files
 SPEC_FORMAT_STRING="%a %b %d %Y"
@@ -180,9 +181,22 @@ for changelog_md_file in changelog_md_files:
         REGEX=(r'All notable changes to this project '
                r'will be documented in this file.')
         changelog_string=(f"## [{version}]\n\n- https://github.com/wazuh/"
-                          f"wazuh-packages/releases/tag/v{version}")
+                          f"wazuh-packages/releases/tag/v{version}\n")
         filedata=re.sub(REGEX, REGEX + '\n' + changelog_string,
                           filedata)
 
     with open(changelog_md_file, 'w', encoding="utf-8") as file:
+        file.write(filedata)
+
+## Bump version in VERSION files
+
+for VERSION_file in VERSION_files:
+    with open(VERSION_file, 'r', encoding="utf-8") as file:
+        print('Bumping version in ' + VERSION_file)
+        filedata=file.read()
+        # Replace version and revision
+        REGEX=r'(\d+\.\d+\.\d+)'
+        filedata=re.sub(REGEX, f'{version}', filedata)
+
+    with open(VERSION_file, 'w', encoding="utf-8") as file:
         file.write(filedata)
