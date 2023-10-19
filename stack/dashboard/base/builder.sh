@@ -199,7 +199,7 @@ sed -i -e "s|category:DEFAULT_APP_CATEGORIES.management|category:${category_dash
 app_order_discover=1000
 sed -i -e "s|order:1e3|order:${app_order_discover}|g" ./src/plugins/discover/target/public/discover.plugin.js
 
-# Replace app order to Discover app
+# Replace app order to Dashboard app
 app_order_dashboard=1010
 sed -i -e "s|order:2500|order:${app_order_dashboard}|g" ./src/plugins/dashboard/target/public/dashboard.plugin.js
 
