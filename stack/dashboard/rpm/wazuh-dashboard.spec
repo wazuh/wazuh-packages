@@ -131,6 +131,7 @@ fi
 
 %post
 setcap 'cap_net_bind_service=+ep' %{INSTALL_DIR}/node/bin/node
+setcap 'cap_net_bind_service=+ep' %{INSTALL_DIR}/node/fallback/bin/node
 
 # -----------------------------------------------------------------------------
 

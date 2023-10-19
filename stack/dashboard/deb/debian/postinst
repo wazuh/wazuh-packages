@@ -27,6 +27,7 @@ case "$1" in
         chmod 750 "${TARGET_DIR}""${INSTALLATION_DIR}"
         chown -R "${NAME}":"${NAME}" "${TARGET_DIR}""${INSTALLATION_DIR}"
         setcap 'cap_net_bind_service=+ep' "${INSTALLATION_DIR}"/node/bin/node
+        setcap 'cap_net_bind_service=+ep' "${INSTALLATION_DIR}"/node/fallback/bin/node
         if [ -f "${INSTALLATION_DIR}"/"${NAME}".restart ]; then
         rm -f "${INSTALLATION_DIR}"/"${NAME}".restart
             if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
