@@ -16,7 +16,7 @@ revision="$2"
 future="$3"
 repository="$4"
 reference="$5"
-opensearch_version="2.8.0"
+opensearch_version="2.10.0"
 base_dir=/opt/wazuh-dashboard-base
 
 # -----------------------------------------------------------------------------
@@ -125,9 +125,10 @@ sed -i 's|updater\$:appUpdater\$|status:1|' ./src/plugins/opensearch_dashboards_
 gzip -c ./src/plugins/opensearch_dashboards_overview/target/public/opensearchDashboardsOverview.plugin.js > ./src/plugins/opensearch_dashboards_overview/target/public/opensearchDashboardsOverview.plugin.js.gz
 brotli -c ./src/plugins/opensearch_dashboards_overview/target/public/opensearchDashboardsOverview.plugin.js > ./src/plugins/opensearch_dashboards_overview/target/public/opensearchDashboardsOverview.plugin.js.br
 # Remove "New to OpenSearch Dashboards" message with link to OpenSearch Dashboards sample data in Dashboard plugin
-sed -i 's|external_osdSharedDeps_React_default.a.createElement("p",null,external_osdSharedDeps_React_default.a.createElement(external_osdSharedDeps_OsdI18nReact_\["FormattedMessage"\],{id:"dashboard.listing.createNewDashboard.newToOpenSearchDashboardsDescription",defaultMessage:"New to OpenSearch Dashboards|false\&\&external_osdSharedDeps_React_default.a.createElement("p",null,external_osdSharedDeps_React_default.a.createElement(external_osdSharedDeps_OsdI18nReact_["FormattedMessage"],{id:"dashboard.listing.createNewDashboard.newToOpenSearchDashboardsDescription",defaultMessage:"New to OpenSearch Dashboards|' ./src/plugins/dashboard/target/public/dashboard.chunk.1.js
-gzip -c ./src/plugins/dashboard/target/public/dashboard.chunk.1.js > ./src/plugins/dashboard/target/public/dashboard.chunk.1.js.gz
-brotli -c ./src/plugins/dashboard/target/public/dashboard.chunk.1.js > ./src/plugins/dashboard/target/public/dashboard.chunk.1.js.br
+# Removed file on OSD 2.10.0
+# sed -i 's|external_osdSharedDeps_React_default.a.createElement("p",null,external_osdSharedDeps_React_default.a.createElement(external_osdSharedDeps_OsdI18nReact_\["FormattedMessage"\],{id:"dashboard.listing.createNewDashboard.newToOpenSearchDashboardsDescription",defaultMessage:"New to OpenSearch Dashboards|false\&\&external_osdSharedDeps_React_default.a.createElement("p",null,external_osdSharedDeps_React_default.a.createElement(external_osdSharedDeps_OsdI18nReact_["FormattedMessage"],{id:"dashboard.listing.createNewDashboard.newToOpenSearchDashboardsDescription",defaultMessage:"New to OpenSearch Dashboards|' ./src/plugins/dashboard/target/public/dashboard.chunk.1.js
+# gzip -c ./src/plugins/dashboard/target/public/dashboard.chunk.1.js > ./src/plugins/dashboard/target/public/dashboard.chunk.1.js.gz
+# brotli -c ./src/plugins/dashboard/target/public/dashboard.chunk.1.js > ./src/plugins/dashboard/target/public/dashboard.chunk.1.js.br
 # Remove `home` button from the sidebar menu
 sed -i 's|\["EuiHorizontalRule"\],{margin:"none"})),external_osdSharedDeps_React_default.a.createElement(external_osdSharedDeps_ElasticEui_\["EuiFlexItem"\],{grow:false,style:{flexShrink:0}},external_osdSharedDeps_React_default.a.createElement(external_osdSharedDeps_ElasticEui_\["EuiCollapsibleNavGroup"\]|["EuiHorizontalRule"],{margin:"none"})),false\&\&external_osdSharedDeps_React_default.a.createElem(external_osdSharedDeps_ElasticEui_["EuiFlexItem"],{grow:false,style:{flexShrink:0}},external_osdSharedDeps_React_default.a.createElement(external_osdSharedDeps_ElasticEui_["EuiCollapsibleNavGroup"]|' ./src/core/target/public/core.entry.js
 # Replace OpenSearch login default configuration title with Wazuh login title text
@@ -150,6 +151,110 @@ brotli -c ./plugins/securityDashboards/target/public/securityDashboards.plugin.j
 # Generate compressed files
 gzip -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js > ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js.gz
 brotli -c ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js > ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js.br
+
+# Define categories
+category_explore='{id:"explore",label:"Explore",order:500,euiIconType:"search"}'
+category_dashboard_management='{id:"management",label:"Indexer/dashboard Management",order:5e3,euiIconType:"managementApp"}'
+
+# Add custom categories (explore) to the built-in
+sed -i -e "s|DEFAULT_APP_CATEGORIES=Object.freeze({|DEFAULT_APP_CATEGORIES=Object.freeze({explore:${category_explore},|" ./src/core/target/public/core.entry.js
+
+# Replace management built-in app category
+sed -i -e "s|management:{id:\"management\",label:external_osdSharedDeps_OsdI18n_\[\"i18n\"\].translate(\"core.ui.managementNavList.label\",{defaultMessage:\"Management\"}),order:5e3,euiIconType:\"managementApp\"}|management:${category_dashboard_management}|" ./src/core/target/public/core.entry.js
+
+# Replace app category to Discover app
+sed -i -e 's|category:core_public_\["DEFAULT_APP_CATEGORIES"\].opensearchDashboards|category:core_public_["DEFAULT_APP_CATEGORIES"].explore|' ./src/plugins/discover/target/public/discover.plugin.js
+
+# Replace app category to Dashboard app
+sed -i -e 's|category:core_public_\["DEFAULT_APP_CATEGORIES"\].opensearchDashboards|category:core_public_["DEFAULT_APP_CATEGORIES"].explore|' ./src/plugins/dashboard/target/public/dashboard.plugin.js
+
+# Replace app category to Visualize app
+sed -i -e 's|category:core_public_\["DEFAULT_APP_CATEGORIES"\].opensearchDashboards|category:core_public_["DEFAULT_APP_CATEGORIES"].explore|' ./src/plugins/visualize/target/public/visualize.plugin.js
+
+# Replace app category to Reporting app
+sed -i -e "s|category:{id:\"opensearch\",label:_i18n.i18n.translate(\"opensearch.reports.categoryName\",{defaultMessage:\"OpenSearch Plugins\"}),order:2e3}|category:${category_explore}|" ./plugins/reportsDashboards/target/public/reportsDashboards.plugin.js
+
+# Replace app category to Alerting app
+sed -i -e "s|category:{id:\"opensearch\",label:\"OpenSearch Plugins\",order:2e3}|category:${category_explore}|" ./plugins/alertingDashboards/target/public/alertingDashboards.plugin.js
+
+# Replace app category to Maps app
+sed -i -e "s|category:{id:\"opensearch\",label:\"OpenSearch Plugins\",order:2e3}|category:${category_explore}|" ./plugins/customImportMapDashboards/target/public/customImportMapDashboards.plugin.js
+
+# Replace app category to Notifications app
+sed -i -e "s|category:DEFAULT_APP_CATEGORIES.management|category:${category_explore}|" ./plugins/notificationsDashboards/target/public/notificationsDashboards.plugin.js
+
+# Replace app category to Index Management app 
+sed -i -e "s|category:DEFAULT_APP_CATEGORIES.management|category:${category_dashboard_management}|g" ./plugins/indexManagementDashboards/target/public/indexManagementDashboards.plugin.js
+
+# Replace app category to Dev Tools app
+sed -i -e "s|category:public_["DEFAULT_APP_CATEGORIES"].management|category:${category_dashboard_management}|g" ./src/plugins/dev_tools/target/public/devTools.plugin.js
+
+# Replace app category to Dashboards Management (Stack management) app
+sed -i -e "s|category:public_["DEFAULT_APP_CATEGORIES"].management|category:${category_dashboard_management}|g" ./src/plugins/management/target/public/management.plugin.js
+
+# Replace app category to Security app
+sed -i -e "s|category:DEFAULT_APP_CATEGORIES.management|category:${category_dashboard_management}|g" ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
+
+# Replace app order to Discover app
+app_order_discover=1000
+sed -i -e "s|order:1e3|order:${app_order_discover}|g" ./src/plugins/discover/target/public/discover.plugin.js
+
+# Replace app order to Dashboard app
+app_order_dashboard=1010
+sed -i -e "s|order:2500|order:${app_order_dashboard}|g" ./src/plugins/dashboard/target/public/dashboard.plugin.js
+
+# Replace app order to Visualize app
+app_order_visualize=1020
+sed -i -e "s|order:8e3|order:${app_order_visualize}|g" ./src/plugins/visualize/target/public/visualize.plugin.js
+
+# Replace app order to Dev tools app
+app_order_dev_tools=9010
+sed -i -e "s|order:9070|order:${app_order_dev_tools}|g" ./src/plugins/dev_tools/target/public/devTools.plugin.js
+
+# Replace app order to Dashboard management app
+app_order_dashboard_management=9020
+sed -i -e "s|order:9030|order:${app_order_dashboard_management}|g" ./src/plugins/management/target/public/management.plugin.js
+
+# Replace app order to Security app
+app_order_security=9030
+sed -i -e "s|order:9050|order:${app_order_security}|g" ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
+
+# Replace app order to Index management app
+app_order_index_management=9040
+sed -i -e "s|order:9010|order:${app_order_index_management}|g" ./plugins/indexManagementDashboards/target/public/indexManagementDashboards.plugin.js
+
+# Replace app order to Snapshot management app
+app_order_snapshot_management=9050
+sed -i -e "s|order:9020|order:${app_order_snapshot_management}|g" ./plugins/indexManagementDashboards/target/public/indexManagementDashboards.plugin.js
+
+# Avoid the management Overview application is registered to feature catalogue
+sed -i -e "s|home.featureCatalogue|false \&\& home.featureCatalogue|g" ./src/plugins/management_overview/target/public/managementOverview.plugin.js
+
+# Avoid the management Overview application is registered (appear on side menu)
+sed -i -e "s|application.register|false \&\& application.register|g" ./src/plugins/management_overview/target/public/managementOverview.plugin.js
+
+files_to_recreate=(
+    ./src/core/target/public/core.entry.js
+    ./src/plugins/discover/target/public/discover.plugin.js
+    ./src/plugins/dashboard/target/public/dashboard.plugin.js
+    ./src/plugins/visualize/target/public/visualize.plugin.js
+    ./plugins/reportsDashboards/target/public/reportsDashboards.plugin.js
+    ./plugins/alertingDashboards/target/public/alertingDashboards.plugin.js
+    ./plugins/customImportMapDashboards/target/public/customImportMapDashboards.plugin.js
+    ./plugins/notificationsDashboards/target/public/notificationsDashboards.plugin.js
+    ./plugins/indexManagementDashboards/target/public/indexManagementDashboards.plugin.js
+    ./src/plugins/dev_tools/target/public/devTools.plugin.js
+    ./src/plugins/management/target/public/management.plugin.js
+    ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
+    ./src/plugins/management_overview/target/public/managementOverview.plugin.js
+)
+
+for value in "${files_to_recreate[@]}"
+do
+    gzip -c "$value" > "$value.gz"
+    brotli -c "$value" > "$value.br"
+done
+
 # Add VERSION file
 cp /root/VERSION .
 # Add exception for wazuh plugin install
