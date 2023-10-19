@@ -181,7 +181,7 @@ for changelog_md_file in changelog_md_files:
         REGEX=(r'All notable changes to this project '
                r'will be documented in this file.')
         changelog_string=(f"## [{version}]\n\n- https://github.com/wazuh/"
-                          f"wazuh-packages/releases/tag/v{version}")
+                          f"wazuh-packages/releases/tag/v{version}\n")
         filedata=re.sub(REGEX, REGEX + '\n' + changelog_string,
                           filedata)
 
