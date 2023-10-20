@@ -271,6 +271,7 @@ mv ./package.json.tmp ./package.json
 /bin/bash ./bin/opensearch-dashboards-plugin remove observabilityDashboards --allow-root
 /bin/bash ./bin/opensearch-dashboards-plugin remove securityAnalyticsDashboards --allow-root
 /bin/bash ./bin/opensearch-dashboards-plugin remove searchRelevanceDashboards --allow-root
+/bin/bash ./bin/opensearch-dashboards-plugin remove mlCommonsDashboards --allow-root
 
 find -type d -exec chmod 750 {} \;
 find -type f -perm 644 -exec chmod 640 {} \;
