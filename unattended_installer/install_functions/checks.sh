@@ -330,6 +330,8 @@ function checks_ports() {
     used_port=0
     ports=("$@")
 
+    checks_firewalld
+
     if command -v lsof > /dev/null; then
         port_command="lsof -sTCP:LISTEN  -i:"
     else
@@ -374,5 +376,19 @@ function checks_available_port() {
                 exit 1
             fi
         done
+    fi
+}
+
+function checks_firewalld(){
+    if [ "${sys_type}" == "yum" ]; then
+        if yum list installed 2>/dev/null | grep -q -E ^"firewalld"\\.;then
+            common_logger -e "The system has a firewall installed, remember to open the necessary ports for component communication."
+            exit 1
+        fi
+    elif [ "${sys_type}" == "apt-get" ]; then
+        if apt list --installed 2>/dev/null | grep -q -E ^"firewalld"\/; then
+            common_logger -e "The system has a firewall installed, remember to open the necessary ports for component communication."
+            exit 1
+        fi
     fi
 }
