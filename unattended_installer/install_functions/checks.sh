@@ -330,7 +330,7 @@ function checks_ports() {
     used_port=0
     ports=("$@")
 
-    checks_firewalld "${ports}"
+    checks_firewalld "${ports[@]}"
 
     if command -v lsof > /dev/null; then
         port_command="lsof -sTCP:LISTEN  -i:"
@@ -380,15 +380,29 @@ function checks_available_port() {
 }
 
 function checks_firewalld(){
-    ports=("$@")
+    ports_list=("$@")
+    f_ports=""
+    f_message=""
+
+    if [ -n "${AIO}" ]; then
+        f_message="Please ensure that traffic is allowed on these ports: 1515 1514 ${http_port}"
+    elif [ -n "${dashboard}" ]; then
+        f_message="Please ensure that traffic is allowed on this port: ${http_port}"
+    else
+        for port in "${ports_list[@]}"; do
+            f_ports="${f_ports} ${port}"
+        done
+        f_message="Please ensure that traffic is allowed on these ports: ${f_ports}"  
+    fi
+
 
     if [ "${sys_type}" == "yum" ]; then
         if yum list installed 2>/dev/null | grep -q -E ^"firewalld"\\.;then
-            common_logger -w "The system has a firewalld installed. Consider that traffic should be allowed in these ports: ${ports}."
+            common_logger -w "The system has Firewalld installed. ${f_message}."
         fi
     elif [ "${sys_type}" == "apt-get" ]; then
         if apt list --installed 2>/dev/null | grep -q -E ^"firewalld"\/; then
-            common_logger -w "The system has a firewalld installed. Consider that traffic should be allowed in these ports: ${ports}."
+            common_logger -w "The system has Firewalld installed. ${f_message}."
         fi
     fi
 }
