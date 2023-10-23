@@ -51,7 +51,7 @@ build_rpm() {
         fi
         ../base/generate_base.sh -s ${outdir} -r ${revision} ${base_cmd}
     else
-        if ! [ "${reference}" ];then
+        if [ "${reference}" ];then
             version=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${reference}/VERSION | cat)
         else
             version=$(cat ${current_path}/../../../VERSION)
