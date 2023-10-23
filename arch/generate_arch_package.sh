@@ -105,7 +105,7 @@ help() {
     echo "    --sources <path>              [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
     echo "    --packages-branch <branch>    [Required] Select Git branch or tag from wazuh-packages repository. e.g ${PACKAGES_BRANCH}"
     echo "    --dev                         [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
-    echo "    --future                      [Optional] Build test future package 99.99.0 Used for development purposes."
+    echo "    --future                      [Optional] Build test future package {MAJOR}.30.0 Used for development purposes."
     echo "    -h, --help                    Show this help."
     echo
     exit $1
