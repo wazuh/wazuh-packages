@@ -38,6 +38,7 @@ pkgproj_files=glob.glob('**/*.pkgproj', recursive=True)
 test_files=glob.glob('**/test-*.sh', recursive=True)
 install_variables_files=glob.glob('**/installVariables.sh', recursive=True)
 changelog_md_files=glob.glob('**/CHANGELOG.md', recursive=True)
+VERSION_files=glob.glob('**/VERSION', recursive=True)
 
 ## Bump version in .spec files
 SPEC_FORMAT_STRING="%a %b %d %Y"
@@ -72,7 +73,7 @@ for changelog_file in changelog_files:
         filedata=file.read()
         install_type=re.search(r'(wazuh-(agent|manager|indexer|dashboard))',
                                filedata).group(1)
-        changelog_string=(f"wazuh-{install_type} ({version}-RELEASE) stable; "
+        changelog_string=(f"{install_type} ({version}-RELEASE) stable; "
             "urgency=low\n\n  * More info: https://documentation.wazuh.com/"
             f"current/release-notes/release-{version.major}-{version.minor}-"
             f"{version.micro}.html\n\n -- "
@@ -128,9 +129,9 @@ for pkgproj_file in pkgproj_files:
         REGEX=r'<string>(\d+\.\d+\.\d+)-(\d+)</string>'
         filedata=re.sub(REGEX, f'<string>{version}-{args.revision}</string>',
                           filedata)
-        REGEX=r'<string>wazuh-agent-(\d+\.\d+\.\d+)-(\d+)</string>'
+        REGEX=r'<string>wazuh-agent-(\d+\.\d+\.\d+)-(\d+)'
         filedata=re.sub(REGEX,
-                    f'<string>wazuh-agent-{version}-{args.revision}</string>',
+                    f'<string>wazuh-agent-{version}-{args.revision}',
                     filedata)
 
     with open(pkgproj_file, 'w', encoding="utf-8") as file:
@@ -180,9 +181,22 @@ for changelog_md_file in changelog_md_files:
         REGEX=(r'All notable changes to this project '
                r'will be documented in this file.')
         changelog_string=(f"## [{version}]\n\n- https://github.com/wazuh/"
-                          f"wazuh-packages/releases/tag/v{version}")
+                          f"wazuh-packages/releases/tag/v{version}\n")
         filedata=re.sub(REGEX, REGEX + '\n' + changelog_string,
                           filedata)
 
     with open(changelog_md_file, 'w', encoding="utf-8") as file:
+        file.write(filedata)
+
+## Bump version in VERSION files
+
+for VERSION_file in VERSION_files:
+    with open(VERSION_file, 'r', encoding="utf-8") as file:
+        print('Bumping version in ' + VERSION_file)
+        filedata=file.read()
+        # Replace version and revision
+        REGEX=r'(\d+\.\d+\.\d+)'
+        filedata=re.sub(REGEX, f'{version}', filedata)
+
+    with open(VERSION_file, 'w', encoding="utf-8") as file:
         file.write(filedata)
