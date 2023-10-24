@@ -32,6 +32,7 @@ NOTARIZE="no"                         # Notarize the package for macOS Catalina.
 DEVELOPER_ID=""                       # Apple Developer ID.
 ALTOOL_PASS=""                        # Temporary Application password for altool.
 pkg_name=""
+notarization_path=""
 
 trap ctrl_c INT
 
@@ -55,8 +56,8 @@ function notarize_pkg() {
     build_timestamp="$(date +"%m%d%Y%H%M%S")"
     if [ "${NOTARIZE}" = "yes" ]; then
         if sudo xcrun altool --notarize-app --primary-bundle-id "com.wazuh.agent.${VERSION}.${REVISION}.${build_timestamp}" \
-            --username "${DEVELOPER_ID}" --password "${ALTOOL_PASS}" --file ${DESTINATION}/${pkg_name} > request_info.txt ; then
-            echo "The package ${DESTINATION}/${pkg_name} was successfully upload for notarization."
+            --username "${DEVELOPER_ID}" --password "${ALTOOL_PASS}" --file ${1} > request_info.txt ; then
+            echo "The package ${1} was successfully upload for notarization."
             echo "Waiting ${sleep_time}s to get the results"
             sleep ${sleep_time}
 
@@ -76,8 +77,9 @@ function notarize_pkg() {
             if grep "Status: success" request_result.txt > /dev/null 2>&1 ; then
                 echo "Package is notarized and ready to go."
                 echo "Adding the ticket to the package."
-                if xcrun stapler staple -v ${DESTINATION}/${pkg_name} ; then
+                if xcrun stapler staple -v ${1} ; then
                     echo "Ticket added. Ready to release the package."
+                    mkdir -p "${DESTINATION}" && cp -f "${1}" "${DESTINATION}/"
                     return 0
                 else
                     echo "Something went wrong while adding the package."
@@ -153,7 +155,6 @@ function build_package() {
         echo "The wazuh agent package for macOS has been successfully built."
         pkg_name="wazuh-agent-${VERSION}-${REVISION}.${ARCH}.pkg"
         sign_pkg
-        notarize_pkg
         if [[ "${CHECKSUM}" == "yes" ]]; then
             mkdir -p ${CHECKSUMDIR}
             cd ${DESTINATION} && shasum -a512 "${pkg_name}" > "${CHECKSUMDIR}/${pkg_name}.sha512"
@@ -186,7 +187,8 @@ function help() {
     echo "    --keychain-password           [Optional] Password of the keychain."
     echo "    --application-certificate     [Optional] Apple Developer ID certificate name to sign Apps and binaries."
     echo "    --installer-certificate       [Optional] Apple Developer ID certificate name to sign pkg."
-    echo "    --notarize                    [Optional] Notarize the package for its distribution on macOS Catalina ."
+    echo "    --notarize                    [Optional] Notarize the package for its distribution on macOS."
+    echo "    --notarize-path <path>        [Optional] Path of the package to be notarized."
     echo "    --developer-id                [Optional] Your Apple Developer ID."
     echo "    --altool-password             [Optional] Temporary password to use altool from Xcode."
     echo
@@ -368,6 +370,14 @@ function main() {
             NOTARIZE="yes"
             shift 1
             ;;
+        "--notarize-path")
+            if [ -n "$2" ]; then
+                notarization_path="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
         "--developer-id")
             if [ -n "$2" ]; then
                 DEVELOPER_ID="$2"
@@ -410,8 +420,20 @@ function main() {
         AGENT_PKG_FILE="${CURRENT_PATH}/package_files/wazuh-agent-${ARCH}.pkgproj"
         build_package
         "${CURRENT_PATH}/uninstall.sh"
-    else
-        echo "The branch has not been specified. No package will be generated."
+    fi
+    if [ "${NOTARIZE}" = "yes" ]; then
+        if [ "${BUILD}" = "yes" ]; then
+            pkg_name="wazuh-agent-${VERSION}-${REVISION}.${ARCH}.pkg"
+            notarization_path="${DESTINATION}/${pkg_name}"
+        fi
+        if [ -z "${notarization_path}" ]; then
+            echo "The path of the package to be notarized has not been specified."
+            help 1
+        fi
+        notarize_pkg "${notarization_path}"
+    fi
+    if [ "${BUILD}" = "no" ] && [ "${NOTARIZE}" = "no" ]; then
+        echo "The branch has not been specified and notarization has not been selected."
         help 1
     fi
 
