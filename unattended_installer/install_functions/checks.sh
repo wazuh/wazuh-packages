@@ -330,7 +330,7 @@ function checks_ports() {
     used_port=0
     ports=("$@")
 
-    checks_firewalld "${ports[@]}"
+    checks_firewall "${ports[@]}"
 
     if command -v lsof > /dev/null; then
         port_command="lsof -sTCP:LISTEN  -i:"
@@ -379,30 +379,53 @@ function checks_available_port() {
     fi
 }
 
-function checks_firewalld(){
+function checks_firewall(){
     ports_list=("$@")
     f_ports=""
-    f_message=""
+    f_message="The system has firewall installed. Please ensure that traffic is allowed on "
+    firewalld_installed=0
+    ufw_installed=0
 
+
+    # Record of the ports that must be exposed according to the installation
     if [ -n "${AIO}" ]; then
-        f_message="Please ensure that traffic is allowed on these ports: 1515 1514 ${http_port}"
+        f_message+="these ports: 1515 1514 ${http_port}"
     elif [ -n "${dashboard}" ]; then
-        f_message="Please ensure that traffic is allowed on this port: ${http_port}"
+        f_message+="this port: ${http_port}"
     else
         for port in "${ports_list[@]}"; do
             f_ports="${f_ports} ${port}"
         done
-        f_message="Please ensure that traffic is allowed on these ports: ${f_ports}"  
+        f_message+="these ports: ${f_ports}"  
     fi
 
-
+    # Check if the firewall is installed
     if [ "${sys_type}" == "yum" ]; then
         if yum list installed 2>/dev/null | grep -q -E ^"firewalld"\\.;then
-            common_logger -w "The system has Firewalld installed. ${f_message}."
+            firewalld_installed=1
+        fi
+        if yum list installed 2>/dev/null | grep -q -E ^"ufw"\\.;then
+            ufw_installed=1
         fi
     elif [ "${sys_type}" == "apt-get" ]; then
         if apt list --installed 2>/dev/null | grep -q -E ^"firewalld"\/; then
-            common_logger -w "The system has Firewalld installed. ${f_message}."
+            firewalld_installed=1
+        fi
+        if apt list --installed 2>/dev/null | grep -q -E ^"ufw"\/; then
+            ufw_installed=1
         fi
     fi
+
+    # Check if the firewall is running
+    if [ "${firewalld_installed}" == "1" ]; then
+        if firewall-cmd --state 2>/dev/null | grep -q -w "running"; then
+            common_logger -w "${f_message/firewall/Firewalld}."
+        fi
+    fi
+    if [ "${ufw_installed}" == "1" ]; then
+        if ufw status 2>/dev/null | grep -q -w "active"; then
+            common_logger -w "${f_message/firewall/UFW}."
+        fi
+    fi
+
 }
