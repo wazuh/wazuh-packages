@@ -382,7 +382,7 @@ function checks_available_port() {
 function checks_firewall(){
     ports_list=("$@")
     f_ports=""
-    f_message="The system has firewall installed. Please ensure that traffic is allowed on "
+    f_message="The system has firewall enabled. Please ensure that traffic is allowed on "
     firewalld_installed=0
     ufw_installed=0
 
