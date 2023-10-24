@@ -396,7 +396,7 @@ function checks_firewall(){
         for port in "${ports_list[@]}"; do
             f_ports="${f_ports} ${port}"
         done
-        f_message+="these ports: ${f_ports}"  
+        f_message+="these ports:${f_ports}"  
     fi
 
     # Check if the firewall is installed
