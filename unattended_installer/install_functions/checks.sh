@@ -393,10 +393,13 @@ function checks_firewall(){
     elif [ -n "${dashboard}" ]; then
         f_message+="this port: ${http_port}"
     else
+        f_message+="these ports:"
         for port in "${ports_list[@]}"; do
-            f_ports="${f_ports} ${port}"
+            f_message+=" ${port},"
         done
-        f_message+="these ports:${f_ports}"  
+
+        # Deletes last comma
+        f_message="${f_message%,}"
     fi
 
     # Check if the firewall is installed
