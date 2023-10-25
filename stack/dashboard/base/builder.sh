@@ -92,10 +92,12 @@ sed -i "90s|defaultValue: true|defaultValue: false|g" ./src/core/server/opensear
 # Add fix to Node variables as Node is not using the NODE_OPTIONS environment variables
 sed -i 's/NODE_OPTIONS="$OSD_NODE_OPTS_PREFIX $OSD_NODE_OPTS $NODE_OPTIONS"/NODE_OPTIONS="$OSD_NODE_OPTS_PREFIX $OSD_NODE_OPTS $NODE_OPTIONS"\n/g' ./bin/use_node
 sed -i 's/exec "${NODE}"/NODE_ENV=production exec "${NODE}" ${NODE_OPTIONS} /g' ./bin/use_node
+# Replace the redirections to home app
+app_home='wz-home'
 # Replace the redirection to `home` in the header logo
-sed -i "s'/app/home'/app/wz-home'g" ./src/core/target/public/core.entry.js
+sed -i "s'/app/home'/app/${app_home}'g" ./src/core/target/public/core.entry.js
 # Replace others redirections to `home`
-sed -i 's/navigateToApp("home")/navigateToApp("wazuh")/g' ./src/core/target/public/core.entry.js
+sed -i "s/navigateToApp(\"home\")/navigateToApp(\"${app_home}\")/g" ./src/core/target/public/core.entry.js
 # Changed from Opensearch Documentation links to Wazuh Documentation
 # Help menu
 ## Help header - Version
