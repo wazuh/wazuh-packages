@@ -389,7 +389,7 @@ function checks_firewall(){
 
     # Record of the ports that must be exposed according to the installation
     if [ -n "${AIO}" ]; then
-        f_message+="these ports: 1515 1514 ${http_port}"
+        f_message+="these ports: 1515, 1514, ${http_port}"
     elif [ -n "${dashboard}" ]; then
         f_message+="this port: ${http_port}"
     else
