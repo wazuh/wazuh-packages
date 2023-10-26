@@ -46,6 +46,10 @@ case "$1" in
             runuser "${NAME}" --shell="/bin/bash" --command="echo kibanaserver | ${INSTALLATION_DIR}/bin/opensearch-dashboards-keystore add opensearch.password --stdin" > /dev/null 2>&1
             chmod 640 "${CONFIG_DIR}"/opensearch_dashboards.keystore
         fi
+
+        if ! grep -q "/app/wz-home" "${CONFIG_DIR}"/opensearch_dashboards.yml; then
+		    sed -i 's/\/app\/wazuh/\/app\/wz-home/g' "${CONFIG_DIR}"/opensearch_dashboards.yml
+        fi
     ;;
 
 
