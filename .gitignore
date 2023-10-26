@@ -19,8 +19,6 @@ ova/Config_files/filebeat.yml
 *.pkg.tar.zst
 .gradle
 .java
-stack/dashboard/base/output
-stack/indexer/base/output
 .cache
 wpk/versions
 solaris/packer/builds/
@@ -39,3 +37,4 @@ unattended_installer/wazuh-certs-tool.sh
 unattended_installer/wazuh-passwords-tool.sh
 unattended_installer/wazuh-passwords.txt
 tests/unattended/unit/*.log
+output
