@@ -192,6 +192,10 @@ elif [ ! -f %{CONFIG_DIR}/opensearch_dashboards.keystore ]; then
   chmod 640 "%{CONFIG_DIR}"/opensearch_dashboards.keystore
 fi
 
+if ! grep -q "/app/wz-home" %{CONFIG_DIR}/opensearch_dashboards.yml; then
+  sed -i 's/\/app\/wazuh/\/app\/wz-home/g' %{CONFIG_DIR}/opensearch_dashboards.yml
+fi
+
 if [ -f %{INSTALL_DIR}/wazuh-dashboard.restart ]; then
   rm -f %{INSTALL_DIR}/wazuh-dashboard.restart
   if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1; then
