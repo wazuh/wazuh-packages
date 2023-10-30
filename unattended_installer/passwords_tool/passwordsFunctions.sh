@@ -611,14 +611,18 @@ function passwords_updateInternalUsers() {
     
     common_logger "Updating the internal users."
     backup_datetime=$(date +"%Y%m%d_%H%M%S")
+    internal_users_backup_path="/etc/wazuh-indexer/internalusers-backup"
     passwords_getNetworkHost
     passwords_createBackUp
 
-    eval "mkdir -p /etc/wazuh-indexer/internalusers-backup"
-    eval "cp /etc/wazuh-indexer/backup/internal_users.yml /etc/wazuh-indexer/internalusers-backup/internal_users_${backup_datetime}.yml.bkp"
+    eval "mkdir -p ${internal_users_backup_path} ${debug}"
+    eval "cp /etc/wazuh-indexer/backup/internal_users.yml ${internal_users_backup_path}/internal_users_${backup_datetime}.yml.bkp ${debug}"
+    eval "chmod 750 ${internal_users_backup_path} ${debug}"
+    eval "chmod 640 ${internal_users_backup_path}/internal_users_${backup_datetime}.yml.bkp"
+    eval "chown -R wazuh-indexer:wazuh-indexer ${internal_users_backup_path} ${debug}"
     common_logger "A backup of the internal users has been saved in the /etc/wazuh-indexer/internalusers-backup folder."
 
-    eval "cp /etc/wazuh-indexer/backup/internal_users.yml /etc/wazuh-indexer/opensearch-security/internal_users.yml"
+    eval "cp /etc/wazuh-indexer/backup/internal_users.yml /etc/wazuh-indexer/opensearch-security/internal_users.yml ${debug}"
     eval "rm -rf /etc/wazuh-indexer/backup/ ${debug}"
     common_logger -d "The internal users have been updated before changing the passwords."
 
