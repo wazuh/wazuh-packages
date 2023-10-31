@@ -61,7 +61,7 @@ if [[ "${future}" == "yes" ]]; then
     base_version=${wazuh_version}
     MAJOR=$(echo ${base_version} | cut -dv -f2 | cut -d. -f1)
     MINOR=$(echo ${base_version} | cut -d. -f2)
-    wazuh_version="99.99.0"
+    wazuh_version="${MAJOR}.30.0"
     package_full_name=wazuh-${build_target}-${wazuh_version}
 
     # PREPARE FUTURE SPECS AND SOURCES
@@ -70,6 +70,9 @@ if [[ "${future}" == "yes" ]]; then
     sources_dir="${tmp_sources_dir}"
     find "${sources_dir}" "${specs_path}" \( -name "*VERSION*" -o -name "*changelog*" \) -exec sed -i "s/${base_version}/${wazuh_version}/g" {} \;
     sed -i "s/\$(VERSION)/${MAJOR}.${MINOR}/g" "${sources_dir}/src/Makefile"
+    sed -i "s/${base_version}/${wazuh_version}/g" "${sources_dir}/src/init/wazuh-server.sh"
+    sed -i "s/${base_version}/${wazuh_version}/g" "${sources_dir}/src/init/wazuh-client.sh"
+    sed -i "s/${base_version}/${wazuh_version}/g" "${sources_dir}/src/init/wazuh-local.sh"
 fi
 
 cd ${sources_dir} && tar -czf ${pacman_dir}/${package_full_name}.tar.gz . 
