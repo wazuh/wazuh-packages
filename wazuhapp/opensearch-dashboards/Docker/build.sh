@@ -16,8 +16,8 @@ checksum_dir="/var/local/checksum"
 git_clone_tmp_dir="/tmp/wazuh-app"
 
 # Repositories URLs
-wazuh_app_clone_repo_url="https://github.com/wazuh/wazuh-kibana-app.git"
-wazuh_app_raw_repo_url="https://raw.githubusercontent.com/wazuh/wazuh-kibana-app"
+wazuh_app_clone_repo_url="https://github.com/wazuh/wazuh-dashboard-plugins.git"
+wazuh_app_raw_repo_url="https://raw.githubusercontent.com/wazuh/wazuh-dashboard-plugins"
 plugin_platform_app_repo_url="https://github.com/opensearch-project/OpenSearch-Dashboards.git"
 plugin_platform_app_raw_repo_url="https://raw.githubusercontent.com/opensearch-project/OpenSearch-Dashboards"
 wazuh_app_package_json_url="${wazuh_app_raw_repo_url}/${wazuh_branch}/plugins/main/package.json"
@@ -47,7 +47,7 @@ change_node_version () {
 
 
 prepare_env() {
-    echo "Downloading package.json and .nvmrc from wazuh-kibana-app repository"
+    echo "Downloading package.json and .nvmrc from wazuh-dashboard-plugins repository"
     if ! curl $wazuh_app_package_json_url -o "/tmp/package.json" ; then
         echo "Error downloading package.json from GitHub."
         exit 1
