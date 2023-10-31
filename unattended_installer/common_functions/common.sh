@@ -70,6 +70,7 @@ function common_checkInstalled() {
     dashboard_installed=""
 
     if [ "${sys_type}" == "yum" ]; then
+        installCommon_checkYumLock
         wazuh_installed=$(yum list installed 2>/dev/null | grep wazuh-manager)
     elif [ "${sys_type}" == "apt-get" ]; then
         wazuh_installed=$(apt list --installed  2>/dev/null | grep wazuh-manager)
@@ -81,6 +82,7 @@ function common_checkInstalled() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
+        installCommon_checkYumLock
         indexer_installed=$(yum list installed 2>/dev/null | grep wazuh-indexer)
     elif [ "${sys_type}" == "apt-get" ]; then
         indexer_installed=$(apt list --installed 2>/dev/null | grep wazuh-indexer)
@@ -92,6 +94,7 @@ function common_checkInstalled() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
+        installCommon_checkYumLock
         filebeat_installed=$(yum list installed 2>/dev/null | grep filebeat)
     elif [ "${sys_type}" == "apt-get" ]; then
         filebeat_installed=$(apt list --installed  2>/dev/null | grep filebeat)
@@ -103,6 +106,7 @@ function common_checkInstalled() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
+        installCommon_checkYumLock
         dashboard_installed=$(yum list installed 2>/dev/null | grep wazuh-dashboard)
     elif [ "${sys_type}" == "apt-get" ]; then
         dashboard_installed=$(apt list --installed  2>/dev/null | grep wazuh-dashboard)
@@ -170,7 +174,7 @@ function common_remove_gpg_key() {
     if [ "${sys_type}" == "yum" ]; then
         if { rpm -q gpg-pubkey --qf '%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n' | grep "Wazuh"; } >/dev/null ; then
             key=$(rpm -q gpg-pubkey --qf '%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n' | grep "Wazuh Signing Key" | awk '{print $1}' )
-            rpm -e "${key}" "${debug}"
+            rpm -e "${key}"
         else
             common_logger "Wazuh GPG key not found in the system"
             return 1

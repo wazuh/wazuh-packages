@@ -189,6 +189,19 @@ function installCommon_checkOptionalInstallation() {
 
 }
 
+function installCommon_checkYumLock() {
+
+    attempt=0
+    seconds=30
+
+    while [ -f "${yum_lockfile}" ]; do
+        attempt=$((attempt+1))
+        common_logger "Another process is using YUM. Waiting for it to release the lock. Next retry in ${seconds} seconds (${attempt}/10)"
+        sleep "${seconds}"
+    done
+
+}
+
 function installCommon_createCertificates() {
 
     common_logger -d "Creating Wazuh certificates."
@@ -298,6 +311,7 @@ function installCommon_changePasswords() {
 function installCommon_checkChromium() {
 
     if [ "${sys_type}" == "yum" ]; then
+        installCommon_checkYumLock
         if (! yum list installed 2>/dev/null | grep -q -E ^"google-chrome-stable"\\.) && (! yum list installed 2>/dev/null | grep -q -E ^"chromium"\\.); then
             if [ "${DIST_NAME}" == "amzn" ]; then
                 installCommon_installChrome
@@ -609,6 +623,7 @@ function installCommon_rollBack() {
     if [[ -n "${wazuh_installed}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]];then
         common_logger "Removing Wazuh manager."
         if [ "${sys_type}" == "yum" ]; then
+            installCommon_checkYumLock
             eval "yum remove wazuh-manager -y ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt-get remove --purge wazuh-manager -y ${debug}"
@@ -623,6 +638,7 @@ function installCommon_rollBack() {
     if [[ -n "${indexer_installed}" && ( -n "${indexer}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         common_logger "Removing Wazuh indexer."
         if [ "${sys_type}" == "yum" ]; then
+            installCommon_checkYumLock
             eval "yum remove wazuh-indexer -y ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt-get remove --purge wazuh-indexer -y ${debug}"
@@ -639,6 +655,7 @@ function installCommon_rollBack() {
     if [[ -n "${filebeat_installed}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         common_logger "Removing Filebeat."
         if [ "${sys_type}" == "yum" ]; then
+            installCommon_checkYumLock
             eval "yum remove filebeat -y ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt-get remove --purge filebeat -y ${debug}"
@@ -655,6 +672,7 @@ function installCommon_rollBack() {
     if [[ -n "${dashboard_installed}" && ( -n "${dashboard}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         common_logger "Removing Wazuh dashboard."
         if [ "${sys_type}" == "yum" ]; then
+            installCommon_checkYumLock
             eval "yum remove wazuh-dashboard -y ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "apt-get remove --purge wazuh-dashboard -y ${debug}"
@@ -758,6 +776,7 @@ function installCommon_yumInstallList(){
     dependencies=("$@")
     not_installed=()
     for dep in "${dependencies[@]}"; do
+        installCommon_checkYumLock
         if ! yum list installed 2>/dev/null | grep -q -E ^"${dep}"\\.;then
             not_installed+=("${dep}")
         fi
@@ -767,14 +786,35 @@ function installCommon_yumInstallList(){
         common_logger "--- Dependencies ---"
         for dep in "${not_installed[@]}"; do
             common_logger "Installing $dep."
-            yum_output=$(yum install ${dep} -y 2>&1)
+            installCommon_yumInstall "${dep}"
             yum_code="${PIPESTATUS[0]}"
 
-            eval "echo \${yum_output} ${debug}"
-            if [  "${yum_code}" != 0  ]; then
+            if [  "${install_result}" != 0  ]; then
                 installCommon_checkOptionalInstallation
             fi
         done
+    fi
+
+}
+
+function installCommon_yumInstall() {
+
+    package="${1}"
+    version="${2}"
+    install_result=1
+    if [ -n "${version}" ]; then
+        installer="${package}-${version}"
+    else
+        installer="${package}"
+    fi
+    
+    command="yum install ${installer} -y"
+    installCommon_checkYumLock
+
+    if [ ! -f "${yum_lockfile}" ]; then
+        yum_output=$(eval "${command} 2>&1")  
+        install_result="${PIPESTATUS[0]}"
+        eval "echo \${yum_output} ${debug}"
     fi
 
 }
