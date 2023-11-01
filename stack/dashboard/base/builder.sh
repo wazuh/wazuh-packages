@@ -186,7 +186,7 @@ sed -i "s'/app/home'/app/${app_home}'g" ./src/core/target/public/core.entry.js
 sed -i "s/navigateToApp(\"home\")/navigateToApp(\"${app_home}\")/g" ./src/core/target/public/core.entry.js
 
 # Define categories
-category_explore='{id:"explore",label:"Explore",order:500,euiIconType:"search"}'
+category_explore='{id:"explore",label:"Explore",order:100,euiIconType:"search"}'
 category_dashboard_management='{id:"management",label:"Indexer/dashboard Management",order:5e3,euiIconType:"managementApp"}'
 
 # Add custom categories (explore) to the built-in
