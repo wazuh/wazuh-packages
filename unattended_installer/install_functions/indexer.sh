@@ -186,4 +186,6 @@ function indexer_startCluster() {
         common_logger -d "Inserted wazuh-alerts template into the Wazuh indexer cluster."
     fi
 
+    indexer_rollover_init
+
 }
