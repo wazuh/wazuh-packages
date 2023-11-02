@@ -98,22 +98,13 @@ function installCommon_aptInstall() {
         installer=${package}
     fi
     command="DEBIAN_FRONTEND=noninteractive apt-get install ${installer} -y -q"
-    seconds=30
-    apt_output=$(eval "${command} 2>&1")
-    install_result="${PIPESTATUS[0]}"
-    eval "echo \${apt_output} ${debug}"
-    eval "tail -n 2 ${logfile} | grep -q 'Could not get lock'"
-    grep_result="${PIPESTATUS[0]}"
-    while [ "${grep_result}" -eq 0 ] && [ "${attempt}" -lt 10 ]; do
-        attempt=$((attempt+1))
-        common_logger "An external process is using APT. This process has to end to proceed with the Wazuh installation. Next retry in ${seconds} seconds (${attempt}/10)"
-        sleep "${seconds}"
+    installCommon_checkAptLock
+
+    if [ "${attempt}" -ne "${max_attempts}" ]; then
         apt_output=$(eval "${command} 2>&1")
         install_result="${PIPESTATUS[0]}"
         eval "echo \${apt_output} ${debug}"
-        eval "tail -n 2 ${logfile} | grep -q 'Could not get lock'"
-        grep_result="${PIPESTATUS[0]}"
-    done
+    fi
 
 }
 
@@ -189,14 +180,29 @@ function installCommon_checkOptionalInstallation() {
 
 }
 
+function installCommon_checkAptLock() {
+
+    attempt=0
+    seconds=30
+    max_attempts=10
+
+    while fuser "${apt_lockfile}" >/dev/null 2>&1 && [ "${attempt}" -lt "${max_attempts}" ]; do
+        attempt=$((attempt+1))
+        common_logger "Another process is using APT. Waiting for it to release the lock. Next retry in ${seconds} seconds (${attempt}/${max_attempts})"
+        sleep "${seconds}"
+    done
+
+}
+
 function installCommon_checkYumLock() {
 
     attempt=0
     seconds=30
+    max_attempts=10
 
-    while [ -f "${yum_lockfile}" ]; do
+    while [ -f "${yum_lockfile}" ] && [ "${attempt}" -lt "${max_attempts}" ]; do
         attempt=$((attempt+1))
-        common_logger "Another process is using YUM. Waiting for it to release the lock. Next retry in ${seconds} seconds (${attempt}/10)"
+        common_logger "Another process is using YUM. Waiting for it to release the lock. Next retry in ${seconds} seconds (${attempt}/${max_attempts})"
         sleep "${seconds}"
     done
 
@@ -626,6 +632,7 @@ function installCommon_rollBack() {
             installCommon_checkYumLock
             eval "yum remove wazuh-manager -y ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
+            installCommon_checkAptLock
             eval "apt-get remove --purge wazuh-manager -y ${debug}"
         fi
         common_logger "Wazuh manager removed."
@@ -641,6 +648,7 @@ function installCommon_rollBack() {
             installCommon_checkYumLock
             eval "yum remove wazuh-indexer -y ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
+            installCommon_checkAptLock
             eval "apt-get remove --purge wazuh-indexer -y ${debug}"
         fi
         common_logger "Wazuh indexer removed."
@@ -658,6 +666,7 @@ function installCommon_rollBack() {
             installCommon_checkYumLock
             eval "yum remove filebeat -y ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
+            installCommon_checkAptLock
             eval "apt-get remove --purge filebeat -y ${debug}"
         fi
         common_logger "Filebeat removed."
@@ -675,6 +684,7 @@ function installCommon_rollBack() {
             installCommon_checkYumLock
             eval "yum remove wazuh-dashboard -y ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
+            installCommon_checkAptLock
             eval "apt-get remove --purge wazuh-dashboard -y ${debug}"
         fi
         common_logger "Wazuh dashboard removed."
@@ -811,7 +821,7 @@ function installCommon_yumInstall() {
     command="yum install ${installer} -y"
     installCommon_checkYumLock
 
-    if [ ! -f "${yum_lockfile}" ]; then
+    if [ "${attempt}" -ne "${max_attempts}" ]; then
         yum_output=$(eval "${command} 2>&1")  
         install_result="${PIPESTATUS[0]}"
         eval "echo \${yum_output} ${debug}"

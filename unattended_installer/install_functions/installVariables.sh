@@ -31,6 +31,7 @@ readonly indexer_cert_path="/etc/wazuh-indexer/certs"
 readonly logfile="/var/log/wazuh-install.log"
 debug=">> ${logfile} 2>&1"
 readonly yum_lockfile="/var/run/yum.pid"
+readonly apt_lockfile="/var/lib/dpkg/lock"
 
 ## Offline Installation vars
 readonly base_dest_folder="wazuh-offline"
