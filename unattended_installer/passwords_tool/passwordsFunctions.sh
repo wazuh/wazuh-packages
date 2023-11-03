@@ -34,7 +34,7 @@ function passwords_changePassword() {
             passwords_createBackUp
         fi
         if [ -n "${indexer_installed}" ] && [ -f "/etc/wazuh-indexer/backup/internal_users.yml" ]; then
-            awk -v new="${hash}" 'prev=="'${nuser}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /etc/wazuh-indexer/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /etc/wazuh-indexer/backup/internal_users.yml
+            awk -v new='"'"${hash}"'"' 'prev=="'${nuser}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /etc/wazuh-indexer/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /etc/wazuh-indexer/backup/internal_users.yml
         fi
 
         if [ "${nuser}" == "admin" ]; then
@@ -363,7 +363,7 @@ function passwords_getApiUserId() {
 
 function passwords_getNetworkHost() {
 
-    IP=$(grep -hr "network.host:" /etc/wazuh-indexer/opensearch.yml)
+    IP=$(grep -hr "^network.host:" /etc/wazuh-indexer/opensearch.yml)
     NH="network.host: "
     IP="${IP//$NH}"
 
@@ -495,6 +495,7 @@ For Wazuh API users, the file must have this format:
 
 function passwords_readUsers() {
 
+    passwords_updateInternalUsers
     susers=$(grep -B 1 hash: /etc/wazuh-indexer/opensearch-security/internal_users.yml | grep -v hash: | grep -v "-" | awk '{ print substr( $0, 1, length($0)-1 ) }')
     mapfile -t users <<< "${susers[@]}"
 
@@ -603,5 +604,26 @@ function passwords_runSecurityAdmin() {
             common_logger -d "Passwords changed."
         fi
     fi
+
+}
+
+function passwords_updateInternalUsers() {
+    
+    common_logger "Updating the internal users."
+    backup_datetime=$(date +"%Y%m%d_%H%M%S")
+    internal_users_backup_path="/etc/wazuh-indexer/internalusers-backup"
+    passwords_getNetworkHost
+    passwords_createBackUp
+
+    eval "mkdir -p ${internal_users_backup_path} ${debug}"
+    eval "cp /etc/wazuh-indexer/backup/internal_users.yml ${internal_users_backup_path}/internal_users_${backup_datetime}.yml.bkp ${debug}"
+    eval "chmod 750 ${internal_users_backup_path} ${debug}"
+    eval "chmod 640 ${internal_users_backup_path}/internal_users_${backup_datetime}.yml.bkp"
+    eval "chown -R wazuh-indexer:wazuh-indexer ${internal_users_backup_path} ${debug}"
+    common_logger "A backup of the internal users has been saved in the /etc/wazuh-indexer/internalusers-backup folder."
+
+    eval "cp /etc/wazuh-indexer/backup/internal_users.yml /etc/wazuh-indexer/opensearch-security/internal_users.yml ${debug}"
+    eval "rm -rf /etc/wazuh-indexer/backup/ ${debug}"
+    common_logger -d "The internal users have been updated before changing the passwords."
 
 }

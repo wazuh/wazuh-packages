@@ -21,7 +21,10 @@ ova/Config_files/filebeat.yml
 .java
 stack/dashboard/base/output
 stack/indexer/base/output
+stack/indexer/rpm/output
+stack/indexer/deb/output
 .cache
+.m2
 wpk/versions
 solaris/packer/builds/
 solaris/packer/packer-solaris11_3-virtualbox/

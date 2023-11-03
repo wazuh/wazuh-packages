@@ -16,8 +16,8 @@ checksum_dir="/var/local/checksum"
 git_clone_tmp_dir="/tmp/wazuh-app"
 
 # Repositories URLs
-wazuh_app_clone_repo_url="https://github.com/wazuh/wazuh-kibana-app.git"
-wazuh_app_raw_repo_url="https://raw.githubusercontent.com/wazuh/wazuh-kibana-app"
+wazuh_app_clone_repo_url="https://github.com/wazuh/wazuh-dashboard-plugins.git"
+wazuh_app_raw_repo_url="https://raw.githubusercontent.com/wazuh/wazuh-dashboard-plugins"
 kibana_app_repo_url="https://github.com/elastic/kibana.git"
 kibana_app_raw_repo_url="https://raw.githubusercontent.com/elastic/kibana"
 wazuh_app_package_json_url="${wazuh_app_raw_repo_url}/${wazuh_branch}/plugins/main/package.json"
@@ -47,7 +47,7 @@ change_node_version () {
 
 
 prepare_env() {
-    echo "Downloading package.json from wazuh-kibana app repository"
+    echo "Downloading package.json from wazuh-dashboard-plugins repository"
     if ! curl $wazuh_app_package_json_url -o "/tmp/package.json" ; then
         echo "Error downloading package.json from GitHub."
         exit 1
@@ -105,7 +105,7 @@ install_dependencies () {
 
 download_wazuh_app_sources() {
     if ! git clone $wazuh_app_clone_repo_url --branch ${wazuh_branch} --depth=1 ${git_clone_tmp_dir} ; then
-        echo "Error downloading the source code from wazuh-kibana-app GitHub repository."
+        echo "Error downloading the source code from wazuh-dashboard-plugins GitHub repository."
         exit 1
     fi
 
