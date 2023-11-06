@@ -11,7 +11,6 @@ ISM_PRIORITY="50"
 INDEXER_PASSWORD="admin"
 INDEXER_HOSTNAME="localhost"
 
-
 POLICY_NAME="rollover_policy"
 
 INDEXER_URL="https://${INDEXER_HOSTNAME}:9200"
@@ -33,7 +32,7 @@ C_AUTH="-u admin:${INDEXER_PASSWORD}"
 #   The rollover policy as a JSON string
 #########################################################################
 function generate_rollover_policy() {
-    cat <<- EOF
+    cat <<-EOF
         {
             "policy": {
                 "description": "Wazuh rollover and alias policy",
@@ -61,7 +60,6 @@ function generate_rollover_policy() {
 	EOF
 }
 
-
 #########################################################################
 # Creates an index template with order 3 to set the rollover alias.
 # Arguments:
@@ -70,7 +68,7 @@ function generate_rollover_policy() {
 #   The index template as a JSON string.
 #########################################################################
 function generate_rollover_template() {
-    cat <<- EOF
+    cat <<-EOF
         {
             "order": 3,
             "index_patterns": ["${1}-*"],
@@ -81,7 +79,6 @@ function generate_rollover_template() {
 	EOF
 }
 
-
 #########################################################################
 # Loads the index templates for the rollover policy to the indexer.
 #########################################################################
@@ -90,11 +87,10 @@ function load_templates() {
     for alias in "${aliases[@]}"; do
         echo "TEMPLATES AND POLICIES - Uploading ${alias} template"
         generate_rollover_template "${alias}" | curl -s -k ${C_AUTH} \
-        -X PUT "${INDEXER_URL}/_template/${alias}-rollover" -o /dev/null \
-        -H 'Content-Type: application/json' -d @-
+            -X PUT "${INDEXER_URL}/_template/${alias}-rollover" -o /dev/null \
+            -H 'Content-Type: application/json' -d @-
     done
 }
-
 
 #########################################################################
 # Uploads the rollover policy.
@@ -107,26 +103,25 @@ function load_templates() {
 function upload_rollover_policy() {
     policy_exists=$(
         curl -s -k ${C_AUTH} \
-        -X GET "${INDEXER_URL}/_plugins/_ism/policies/${POLICY_NAME}" \
-        -o /dev/null \
-        -w "%{http_code}"
+            -X GET "${INDEXER_URL}/_plugins/_ism/policies/${POLICY_NAME}" \
+            -o /dev/null \
+            -w "%{http_code}"
     )
 
     # Check if the ${POLICY_NAME} ISM policy was loaded (404 error if not found)
     if [[ "${policy_exists}" == "404" ]]; then
         echo "TEMPLATES AND POLICIES - Uploading ${POLICY_NAME} ISM policy"
         curl -s -k ${C_AUTH} -o /dev/null \
-        -X PUT "${INDEXER_URL}/_plugins/_ism/policies/${POLICY_NAME}" \
-        -H 'Content-Type: application/json' -d "$(generate_rollover_policy)"
+            -X PUT "${INDEXER_URL}/_plugins/_ism/policies/${POLICY_NAME}" \
+            -H 'Content-Type: application/json' -d "$(generate_rollover_policy)"
     else
         if [[ "${policy_exists}" == "200" ]]; then
-        echo "TEMPLATES AND POLICIES - ${POLICY_NAME} policy already exists"
+            echo "TEMPLATES AND POLICIES - ${POLICY_NAME} policy already exists"
         else
-        echo "TEMPLATES AND POLICIES - Error uploading ${POLICY_NAME} policy"
+            echo "TEMPLATES AND POLICIES - Error uploading ${POLICY_NAME} policy"
         fi
     fi
 }
-
 
 #########################################################################
 # Check if an alias exists in the indexer.
@@ -134,12 +129,11 @@ function upload_rollover_policy() {
 #   1. The alias to look for. String.
 #########################################################################
 function check_for_write_index() {
-    curl -s -k ${C_AUTH} "${INDEXER_URL}/_cat/aliases" | \
-    grep -i "${1}" | \
-    grep -i true | \
-    awk '{print $2}'
+    curl -s -k ${C_AUTH} "${INDEXER_URL}/_cat/aliases" |
+        grep -i "${1}" |
+        grep -i true |
+        awk '{print $2}'
 }
-
 
 #########################################################################
 # Creates the settings for the aliased write index.
@@ -147,7 +141,7 @@ function check_for_write_index() {
 #   1. The alias. String.
 #########################################################################
 function generate_write_index_alias() {
-    cat <<- EOF
+    cat <<-EOF
     {
         "aliases": {
         "$1": {
@@ -157,7 +151,6 @@ function generate_write_index_alias() {
     }
 	EOF
 }
-
 
 #########################################################################
 # Creates the initial aliased write index.
@@ -169,7 +162,6 @@ function create_write_index() {
         -X PUT "$INDEXER_URL/%3C${1}-4.x-%7Bnow%2Fd%7D-000001%3E?pretty" \
         -H 'Content-Type: application/json' -d "$(generate_write_index_alias "${1}")"
 }
-
 
 #########################################################################
 # Creates the write indices for the aliases given as parameter.
@@ -184,13 +176,16 @@ function create_indices() {
 
         # Create the write index if it does not exist
         if [[ -z $write_index_exists ]]; then
-        create_write_index "${alias}"
+            create_write_index "${alias}"
         fi
     done
 }
 
-function getHelp() {
 
+#########################################################################
+# Shows usage help.
+#########################################################################
+function show_help() {
     echo -e ""
     echo -e "NAME"
     echo -e "        indexer-ism-init.sh - Manages the Index State Management plugin for Wazuh indexer index rollovers policies."
@@ -218,9 +213,7 @@ function getHelp() {
     echo -e "                Set the minimum shard size to GB. By default 25 GB."
     echo -e ""
     exit 1
-
 }
-
 
 #########################################################################
 # Main function.
@@ -230,57 +223,51 @@ function main() {
     # rollover policy
     aliases=("wazuh-alerts" "wazuh-archives")
 
-    while [ -n "${1}" ]
-    do
+    while [ -n "${1}" ]; do
         case "${1}" in
-        "-a"|"--min-index-age")
+        "-a" | "--min-index-age")
             if [ -z "${2}" ]; then
                 echo "Error on arguments. Probably missing <index-age> after -a|--min-index-age"
-                getHelp
-                exit 1
+                show_help
             else
                 MIN_INDEX_AGE="${2}"
                 shift 1
             fi
             ;;
-        "-d"|"--min-doc-count")
+        "-d" | "--min-doc-count")
             if [ -z "${2}" ]; then
                 echo "Error on arguments. Probably missing <doc-count> after -d|--min-doc-count"
-                getHelp
-                exit 1
+                show_help
             else
                 MIN_DOC_COUNT="${2}"
                 shift 1
             fi
             ;;
-        "-h"|"--help")
-            getHelp
+        "-h" | "--help")
+            show_help
             ;;
-        "-i"|"--indexer-hostname")
+        "-i" | "--indexer-hostname")
             if [ -z "${2}" ]; then
                 echo "Error on arguments. Probably missing <hostname> after -i|--indexer-hostname"
-                getHelp
-                exit 1
+                show_help
             else
                 INDEXER_HOSTNAME="${2}"
                 shift 1
             fi
             ;;
-        "-p"|"--indexer-password")
+        "-p" | "--indexer-password")
             if [ -z "${2}" ]; then
                 echo "Error on arguments. Probably missing <password> after -p|--indexer-password"
-                getHelp
-                exit 1
+                show_help
             else
                 INDEXER_PASSWORD="${2}"
                 shift 1
             fi
             ;;
-        "-s"|"--min-shard-size")
+        "-s" | "--min-shard-size")
             if [ -z "${2}" ]; then
                 echo "Error on arguments. Probably missing <shard-size> after -s|--min-shard-size"
-                getHelp
-                exit 1
+                show_help
             else
                 MIN_SHARD_SIZE="${2}"
                 shift 1
@@ -288,18 +275,19 @@ function main() {
             ;;
         *)
             echo "Unknow option: ${1}"
-            getHelp
+            show_help
+            ;;
         esac
     done
 
-        # Load the Wazuh Indexer templates
-        load_templates
+    # Load the Wazuh Indexer templates
+    load_templates
 
-        # Upload the rollover policy
-        upload_rollover_policy
+    # Upload the rollover policy
+    upload_rollover_policy
 
-        # Create the initial write indices
-        create_indices "${aliases[@]}"
+    # Create the initial write indices
+    create_indices "${aliases[@]}"
 }
 
 main "$@"
