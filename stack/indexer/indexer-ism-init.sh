@@ -3,13 +3,13 @@
 # Wazuh - Indexer set rollover policy and templates
 
 # Policy settings
-MIN_SHARD_SIZE="${MIN_SHARD_SIZE:-25}"
-MIN_INDEX_AGE="${MIN_INDEX_AGE:-"7d"}"
-MIN_DOC_COUNT="${MIN_DOC_COUNT:-200000000}"
-ISM_INDEX_PATTERNS="${ISM_INDEX_PATTERNS:-'["wazuh-alerts-*", "wazuh-archives-*", "-wazuh-alerts-4.x-sample*"]'}"
-ISM_PRIORITY="${ISM_PRIORITY:-50}"
-INDEXER_PASSWORD="${INDEXER_PASSWORD:-admin}"
-INDEXER_HOSTNAME="${INDEXER_HOSTNAME:-localhost}"
+MIN_SHARD_SIZE="25"
+MIN_INDEX_AGE="7d"
+MIN_DOC_COUNT="200000000"
+ISM_INDEX_PATTERNS='["wazuh-alerts-*", "wazuh-archives-*", "-wazuh-alerts-4.x-sample*"]'
+ISM_PRIORITY="50"
+INDEXER_PASSWORD="admin"
+INDEXER_HOSTNAME="localhost"
 
 
 POLICY_NAME="rollover_policy"
@@ -36,26 +36,26 @@ function generate_rollover_policy() {
     cat <<- EOF
         {
             "policy": {
-            "description": "Wazuh rollover and alias policy",
-            "default_state": "active",
-            "states": [
-                {
-                "name": "active",
-                "actions": [
+                "description": "Wazuh rollover and alias policy",
+                "default_state": "active",
+                "states": [
                     {
-                    "rollover": {
-                        "min_primary_shard_size": "${MIN_SHARD_SIZE}gb",
-                        "MIN_INDEX_AGE": "${MIN_INDEX_AGE}",
-                        "MIN_DOC_COUNT": "${MIN_DOC_COUNT}"
+                        "name": "active",
+                        "actions": [
+                            {
+                                "rollover": {
+                                    "min_primary_shard_size": "${MIN_SHARD_SIZE}gb",
+                                    "min_index_age": "${MIN_INDEX_AGE}",
+                                    "min_doc_count": "${MIN_DOC_COUNT}"
+                                }
+                            }
+                        ]
                     }
-                    }
-                ]
+                ],
+                "ism_template": {
+                    "index_patterns": ${ISM_INDEX_PATTERNS},
+                    "priority": "${ISM_PRIORITY}"
                 }
-            ],
-            "ism_template": {
-                "index_patterns": $ISM_INDEX_PATTERNS,
-                "priority": "${ISM_PRIORITY}"
-            }
             }
         }
 	EOF
@@ -73,9 +73,9 @@ function generate_rollover_template() {
     cat <<- EOF
         {
             "order": 3,
-            "index_patterns": ["$1-*"],
+            "index_patterns": ["${1}-*"],
             "settings": {
-            "index.plugins.index_state_management.rollover_alias": "$1"
+                "index.plugins.index_state_management.rollover_alias": "${1}"
             }
         }
 	EOF
@@ -90,7 +90,7 @@ function load_templates() {
     for alias in "${aliases[@]}"; do
         echo "TEMPLATES AND POLICIES - Uploading ${alias} template"
         generate_rollover_template "${alias}" | curl -s -k ${C_AUTH} \
-        -X PUT "$INDEXER_URL/_template/${alias}-rollover" -o /dev/null \
+        -X PUT "${INDEXER_URL}/_template/${alias}-rollover" -o /dev/null \
         -H 'Content-Type: application/json' -d @-
     done
 }
@@ -107,19 +107,19 @@ function load_templates() {
 function upload_rollover_policy() {
     policy_exists=$(
         curl -s -k ${C_AUTH} \
-        -X GET "$INDEXER_URL/_plugins/_ism/policies/${POLICY_NAME}" \
+        -X GET "${INDEXER_URL}/_plugins/_ism/policies/${POLICY_NAME}" \
         -o /dev/null \
         -w "%{http_code}"
     )
 
     # Check if the ${POLICY_NAME} ISM policy was loaded (404 error if not found)
-    if [[ $policy_exists == "404" ]]; then
+    if [[ "${policy_exists}" == "404" ]]; then
         echo "TEMPLATES AND POLICIES - Uploading ${POLICY_NAME} ISM policy"
-        generate_rollover_policy | curl -s -k ${C_AUTH} -o /dev/null \
-        -X PUT "$INDEXER_URL/_plugins/_ism/policies/${POLICY_NAME}" \
-        -H 'Content-Type: application/json' -d @-
+        curl -s -k ${C_AUTH} -o /dev/null \
+        -X PUT "${INDEXER_URL}/_plugins/_ism/policies/${POLICY_NAME}" \
+        -H 'Content-Type: application/json' -d "$(generate_rollover_policy)"
     else
-        if [[ $policy_exists == "200" ]]; then
+        if [[ "${policy_exists}" == "200" ]]; then
         echo "TEMPLATES AND POLICIES - ${POLICY_NAME} policy already exists"
         else
         echo "TEMPLATES AND POLICIES - Error uploading ${POLICY_NAME} policy"
@@ -134,7 +134,7 @@ function upload_rollover_policy() {
 #   1. The alias to look for. String.
 #########################################################################
 function check_for_write_index() {
-    curl -s -k ${C_AUTH} "$INDEXER_URL/_cat/aliases" | \
+    curl -s -k ${C_AUTH} "${INDEXER_URL}/_cat/aliases" | \
     grep -i "${1}" | \
     grep -i true | \
     awk '{print $2}'
@@ -239,7 +239,7 @@ function main() {
                 getHelp
                 exit 1
             else
-                MIN_SHARD_SIZE="${2}"
+                MIN_INDEX_AGE="${2}"
                 shift 1
             fi
             ;;
@@ -249,7 +249,7 @@ function main() {
                 getHelp
                 exit 1
             else
-                MIN_INDEX_AGE="${2}"
+                MIN_DOC_COUNT="${2}"
                 shift 1
             fi
             ;;
