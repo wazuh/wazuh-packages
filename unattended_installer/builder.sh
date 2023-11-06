@@ -118,13 +118,6 @@ function buildInstaller() {
     curl -s "https://raw.githubusercontent.com/wazuh/wazuh/${source_branch}/src/init/dist-detect.sh" | sed '/^#/d' >> "${output_script_path}"
     echo "}" >> "${output_script_path}"
 
-    ## indexerRolloverInit.sh
-    echo "function indexer_rollover_init() {" >> "${output_script_path}"
-    curl -s "https://packages-dev.wazuh.com/4.8/indexerRolloverInit.sh" | sed '/^#/d' >> "${output_script_path}"
-    echo "}" >> "${output_script_path}"
-    sed -i 's|INDEXER_PASSWORD|adminPassword|g' "${output_script_path}"
-    sed -i 's|INDEXER_HOSTNAME|indexer_node_ips[0]|g' "${output_script_path}"
-
     ## Common functions
     sed -n '/^function [a-zA-Z_]\(\)/,/^}/p' "${resources_common}/common.sh" >> "${output_script_path}"
 
