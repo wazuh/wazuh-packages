@@ -7,8 +7,8 @@ BIN_PATH="${INSTALL_PATH}/bin"
 
 main() {
 
-    /bin/bash "${BIN_PATH}/indexer-ism-init.sh"
     /bin/bash "${BIN_PATH}/indexer-security-init.sh"
+    /bin/bash "${BIN_PATH}/indexer-ism-init.sh"
 
 }
 
