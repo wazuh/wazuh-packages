@@ -73,7 +73,7 @@ else
     specs_path="/specs"
 fi
 
-if [[ "${future}" == "yes" ]]; then    
+if [[ "${future}" == "yes" ]]; then
     # MODIFY VARIABLES
     base_version=$wazuh_version
     MAJOR=$(echo $base_version | cut -dv -f2 | cut -d. -f1)
@@ -88,7 +88,9 @@ if [[ "${future}" == "yes" ]]; then
     mv "${build_dir}/${old_package_name}" "${build_dir}/${package_name}"
     find "${build_dir}/${package_name}" "${specs_path}/" \( -name "*VERSION*" -o -name "*.spec" \) -exec sed -i "s/${base_version}/${wazuh_version}/g" {} \;
     sed -i "s/\$(VERSION)/${MAJOR}.${MINOR}/g" "${build_dir}/${package_name}/src/Makefile"
-
+    sed -i "s/${base_version}/${wazuh_version}/g" "${build_dir}/${package_name}/src/init/wazuh-server.sh"
+    sed -i "s/${base_version}/${wazuh_version}/g" "${build_dir}/${package_name}/src/init/wazuh-client.sh"
+    sed -i "s/${base_version}/${wazuh_version}/g" "${build_dir}/${package_name}/src/init/wazuh-local.sh"
 fi
 
 cp ${specs_path}/wazuh-${build_target}.spec ${rpm_build_dir}/SPECS/${package_name}.spec
@@ -129,4 +131,3 @@ if [[ "${src}" == "yes" ]]; then
 fi
 
 find ${extract_path} -maxdepth 3 -type f -name "${file_name}*" -exec mv {} /var/local/wazuh \;
- 

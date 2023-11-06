@@ -1,7 +1,18 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * The OpenSearch Contributors require contributions made to
+ * this file be licensed under the Apache-2.0 license or a
+ * compatible open source license.
+ *
+ * Any modifications Copyright OpenSearch Contributors. See
+ * GitHub history for details.
+ */
+
 /*!
  * Bootstrap v3.3.6 (http://getbootstrap.com)
  * Copyright 2011-2015 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  */
 /* @notice
  * This product bundles bootstrap@3.3.6 which is available under a
@@ -60,13 +71,71 @@
   margin-left: -15px;
   margin-right: -15px;
 }
-.col-xs-1, .col-sm-1, .col-md-1, .col-lg-1, .col-xs-2, .col-sm-2, .col-md-2, .col-lg-2, .col-xs-3, .col-sm-3, .col-md-3, .col-lg-3, .col-xs-4, .col-sm-4, .col-md-4, .col-lg-4, .col-xs-5, .col-sm-5, .col-md-5, .col-lg-5, .col-xs-6, .col-sm-6, .col-md-6, .col-lg-6, .col-xs-7, .col-sm-7, .col-md-7, .col-lg-7, .col-xs-8, .col-sm-8, .col-md-8, .col-lg-8, .col-xs-9, .col-sm-9, .col-md-9, .col-lg-9, .col-xs-10, .col-sm-10, .col-md-10, .col-lg-10, .col-xs-11, .col-sm-11, .col-md-11, .col-lg-11, .col-xs-12, .col-sm-12, .col-md-12, .col-lg-12 {
+.col-xs-1,
+.col-sm-1,
+.col-md-1,
+.col-lg-1,
+.col-xs-2,
+.col-sm-2,
+.col-md-2,
+.col-lg-2,
+.col-xs-3,
+.col-sm-3,
+.col-md-3,
+.col-lg-3,
+.col-xs-4,
+.col-sm-4,
+.col-md-4,
+.col-lg-4,
+.col-xs-5,
+.col-sm-5,
+.col-md-5,
+.col-lg-5,
+.col-xs-6,
+.col-sm-6,
+.col-md-6,
+.col-lg-6,
+.col-xs-7,
+.col-sm-7,
+.col-md-7,
+.col-lg-7,
+.col-xs-8,
+.col-sm-8,
+.col-md-8,
+.col-lg-8,
+.col-xs-9,
+.col-sm-9,
+.col-md-9,
+.col-lg-9,
+.col-xs-10,
+.col-sm-10,
+.col-md-10,
+.col-lg-10,
+.col-xs-11,
+.col-sm-11,
+.col-md-11,
+.col-lg-11,
+.col-xs-12,
+.col-sm-12,
+.col-md-12,
+.col-lg-12 {
   position: relative;
   min-height: 1px;
   padding-left: 15px;
   padding-right: 15px;
 }
-.col-xs-1, .col-xs-2, .col-xs-3, .col-xs-4, .col-xs-5, .col-xs-6, .col-xs-7, .col-xs-8, .col-xs-9, .col-xs-10, .col-xs-11, .col-xs-12 {
+.col-xs-1,
+.col-xs-2,
+.col-xs-3,
+.col-xs-4,
+.col-xs-5,
+.col-xs-6,
+.col-xs-7,
+.col-xs-8,
+.col-xs-9,
+.col-xs-10,
+.col-xs-11,
+.col-xs-12 {
   float: left;
 }
 .col-xs-12 {
@@ -223,7 +292,18 @@
   margin-left: 0%;
 }
 @media (min-width: 768px) {
-  .col-sm-1, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6, .col-sm-7, .col-sm-8, .col-sm-9, .col-sm-10, .col-sm-11, .col-sm-12 {
+  .col-sm-1,
+  .col-sm-2,
+  .col-sm-3,
+  .col-sm-4,
+  .col-sm-5,
+  .col-sm-6,
+  .col-sm-7,
+  .col-sm-8,
+  .col-sm-9,
+  .col-sm-10,
+  .col-sm-11,
+  .col-sm-12 {
     float: left;
   }
   .col-sm-12 {
@@ -381,7 +461,18 @@
   }
 }
 @media (min-width: 992px) {
-  .col-md-1, .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6, .col-md-7, .col-md-8, .col-md-9, .col-md-10, .col-md-11, .col-md-12 {
+  .col-md-1,
+  .col-md-2,
+  .col-md-3,
+  .col-md-4,
+  .col-md-5,
+  .col-md-6,
+  .col-md-7,
+  .col-md-8,
+  .col-md-9,
+  .col-md-10,
+  .col-md-11,
+  .col-md-12 {
     float: left;
   }
   .col-md-12 {
@@ -539,7 +630,18 @@
   }
 }
 @media (min-width: 1200px) {
-  .col-lg-1, .col-lg-2, .col-lg-3, .col-lg-4, .col-lg-5, .col-lg-6, .col-lg-7, .col-lg-8, .col-lg-9, .col-lg-10, .col-lg-11, .col-lg-12 {
+  .col-lg-1,
+  .col-lg-2,
+  .col-lg-3,
+  .col-lg-4,
+  .col-lg-5,
+  .col-lg-6,
+  .col-lg-7,
+  .col-lg-8,
+  .col-lg-9,
+  .col-lg-10,
+  .col-lg-11,
+  .col-lg-12 {
     float: left;
   }
   .col-lg-12 {
@@ -829,7 +931,7 @@ table th[class*="col-"] {
 .table > thead > tr.info > th,
 .table > tbody > tr.info > th,
 .table > tfoot > tr.info > th {
-  background-color: #3595F9;
+  background-color: #006BB4;
 }
 .table-hover > tbody > tr > td.info:hover,
 .table-hover > tbody > tr > th.info:hover,
@@ -941,12 +1043,16 @@ table th[class*="col-"] {
   background-image: none;
   border: 1px solid #D3DAE6;
   border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
   transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
 }
 .form-control:focus {
-  border-color: #3595F9;
+  border-color: #006BB4;
   outline: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(0, 107, 180, 0.6);
   box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(0, 107, 180, 0.6);
 }
 .form-control::-moz-placeholder {
@@ -1164,10 +1270,12 @@ select[multiple].input-lg {
 }
 .has-success .form-control {
   border-color: #FFF;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 }
 .has-success .form-control:focus {
   border-color: #e6e6e6;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ffffff;
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ffffff;
 }
 .has-success .input-group-addon {
@@ -1192,10 +1300,12 @@ select[multiple].input-lg {
 }
 .has-warning .form-control {
   border-color: #FFF;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 }
 .has-warning .form-control:focus {
   border-color: #e6e6e6;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ffffff;
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ffffff;
 }
 .has-warning .input-group-addon {
@@ -1220,10 +1330,12 @@ select[multiple].input-lg {
 }
 .has-error .form-control {
   border-color: #FFF;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 }
 .has-error .form-control:focus {
   border-color: #e6e6e6;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ffffff;
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ffffff;
 }
 .has-error .input-group-addon {
@@ -1381,7 +1493,7 @@ a.text-danger:focus {
   color: #e6e6e6;
 }
 .bg-info {
-  background-color: #3595F9;
+  background-color: #006BB4;
 }
 a.bg-info:hover,
 a.bg-info:focus {
@@ -1407,6 +1519,8 @@ a.bg-info:focus {
 }
 .fade {
   opacity: 0;
+  -webkit-transition: opacity 0.15s linear;
+  -o-transition: opacity 0.15s linear;
   transition: opacity 0.15s linear;
 }
 .fade.in {
@@ -1428,8 +1542,11 @@ tbody.collapse.in {
   position: relative;
   height: 0;
   overflow: hidden;
+  -webkit-transition-property: height, visibility;
   transition-property: height, visibility;
+  -webkit-transition-duration: 0.35s;
   transition-duration: 0.35s;
+  -webkit-transition-timing-function: ease;
   transition-timing-function: ease;
 }
 /**
@@ -1475,6 +1592,7 @@ tbody.collapse.in {
 .btn.active {
   outline: 0;
   background-image: none;
+  -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
   box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
 }
 .btn.disabled,
@@ -1483,6 +1601,7 @@ fieldset[disabled] .btn {
   cursor: not-allowed;
   opacity: 0.65;
   filter: alpha(opacity=65);
+  -webkit-box-shadow: none;
   box-shadow: none;
 }
 a.btn.disabled,
@@ -1491,8 +1610,8 @@ fieldset[disabled] a.btn {
 }
 .btn-default {
   color: #FFF;
-  background-color: #3595F9;
-  border-color: #3595F9;
+  background-color: #006BB4;
+  border-color: #006BB4;
 }
 .btn-default:focus,
 .btn-default.focus {
@@ -1539,17 +1658,17 @@ fieldset[disabled] .btn-default:focus,
 .btn-default.disabled.focus,
 .btn-default[disabled].focus,
 fieldset[disabled] .btn-default.focus {
-  background-color: #3595F9;
-  border-color: #3595F9;
+  background-color: #006BB4;
+  border-color: #006BB4;
 }
 .btn-default .badge {
-  color: #3595F9;
+  color: #006BB4;
   background-color: #FFF;
 }
 .btn-primary {
   color: #FFF;
-  background-color: #3595F9;
-  border-color: #3595F9;
+  background-color: #006BB4;
+  border-color: #006BB4;
 }
 .btn-primary:focus,
 .btn-primary.focus {
@@ -1596,11 +1715,11 @@ fieldset[disabled] .btn-primary:focus,
 .btn-primary.disabled.focus,
 .btn-primary[disabled].focus,
 fieldset[disabled] .btn-primary.focus {
-  background-color: #3595F9;
-  border-color: #3595F9;
+  background-color: #006BB4;
+  border-color: #006BB4;
 }
 .btn-primary .badge {
-  color: #3595F9;
+  color: #006BB4;
   background-color: #FFF;
 }
 .btn-xs {
@@ -1803,6 +1922,7 @@ fieldset[disabled] .btn-primary.focus {
   padding: 10px 10px;
   border-top: 1px solid transparent;
   border-bottom: 1px solid transparent;
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 0 rgba(255, 255, 255, 0.1);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 0 rgba(255, 255, 255, 0.1);
   margin-top: 6.5px;
   margin-bottom: 6.5px;
@@ -1872,6 +1992,7 @@ fieldset[disabled] .btn-primary.focus {
     margin-right: 0;
     padding-top: 0;
     padding-bottom: 0;
+    -webkit-box-shadow: none;
     box-shadow: none;
   }
 }
@@ -2123,10 +2244,19 @@ button.close {
   outline: 0;
 }
 .modal.fade .modal-dialog {
+  -webkit-transform: translate(0, -25%);
+  -ms-transform: translate(0, -25%);
+  -o-transform: translate(0, -25%);
   transform: translate(0, -25%);
+  -webkit-transition: -webkit-transform 0.3s ease-out;
+  -moz-transition: -moz-transform 0.3s ease-out;
+  -o-transition: -o-transform 0.3s ease-out;
   transition: transform 0.3s ease-out;
 }
 .modal.in .modal-dialog {
+  -webkit-transform: translate(0, 0);
+  -ms-transform: translate(0, 0);
+  -o-transform: translate(0, 0);
   transform: translate(0, 0);
 }
 .modal-open .modal {
@@ -2144,6 +2274,7 @@ button.close {
   border: 1px solid #98A2B3;
   border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 4px;
+  -webkit-box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
   box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
   background-clip: padding-box;
   outline: 0;
@@ -2198,6 +2329,7 @@ button.close {
     margin: 30px auto;
   }
   .modal-content {
+    -webkit-box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
   }
   .modal-sm {
@@ -2231,6 +2363,7 @@ button.close {
   margin-bottom: 20px;
   background-color: #b8bec8;
   border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 .progress-bar {
@@ -2242,40 +2375,53 @@ button.close {
   color: #FFF;
   text-align: center;
   background-color: #54B399;
+  -webkit-transition: width 0.6s ease;
+  -o-transition: width 0.6s ease;
   transition: width 0.6s ease;
 }
 .progress-striped .progress-bar,
 .progress-bar-striped {
+  background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
   background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
   background-size: 40px 40px;
 }
 .progress.active .progress-bar,
 .progress-bar.active {
   -webkit-animation: progress-bar-stripes 2s linear infinite;
+  -o-animation: progress-bar-stripes 2s linear infinite;
   animation: progress-bar-stripes 2s linear infinite;
 }
 .progress-bar-success {
   background-color: #017D73;
 }
 .progress-striped .progress-bar-success {
+  background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
   background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
 }
 .progress-bar-info {
-  background-color: #3595F9;
+  background-color: #006BB4;
 }
 .progress-striped .progress-bar-info {
+  background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
   background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
 }
 .progress-bar-warning {
   background-color: #F5A700;
 }
 .progress-striped .progress-bar-warning {
+  background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
   background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
 }
 .progress-bar-danger {
   background-color: #BD271E;
 }
 .progress-striped .progress-bar-danger {
+  background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
   background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
 }
 .list-group {
@@ -2394,7 +2540,7 @@ button.list-group-item-success.active:focus {
 }
 .list-group-item-info {
   color: #FFF;
-  background-color: #3595F9;
+  background-color: #006BB4;
 }
 a.list-group-item-info,
 button.list-group-item-info {
@@ -2520,7 +2666,7 @@ button.list-group-item-danger.active:focus {
 .nav .open > a:hover,
 .nav .open > a:focus {
   background-color: #D3DAE6;
-  border-color: #3595F9;
+  border-color: #006BB4;
 }
 .nav .nav-divider {
   height: 1px;
@@ -2614,7 +2760,7 @@ button.list-group-item-danger.active:focus {
 .nav-pills > li.active > a:hover,
 .nav-pills > li.active > a:focus {
   color: #FFF;
-  background-color: #3595F9;
+  background-color: #006BB4;
 }
 .nav-stacked > li {
   float: none;
@@ -2723,7 +2869,7 @@ button.list-group-item-danger.active:focus {
   color: #e6e6e6;
 }
 .alert-info {
-  background-color: #3595F9;
+  background-color: #006BB4;
   border-color: #004d81;
   color: #FFF;
 }
@@ -3134,9 +3280,7 @@ button.list-group-item-danger.active:focus {
   white-space: nowrap;
 }
 .dropdown-menu > li > button {
-  -webkit-appearance: none;
-     -moz-appearance: none;
-          appearance: none;
+  appearance: none;
   background: none;
   border: none;
   width: 100%;
@@ -3359,7 +3503,7 @@ select[multiple].input-group-sm > .input-group-addon {
   padding: 5px 15px;
   line-height: 1.42857143;
   text-decoration: none;
-  color: #3595F9;
+  color: #006BB4;
   background-color: transparent;
   border: 1px solid transparent;
   margin-left: -1px;
@@ -3380,7 +3524,7 @@ select[multiple].input-group-sm > .input-group-addon {
 .pagination > li > a:focus,
 .pagination > li > span:focus {
   z-index: 2;
-  color: #3595F9;
+  color: #006BB4;
   background-color: rgba(0, 0, 0, 0);
   border-color: transparent;
 }
@@ -3479,7 +3623,7 @@ select[multiple].input-group-sm > .input-group-addon {
 }
 .label {
   display: inline;
-  padding: .2em .6em .3em;
+  padding: 0.2em 0.6em 0.3em;
   font-size: 75%;
   font-weight: bold;
   line-height: 1;
@@ -3487,7 +3631,7 @@ select[multiple].input-group-sm > .input-group-addon {
   text-align: center;
   white-space: nowrap;
   vertical-align: baseline;
-  border-radius: .25em;
+  border-radius: 0.25em;
 }
 a.label:hover,
 a.label:focus {
@@ -3499,7 +3643,7 @@ a.label:focus {
   display: none;
 }
 .label-default {
-  background-color: #3595F9;
+  background-color: #006BB4;
 }
 .label-default[href]:hover,
 .label-default[href]:focus {
@@ -3520,7 +3664,7 @@ a.label:focus {
   background-color: #014a44;
 }
 .label-info {
-  background-color: #3595F9;
+  background-color: #006BB4;
 }
 .label-info[href]:hover,
 .label-info[href]:focus {
@@ -3545,6 +3689,7 @@ a.label:focus {
   background-color: #FFF;
   border: 1px solid transparent;
   border-radius: 4px;
+  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
 }
 .panel-body {
@@ -3833,14 +3978,14 @@ a.label:focus {
 }
 .panel-info > .panel-heading {
   color: #FFF;
-  background-color: #3595F9;
+  background-color: #006BB4;
   border-color: #004d81;
 }
 .panel-info > .panel-heading + .panel-collapse > .panel-body {
   border-top-color: #004d81;
 }
 .panel-info > .panel-heading .badge {
-  color: #3595F9;
+  color: #006BB4;
   background-color: #FFF;
 }
 .panel-info > .panel-footer + .panel-collapse > .panel-body {
@@ -4113,12 +4258,12 @@ a.label:focus {
   background-color: #FFF;
   color: #F5F7FA;
 }
-.navbar-inverse .kbnGlobalNav__logoBrand {
+.navbar-inverse .osdGlobalNav__logoBrand {
   height: 45px;
   width: 252px;
   background-color: #4b4f5d;
 }
-.navbar-inverse .kbnGlobalNav__smallLogoBrand {
+.navbar-inverse .osdGlobalNav__smallLogoBrand {
   height: 45px;
   width: 45px;
   background-color: #4b4f5d;
@@ -4130,10 +4275,7 @@ a.label:focus {
 .navbar-brand {
   cursor: default;
   font-size: 1.8em;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-          user-select: none;
+  user-select: none;
 }
 .navbar-nav {
   font-size: 12px;
@@ -4163,7 +4305,7 @@ a.label:focus {
 }
 .text-info,
 .text-info:hover {
-  color: #3595F9;
+  color: #006BB4;
 }
 table .success,
 .table .success,
@@ -4196,10 +4338,12 @@ table .info a,
 .form-control,
 input {
   border-width: 1px;
+  -webkit-box-shadow: none;
   box-shadow: none;
 }
 .form-control:focus,
 input:focus {
+  -webkit-box-shadow: none;
   box-shadow: none;
 }
 .has-warning .help-block,
@@ -4269,9 +4413,11 @@ input:focus {
 }
 .panel {
   border-radius: 0;
+  -webkit-box-shadow: 0 0 0 rgba(0, 0, 0, 0);
   box-shadow: 0 0 0 rgba(0, 0, 0, 0);
 }
 .progress {
+  -webkit-box-shadow: none;
   box-shadow: none;
 }
 .progress .progress-bar {
@@ -4279,12 +4425,14 @@ input:focus {
   line-height: 10px;
 }
 .well {
+  -webkit-box-shadow: none;
   box-shadow: none;
 }
 
+
 /*------------- WAZUH -------------*/
 .wz-login {
-  background: url(./wazuh_wazuh_bg.svg) !important;
+  background: url(./logos/wazuh_wazuh_bg.svg) !important;
   width: 100% !important;
   height: 100% !important;
   background-size: cover !important;
@@ -4345,5 +4493,5 @@ div.euiFormRow > div.euiFormRow__fieldWrapper > button {
 }
 
 .loginWelcome__logo {
-  background: url(./wazuh_logo_circle.svg) center center no-repeat !important;
+  background: url(./logos/Wazuh-Logo.svg) center center no-repeat !important;
 }

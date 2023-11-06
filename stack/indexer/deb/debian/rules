@@ -154,6 +154,9 @@ override_dh_fixperms:
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/jvm.options
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/aggs-matrix-stats
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch.yml
+	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/roles_mapping.yml
+	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/internal_users.yml
+	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/roles.yml
 	chmod 750 $(TARGET_DIR)$(CONFIG_DIR)/jvm.options.d
 	chmod 440 $(TARGET_DIR)$(INSTALLATION_DIR)/VERSION
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/indexer-security-init.sh

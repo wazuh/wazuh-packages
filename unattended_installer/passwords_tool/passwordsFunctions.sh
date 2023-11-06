@@ -363,7 +363,7 @@ function passwords_getApiUserId() {
 
 function passwords_getNetworkHost() {
 
-    IP=$(grep -hr "network.host:" /etc/wazuh-indexer/opensearch.yml)
+    IP=$(grep -hr "^network.host:" /etc/wazuh-indexer/opensearch.yml)
     NH="network.host: "
     IP="${IP//$NH}"
 
