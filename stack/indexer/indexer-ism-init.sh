@@ -204,13 +204,13 @@ function show_help() {
     echo -e "                Shows help."
     echo -e ""
     echo -e "        -i, --indexer-hostname <hostname>"
-    echo -e "                Specifies the Wazuh indexer hostname or ip."
+    echo -e "                Specifies the Wazuh indexer hostname or IP."
     echo -e ""
     echo -e "        -p, --indexer-password <password>"
     echo -e "                Specifies the Wazuh indexer admin user password."
     echo -e ""
     echo -e "        -s, --min-shard-size <shard-size>"
-    echo -e "                Set the minimum shard size to GB. By default 25 GB."
+    echo -e "                Set the minimum shard size in GB. By default 25."
     echo -e ""
     exit 1
 }
@@ -231,7 +231,7 @@ function main() {
                 show_help
             else
                 MIN_INDEX_AGE="${2}"
-                shift 1
+                shift 2
             fi
             ;;
         "-d" | "--min-doc-count")
@@ -240,7 +240,7 @@ function main() {
                 show_help
             else
                 MIN_DOC_COUNT="${2}"
-                shift 1
+                shift 2
             fi
             ;;
         "-h" | "--help")
@@ -252,7 +252,7 @@ function main() {
                 show_help
             else
                 INDEXER_HOSTNAME="${2}"
-                shift 1
+                shift 2
             fi
             ;;
         "-p" | "--indexer-password")
@@ -261,7 +261,8 @@ function main() {
                 show_help
             else
                 INDEXER_PASSWORD="${2}"
-                shift 1
+                C_AUTH="-u admin:${INDEXER_PASSWORD}"
+                shift 2
             fi
             ;;
         "-s" | "--min-shard-size")
@@ -270,7 +271,7 @@ function main() {
                 show_help
             else
                 MIN_SHARD_SIZE="${2}"
-                shift 1
+                shift 2
             fi
             ;;
         *)
