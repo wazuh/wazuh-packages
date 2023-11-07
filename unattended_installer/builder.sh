@@ -102,6 +102,13 @@ function buildInstaller() {
     ## JAVA_HOME
     echo "export JAVA_HOME=\"/usr/share/wazuh-indexer/jdk/\"" >> "${output_script_path}"
 
+    ## Try-Catch logic
+    echo "set -o pipefail" >> "${output_script_path}"
+    echo "shopt -s expand_aliases" >> "${output_script_path}"
+
+    echo "alias try=\"(set -e;\"" >> "${output_script_path}"
+    echo "alias catch=\" ); Error \\\$? || \"" >> "${output_script_path}"
+
     ## Functions for all install function modules
     install_modules=($(find "${resources_installer}" -type f))
     install_modules_names=($(eval "echo \"${install_modules[*]}\" | sed 's,${resources_installer}/,,g'"))

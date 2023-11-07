@@ -102,17 +102,15 @@ function installCommon_aptInstall() {
     apt_output=$(eval "${command} 2>&1")
     install_result="${PIPESTATUS[0]}"
     eval "echo \${apt_output} ${debug}"
-    eval "tail -n 2 ${logfile} | grep -q 'Could not get lock'"
-    grep_result="${PIPESTATUS[0]}"
-    while [ "${grep_result}" -eq 0 ] && [ "${attempt}" -lt 10 ]; do
+    grep_result=$(tail -n 2 ${logfile} | grep -q 'Could not get lock' || true)
+    while [ -n "${grep_result}" ] && [ "${attempt}" -lt 10 ]; do
         attempt=$((attempt+1))
         common_logger "An external process is using APT. This process has to end to proceed with the Wazuh installation. Next retry in ${seconds} seconds (${attempt}/10)"
         sleep "${seconds}"
         apt_output=$(eval "${command} 2>&1")
         install_result="${PIPESTATUS[0]}"
         eval "echo \${apt_output} ${debug}"
-        eval "tail -n 2 ${logfile} | grep -q 'Could not get lock'"
-        grep_result="${PIPESTATUS[0]}"
+        grep_result=$(tail -n 2 ${logfile} | grep -q 'Could not get lock' || true)
     done
 
 }

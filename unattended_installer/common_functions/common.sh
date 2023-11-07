@@ -70,9 +70,9 @@ function common_checkInstalled() {
     dashboard_installed=""
 
     if [ "${sys_type}" == "yum" ]; then
-        wazuh_installed=$(yum list installed 2>/dev/null | grep wazuh-manager)
+        wazuh_installed=$(yum list installed 2>/dev/null | grep wazuh-manager || true)
     elif [ "${sys_type}" == "apt-get" ]; then
-        wazuh_installed=$(apt list --installed  2>/dev/null | grep wazuh-manager)
+        wazuh_installed=$(apt list --installed  2>/dev/null | grep wazuh-manager || true)
     fi
 
     if [ -d "/var/ossec" ]; then
@@ -81,9 +81,9 @@ function common_checkInstalled() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
-        indexer_installed=$(yum list installed 2>/dev/null | grep wazuh-indexer)
+        indexer_installed=$(yum list installed 2>/dev/null | grep wazuh-indexer || true)
     elif [ "${sys_type}" == "apt-get" ]; then
-        indexer_installed=$(apt list --installed 2>/dev/null | grep wazuh-indexer)
+        indexer_installed=$(apt list --installed 2>/dev/null | grep wazuh-indexer || true)
     fi
 
     if [ -d "/var/lib/wazuh-indexer/" ] || [ -d "/usr/share/wazuh-indexer" ] || [ -d "/etc/wazuh-indexer" ] || [ -f "${base_path}/search-guard-tlstool*" ]; then
@@ -92,9 +92,9 @@ function common_checkInstalled() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
-        filebeat_installed=$(yum list installed 2>/dev/null | grep filebeat)
+        filebeat_installed=$(yum list installed 2>/dev/null | grep filebeat || true)
     elif [ "${sys_type}" == "apt-get" ]; then
-        filebeat_installed=$(apt list --installed  2>/dev/null | grep filebeat)
+        filebeat_installed=$(apt list --installed  2>/dev/null | grep filebeat || true)
     fi
 
     if [ -d "/var/lib/filebeat/" ] || [ -d "/usr/share/filebeat" ] || [ -d "/etc/filebeat" ]; then
@@ -103,9 +103,9 @@ function common_checkInstalled() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
-        dashboard_installed=$(yum list installed 2>/dev/null | grep wazuh-dashboard)
+        dashboard_installed=$(yum list installed 2>/dev/null | grep wazuh-dashboard || true)
     elif [ "${sys_type}" == "apt-get" ]; then
-        dashboard_installed=$(apt list --installed  2>/dev/null | grep wazuh-dashboard)
+        dashboard_installed=$(apt list --installed  2>/dev/null | grep wazuh-dashboard || true)
     fi
 
     if [ -d "/var/lib/wazuh-dashboard/" ] || [ -d "/usr/share/wazuh-dashboard" ] || [ -d "/etc/wazuh-dashboard" ] || [ -d "/run/wazuh-dashboard/" ]; then
