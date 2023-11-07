@@ -123,6 +123,8 @@ function indexer_initialize() {
 
     if [ -n "${AIO}" ]; then
         eval "sudo -u wazuh-indexer JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_CONF_DIR=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -cd /etc/wazuh-indexer/opensearch-security -icl -p 9200 -nhnv -cacert ${indexer_cert_path}/root-ca.pem -cert ${indexer_cert_path}/admin.pem -key ${indexer_cert_path}/admin-key.pem -h 127.0.0.1 ${debug}"
+        eval "bash /usr/share/wazuh-indexer/bin/indexer-ism-init.sh ${debug}"
+        common_logger "Wazuh indexer cluster ISM initialized."
     fi
 
     if [ "${#indexer_node_names[@]}" -eq 1 ] && [ -z "${AIO}" ]; then
