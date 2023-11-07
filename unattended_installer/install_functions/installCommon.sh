@@ -98,22 +98,13 @@ function installCommon_aptInstall() {
         installer=${package}
     fi
     command="DEBIAN_FRONTEND=noninteractive apt-get install ${installer} -y -q"
-    seconds=30
-    apt_output=$(eval "${command} 2>&1")
-    install_result="${PIPESTATUS[0]}"
-    eval "echo \${apt_output} ${debug}"
-    eval "tail -n 2 ${logfile} | grep -q 'Could not get lock'"
-    grep_result="${PIPESTATUS[0]}"
-    while [ "${grep_result}" -eq 0 ] && [ "${attempt}" -lt 10 ]; do
-        attempt=$((attempt+1))
-        common_logger "An external process is using APT. This process has to end to proceed with the Wazuh installation. Next retry in ${seconds} seconds (${attempt}/10)"
-        sleep "${seconds}"
+    installCommon_checkAptLock
+
+    if [ "${attempt}" -ne "${max_attempts}" ]; then
         apt_output=$(eval "${command} 2>&1")
         install_result="${PIPESTATUS[0]}"
         eval "echo \${apt_output} ${debug}"
-        eval "tail -n 2 ${logfile} | grep -q 'Could not get lock'"
-        grep_result="${PIPESTATUS[0]}"
-    done
+    fi
 
 }
 
@@ -186,6 +177,34 @@ function installCommon_checkOptionalInstallation() {
             pdf_warning=1
         fi
     fi
+
+}
+
+function installCommon_checkAptLock() {
+
+    attempt=0
+    seconds=30
+    max_attempts=10
+
+    while fuser "${apt_lockfile}" >/dev/null 2>&1 && [ "${attempt}" -lt "${max_attempts}" ]; do
+        attempt=$((attempt+1))
+        common_logger "Another process is using APT. Waiting for it to release the lock. Next retry in ${seconds} seconds (${attempt}/${max_attempts})"
+        sleep "${seconds}"
+    done
+
+}
+
+function installCommon_checkYumLock() {
+
+    attempt=0
+    seconds=30
+    max_attempts=10
+
+    while [ -f "${yum_lockfile}" ] && [ "${attempt}" -lt "${max_attempts}" ]; do
+        attempt=$((attempt+1))
+        common_logger "Another process is using YUM. Waiting for it to release the lock. Next retry in ${seconds} seconds (${attempt}/${max_attempts})"
+        sleep "${seconds}"
+    done
 
 }
 
@@ -298,6 +317,7 @@ function installCommon_changePasswords() {
 function installCommon_checkChromium() {
 
     if [ "${sys_type}" == "yum" ]; then
+        installCommon_checkYumLock
         if (! yum list installed 2>/dev/null | grep -q -E ^"google-chrome-stable"\\.) && (! yum list installed 2>/dev/null | grep -q -E ^"chromium"\\.); then
             if [ "${DIST_NAME}" == "amzn" ]; then
                 installCommon_installChrome
@@ -609,8 +629,10 @@ function installCommon_rollBack() {
     if [[ -n "${wazuh_installed}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]];then
         common_logger "Removing Wazuh manager."
         if [ "${sys_type}" == "yum" ]; then
+            installCommon_checkYumLock
             eval "yum remove wazuh-manager -y ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
+            installCommon_checkAptLock
             eval "apt-get remove --purge wazuh-manager -y ${debug}"
         fi
         common_logger "Wazuh manager removed."
@@ -623,8 +645,10 @@ function installCommon_rollBack() {
     if [[ -n "${indexer_installed}" && ( -n "${indexer}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         common_logger "Removing Wazuh indexer."
         if [ "${sys_type}" == "yum" ]; then
+            installCommon_checkYumLock
             eval "yum remove wazuh-indexer -y ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
+            installCommon_checkAptLock
             eval "apt-get remove --purge wazuh-indexer -y ${debug}"
         fi
         common_logger "Wazuh indexer removed."
@@ -639,8 +663,10 @@ function installCommon_rollBack() {
     if [[ -n "${filebeat_installed}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         common_logger "Removing Filebeat."
         if [ "${sys_type}" == "yum" ]; then
+            installCommon_checkYumLock
             eval "yum remove filebeat -y ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
+            installCommon_checkAptLock
             eval "apt-get remove --purge filebeat -y ${debug}"
         fi
         common_logger "Filebeat removed."
@@ -655,8 +681,10 @@ function installCommon_rollBack() {
     if [[ -n "${dashboard_installed}" && ( -n "${dashboard}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         common_logger "Removing Wazuh dashboard."
         if [ "${sys_type}" == "yum" ]; then
+            installCommon_checkYumLock
             eval "yum remove wazuh-dashboard -y ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
+            installCommon_checkAptLock
             eval "apt-get remove --purge wazuh-dashboard -y ${debug}"
         fi
         common_logger "Wazuh dashboard removed."
@@ -758,6 +786,7 @@ function installCommon_yumInstallList(){
     dependencies=("$@")
     not_installed=()
     for dep in "${dependencies[@]}"; do
+        installCommon_checkYumLock
         if ! yum list installed 2>/dev/null | grep -q -E ^"${dep}"\\.;then
             not_installed+=("${dep}")
         fi
@@ -767,14 +796,35 @@ function installCommon_yumInstallList(){
         common_logger "--- Dependencies ---"
         for dep in "${not_installed[@]}"; do
             common_logger "Installing $dep."
-            yum_output=$(yum install ${dep} -y 2>&1)
+            installCommon_yumInstall "${dep}"
             yum_code="${PIPESTATUS[0]}"
 
-            eval "echo \${yum_output} ${debug}"
-            if [  "${yum_code}" != 0  ]; then
+            if [  "${install_result}" != 0  ]; then
                 installCommon_checkOptionalInstallation
             fi
         done
+    fi
+
+}
+
+function installCommon_yumInstall() {
+
+    package="${1}"
+    version="${2}"
+    install_result=1
+    if [ -n "${version}" ]; then
+        installer="${package}-${version}"
+    else
+        installer="${package}"
+    fi
+    
+    command="yum install ${installer} -y"
+    installCommon_checkYumLock
+
+    if [ "${attempt}" -ne "${max_attempts}" ]; then
+        yum_output=$(eval "${command} 2>&1")  
+        install_result="${PIPESTATUS[0]}"
+        eval "echo \${yum_output} ${debug}"
     fi
 
 }

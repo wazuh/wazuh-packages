@@ -23,7 +23,7 @@ function getHelp() {
     echo -e "                Path to the configuration file used to generate wazuh-install-files.tar file containing the files that will be needed for installation. By default, the Wazuh installation assistant will search for a file named config.yml in the same path as the script."
     echo -e ""
     echo -e "        -dw,  --download-wazuh <deb|rpm>"
-    echo -e "                Download all the packages necessary for offline installation."
+    echo -e "                Download all the packages necessary for offline installation. Type of packages to download for offline installation (rpm, deb)"
     echo -e ""
     echo -e "        -fd,  --force-install-dashboard"
     echo -e "                Force Wazuh dashboard installation to continue even when it is not capable of connecting to the Wazuh indexer."
