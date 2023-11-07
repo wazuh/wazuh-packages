@@ -98,6 +98,8 @@ cp %{REPO_DIR}/config/indexer/roles/roles.yml ${RPM_BUILD_ROOT}%{CONFIG_DIR}/ope
 cp %{REPO_DIR}/config/indexer/roles/roles_mapping.yml ${RPM_BUILD_ROOT}%{CONFIG_DIR}/opensearch-security
 
 cp /root/stack/indexer/indexer-security-init.sh ${RPM_BUILD_ROOT}%{INSTALL_DIR}/bin/
+cp /root/stack/indexer/indexer-ism-init.sh ${RPM_BUILD_ROOT}%{INSTALL_DIR}/bin/
+cp /root/stack/indexer/indexer-init.sh ${RPM_BUILD_ROOT}%{INSTALL_DIR}/bin/
 
 chmod 750 ${RPM_BUILD_ROOT}/etc/init.d/wazuh-indexer
 
@@ -687,6 +689,12 @@ rm -fr %{buildroot}
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-performance-analyzer/performance-analyzer-agent-cli
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-performance-analyzer/performance-analyzer-agent
 %attr(440, %{USER}, %{GROUP}) %{INSTALL_DIR}/VERSION
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/indexer-security-init.sh
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/indexer-ism-init.sh
+%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/indexer-init.sh
+%attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/config.yml
+%attr(740, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/wazuh-certs-tool.sh
+%attr(740, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/wazuh-passwords-tool.sh
 
 
 %changelog

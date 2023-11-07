@@ -105,6 +105,8 @@ override_dh_install:
 	cp -pr $(REPO_DIR)/config/indexer/roles/internal_users.yml $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/
 
 	cp /root/stack/indexer/indexer-security-init.sh $(TARGET_DIR)$(INSTALLATION_DIR)/bin/
+	cp /root/stack/indexer/indexer-ism-init.sh $(TARGET_DIR)$(INSTALLATION_DIR)/bin/
+	cp /root/stack/indexer/indexer-init.sh $(TARGET_DIR)$(INSTALLATION_DIR)/bin/
 
 	# Create group and user in chroot environment
 	groupadd -r $(GROUP)
@@ -158,6 +160,8 @@ override_dh_fixperms:
 	chmod 750 $(TARGET_DIR)$(CONFIG_DIR)/jvm.options.d
 	chmod 440 $(TARGET_DIR)$(INSTALLATION_DIR)/VERSION
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/indexer-security-init.sh
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/indexer-ism-init.sh
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/indexer-init.sh
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/systemd-entrypoint
 	chmod 740 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/audit_config_migrater.sh
 	chmod 740 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/hash.sh
