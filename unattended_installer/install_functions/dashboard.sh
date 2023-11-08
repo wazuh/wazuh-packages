@@ -67,7 +67,7 @@ function dashboard_copyCertificates() {
     name=${dashboard_node_names[pos]}
 
     if [ -f "${tar_file}" ]; then
-        if ! tar -tvf "${tar_file}" | grep -q "${name}" ; then
+        if ! tar -tvf "${tar_file}" | grep "${name}" ; then
             common_logger -e "Tar file does not contain certificate for the node ${name}."
             installCommon_rollBack
             exit 1;

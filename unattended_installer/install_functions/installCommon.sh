@@ -355,7 +355,7 @@ function installCommon_configureCentOSRepositories() {
 function installCommon_extractConfig() {
 
     common_logger -d "Extracting Wazuh configuration."
-    if ! tar -tf "${tar_file}" | grep -q wazuh-install-files/config.yml; then
+    if ! tar -tf "${tar_file}" | grep wazuh-install-files/config.yml; then
         common_logger -e "There is no config.yml file in ${tar_file}."
         exit 1
     fi
