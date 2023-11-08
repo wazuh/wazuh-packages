@@ -179,7 +179,7 @@ function indexer_startCluster() {
         exit 1
     else
         common_logger "Wazuh indexer cluster security configuration initialized."
-        eval "bash /usr/share/wazuh-indexer/bin/indexer-ism-init.sh ${debug}"
+        eval "bash /usr/share/wazuh-indexer/bin/indexer-ism-init.sh -i ${wazuh_indexer_ip} ${debug}"
         common_logger "Wazuh indexer cluster ISM initialized."
     fi
     eval "common_curl --silent ${filebeat_wazuh_template} --max-time 300 --retry 5 --retry-delay 5 ${debug}" | eval "common_curl -X PUT 'https://${indexer_node_ips[pos]}:9200/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k --silent --max-time 300 --retry 5 --retry-delay 5 ${debug}"
