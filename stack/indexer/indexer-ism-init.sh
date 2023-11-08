@@ -209,6 +209,9 @@ function show_help() {
     echo -e "        -p, --indexer-password <password>"
     echo -e "                Specifies the Wazuh indexer admin user password."
     echo -e ""
+    echo -e "        -P, --priority <priority>"
+    echo -e "                Specifies the policy's priority."
+    echo -e ""
     echo -e "        -s, --min-shard-size <shard-size>"
     echo -e "                Set the minimum shard size in GB. By default 25."
     echo -e ""
@@ -252,6 +255,7 @@ function main() {
                 show_help
             else
                 INDEXER_HOSTNAME="${2}"
+                INDEXER_URL="https://${INDEXER_HOSTNAME}:9200"
                 shift 2
             fi
             ;;
@@ -271,6 +275,15 @@ function main() {
                 show_help
             else
                 MIN_SHARD_SIZE="${2}"
+                shift 2
+            fi
+            ;;
+        "-P" | "--priority")
+            if [ -z "${2}" ]; then
+                echo "Error on arguments. Probably missing <priority> after -P|--priority"
+                show_help
+            else
+                ISM_PRIORITY="${2}"
                 shift 2
             fi
             ;;
