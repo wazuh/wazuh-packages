@@ -99,8 +99,6 @@ cp %{REPO_DIR}/config/indexer/roles/roles.yml ${RPM_BUILD_ROOT}%{CONFIG_DIR}/ope
 cp %{REPO_DIR}/config/indexer/roles/roles_mapping.yml ${RPM_BUILD_ROOT}%{CONFIG_DIR}/opensearch-security
 
 cp /root/stack/indexer/indexer-security-init.sh ${RPM_BUILD_ROOT}%{INSTALL_DIR}/bin/
-cp /root/stack/indexer/indexer-ism-init.sh ${RPM_BUILD_ROOT}%{INSTALL_DIR}/bin/
-cp /root/stack/indexer/indexer-init.sh ${RPM_BUILD_ROOT}%{INSTALL_DIR}/bin/
 
 chmod 750 ${RPM_BUILD_ROOT}/etc/init.d/wazuh-indexer
 

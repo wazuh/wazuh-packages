@@ -106,8 +106,6 @@ override_dh_install:
 	cp -pr $(REPO_DIR)/config/indexer/roles/internal_users.yml $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/
 
 	cp /root/stack/indexer/indexer-security-init.sh $(TARGET_DIR)$(INSTALLATION_DIR)/bin/
-	cp /root/stack/indexer/indexer-ism-init.sh $(TARGET_DIR)$(INSTALLATION_DIR)/bin/
-	cp /root/stack/indexer/indexer-init.sh $(TARGET_DIR)$(INSTALLATION_DIR)/bin/
 
 	# Create group and user in chroot environment
 	groupadd -r $(GROUP)
