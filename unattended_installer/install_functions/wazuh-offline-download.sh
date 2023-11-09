@@ -8,6 +8,8 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
+# This is a test for idr440 changes
+
 function offline_download() {
 
   common_logger "Starting Wazuh packages download."
