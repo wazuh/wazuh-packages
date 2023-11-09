@@ -630,12 +630,22 @@ function installCommon_rollBack() {
         common_logger "Removing Wazuh manager."
         if [ "${sys_type}" == "yum" ]; then
             installCommon_checkYumLock
-            eval "yum remove wazuh-manager -y ${debug}"
+            if [ "${attempt}" -ne "${max_attempts}" ]; then
+                eval "yum remove wazuh-manager -y ${debug}"
+                manager_installed=$(yum list installed 2>/dev/null | grep wazuh-manager)
+            fi
         elif [ "${sys_type}" == "apt-get" ]; then
             installCommon_checkAptLock
             eval "apt-get remove --purge wazuh-manager -y ${debug}"
+            manager_installed=$(apt list --installed 2>/dev/null | grep wazuh-manager)
         fi
-        common_logger "Wazuh manager removed."
+
+        if [ -n "${manager_installed}" ]; then
+            common_logger -w "The Wazuh manager package could not be removed."
+        else
+            common_logger "Wazuh manager removed."
+        fi
+        
     fi
 
     if [[ ( -n "${wazuh_remaining_files}"  || -n "${wazuh_installed}" ) && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
@@ -646,12 +656,21 @@ function installCommon_rollBack() {
         common_logger "Removing Wazuh indexer."
         if [ "${sys_type}" == "yum" ]; then
             installCommon_checkYumLock
-            eval "yum remove wazuh-indexer -y ${debug}"
+            if [ "${attempt}" -ne "${max_attempts}" ]; then
+                eval "yum remove wazuh-indexer -y ${debug}"
+                indexer_installed=$(yum list installed 2>/dev/null | grep wazuh-indexer)
+            fi
         elif [ "${sys_type}" == "apt-get" ]; then
             installCommon_checkAptLock
             eval "apt-get remove --purge wazuh-indexer -y ${debug}"
+            indexer_installed=$(apt list --installed 2>/dev/null | grep wazuh-indexer)
         fi
-        common_logger "Wazuh indexer removed."
+
+        if [ -n "${indexer_installed}" ]; then
+            common_logger -w "The Wazuh indexer package could not be removed."
+        else
+            common_logger "Wazuh indexer removed."
+        fi
     fi
 
     if [[ ( -n "${indexer_remaining_files}" || -n "${indexer_installed}" ) && ( -n "${indexer}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
@@ -664,12 +683,21 @@ function installCommon_rollBack() {
         common_logger "Removing Filebeat."
         if [ "${sys_type}" == "yum" ]; then
             installCommon_checkYumLock
-            eval "yum remove filebeat -y ${debug}"
+            if [ "${attempt}" -ne "${max_attempts}" ]; then
+                eval "yum remove filebeat -y ${debug}"
+                filebeat_installed=$(yum list installed 2>/dev/null | grep filebeat)
+            fi
         elif [ "${sys_type}" == "apt-get" ]; then
             installCommon_checkAptLock
             eval "apt-get remove --purge filebeat -y ${debug}"
+            filebeat_installed=$(apt list --installed 2>/dev/null | grep filebeat)
         fi
-        common_logger "Filebeat removed."
+
+        if [ -n "${filebeat_installed}" ]; then
+            common_logger -w "The Filebeat package could not be removed."
+        else
+            common_logger "Filebeat removed."
+        fi
     fi
 
     if [[ ( -n "${filebeat_remaining_files}" || -n "${filebeat_installed}" ) && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
@@ -682,12 +710,21 @@ function installCommon_rollBack() {
         common_logger "Removing Wazuh dashboard."
         if [ "${sys_type}" == "yum" ]; then
             installCommon_checkYumLock
-            eval "yum remove wazuh-dashboard -y ${debug}"
+            if [ "${attempt}" -ne "${max_attempts}" ]; then
+                eval "yum remove wazuh-dashboard -y ${debug}"
+                dashboard_installed=$(yum list installed 2>/dev/null | grep wazuh-dashboard)
+            fi
         elif [ "${sys_type}" == "apt-get" ]; then
             installCommon_checkAptLock
             eval "apt-get remove --purge wazuh-dashboard -y ${debug}"
+            dashboard_installed=$(apt list --installed 2>/dev/null | grep wazuh-dashboard)
         fi
-        common_logger "Wazuh dashboard removed."
+
+        if [ -n "${dashboard_installed}" ]; then
+            common_logger -w "The Wazuh dashboard package could not be removed."
+        else
+            common_logger "Wazuh dashboard removed."
+        fi
     fi
 
     if [[ ( -n "${dashboard_remaining_files}" || -n "${dashboard_installed}" ) && ( -n "${dashboard}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
