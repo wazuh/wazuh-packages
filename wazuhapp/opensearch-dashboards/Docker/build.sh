@@ -113,6 +113,24 @@ download_wazuh_app_sources() {
     done
 }
 
+check_revisions() {
+    dirs=()
+    for item in ${packages_list[@]}; do
+        dirs+=(${item//_/ })
+    done
+
+    main_revision=$(jq -r '.revision' ${source_dir}/${dirs[0]}/package.json)
+    check_update_revision=$(jq -r '.revision' ${source_dir}/${dirs[2]}/package.json)
+    core_revision=$(jq -r '.revision' ${source_dir}/${dirs[4]}/package.json)
+
+    if [ "${main_revision}" != "${check_update_revision}" ] || [ "${check_update_revision}" != "${core_revision}" ]; then
+        echo "The package.json revisions do not match. All revisions must be equal."
+        exit 1
+    else
+        echo "The package.json revision match."
+    fi
+}
+
 build_package(){
 
     for item in ${packages_list[@]}; do
@@ -145,4 +163,5 @@ prepare_env
 download_plugin_platform_sources
 install_dependencies
 download_wazuh_app_sources
+check_revisions
 build_package

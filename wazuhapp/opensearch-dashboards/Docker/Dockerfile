@@ -8,7 +8,10 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-centostesting && \
     curl -sL https://rpm.nodesource.com/setup_10.x | bash - && \
     yum install nodejs git gcc gcc-c++ make sudo zip python3 -y && \
     alternatives --set python /usr/bin/python3 && \
-    npm install -g n 
+    npm install -g n
+
+RUN yum install -y \
+    jq
 
 ADD build.sh /
 RUN chmod +x /build.sh
