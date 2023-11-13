@@ -21,16 +21,29 @@ OUTDIR="${CURRENT_PATH}/output/"
 trap ctrl_c INT
 
 help() {
-
-    echo
-    echo "Usage: $0 [OPTIONS]"
-    echo
-    echo "    -b, --branch <branch>     [Required] Select Git branch or tag e.g. 3.8-6.7 or v3.7.2-6.5.4"
-    echo "    -s, --store <path>        [Optional] Set the destination path of package, by default /tmp/wazuh-app."
-    echo "    -r, --revision <rev>      [Optional] Package revision that append to version e.g. x.x.x-rev"
-    echo "    -c, --checksum <path>     [Optional] Generate checksum"
-    echo "    -h, --help                Show this help."
-    echo
+    echo -e ""
+    echo -e "NAME"
+    echo -e "        $(basename "$0") - Build Wazuh plugin files."
+    echo -e ""
+    echo -e "SYNOPSIS"
+    echo -e "        $(basename "$0") -b | -s | -r | -c | -h"
+    echo -e ""
+    echo -e "DESCRIPTION"
+    echo -e "        -b, --branch <branch>"
+    echo -e "                [Required] Select Git branch or tag."
+    echo -e ""
+    echo -e "        -s, --store <path>"
+    echo -e "                [Optional] Set the destination path of package, by default /tmp/wazuh-app."
+    echo -e ""
+    echo -e "        -r, --revision <rev>"
+    echo -e "                [Optional] Package revision."
+    echo -e ""
+    echo -e "        -c, --checksum <path>"
+    echo -e "                [Optional] Generate checksum."
+    echo -e ""
+    echo -e "        -h, --help"
+    echo -e "                Show this help."
+    echo -e ""
     exit $1
 }
 
