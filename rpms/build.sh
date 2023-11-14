@@ -105,11 +105,19 @@ fi
 if [ "${legacy}" = "no" ]; then
     echo "%_source_filedigest_algorithm 8" >> /root/.rpmmacros
     echo "%_binary_filedigest_algorithm 8" >> /root/.rpmmacros
-    echo " %rhel 6" >> /root/.rpmmacros
-    echo " %centos 6" >> /root/.rpmmacros
-    echo " %centos_ver 6" >> /root/.rpmmacros
-    echo " %dist .el6" >> /root/.rpmmacros
-    echo " %el6 1" >> /root/.rpmmacros
+    if [ "${build_target}" = "agent" ]; then
+        echo " %rhel 6" >> /root/.rpmmacros
+        echo " %centos 6" >> /root/.rpmmacros
+        echo " %centos_ver 6" >> /root/.rpmmacros
+        echo " %dist .el6" >> /root/.rpmmacros
+        echo " %el6 1" >> /root/.rpmmacros
+    elif [ "${build_target}" = "manager" ]; then
+        echo " %rhel 7" >> /root/.rpmmacros
+        echo " %centos 7" >> /root/.rpmmacros
+        echo " %centos_ver 7" >> /root/.rpmmacros
+        echo " %dist .el7" >> /root/.rpmmacros
+        echo " %el7 1" >> /root/.rpmmacros
+    fi
     rpmbuild="/usr/local/bin/rpmbuild"
 fi
 

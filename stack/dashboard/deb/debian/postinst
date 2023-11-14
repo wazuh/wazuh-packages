@@ -27,6 +27,7 @@ case "$1" in
         chmod 750 "${TARGET_DIR}""${INSTALLATION_DIR}"
         chown -R "${NAME}":"${NAME}" "${TARGET_DIR}""${INSTALLATION_DIR}"
         setcap 'cap_net_bind_service=+ep' "${INSTALLATION_DIR}"/node/bin/node
+        setcap 'cap_net_bind_service=+ep' "${INSTALLATION_DIR}"/node/fallback/bin/node
         if [ -f "${INSTALLATION_DIR}"/"${NAME}".restart ]; then
         rm -f "${INSTALLATION_DIR}"/"${NAME}".restart
             if command -v systemctl > /dev/null 2>&1 && systemctl > /dev/null 2>&1 ; then
@@ -44,6 +45,10 @@ case "$1" in
             runuser "${NAME}" --shell="/bin/bash" --command="echo kibanaserver | ${INSTALLATION_DIR}/bin/opensearch-dashboards-keystore add opensearch.username --stdin" > /dev/null 2>&1
             runuser "${NAME}" --shell="/bin/bash" --command="echo kibanaserver | ${INSTALLATION_DIR}/bin/opensearch-dashboards-keystore add opensearch.password --stdin" > /dev/null 2>&1
             chmod 640 "${CONFIG_DIR}"/opensearch_dashboards.keystore
+        fi
+
+        if ! grep -q "/app/wz-home" "${CONFIG_DIR}"/opensearch_dashboards.yml; then
+		    sed -i 's/\/app\/wazuh/\/app\/wz-home/g' "${CONFIG_DIR}"/opensearch_dashboards.yml
         fi
     ;;
 

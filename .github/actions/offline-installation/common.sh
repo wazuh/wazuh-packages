@@ -77,10 +77,10 @@ function dashboard_installation() {
         enable_start_service "wazuh-dashboard"
     elif [ "${sys_type}" == "rpm" ]; then
         /usr/share/wazuh-dashboard/bin/opensearch-dashboards "-c /etc/wazuh-dashboard/opensearch_dashboards.yml" --allow-root > /dev/null 2>&1 &
-    fi  
+    fi
 
     sleep 10
-    # In this context, 302 HTTP code refers to SSL certificates warning: success. 
+    # In this context, 302 HTTP code refers to SSL certificates warning: success.
     if [ "$(curl -k -s -I -w "%{http_code}" https://localhost -o /dev/null --fail)" -ne "302" ]; then
         echo "ERROR: The Wazuh dashboard installation has failed."
         exit 1
@@ -91,7 +91,7 @@ function dashboard_installation() {
 
 function download_resources() {
 
-    check_file "${ABSOLUTE_PATH}"/wazuh-install.sh 
+    check_file "${ABSOLUTE_PATH}"/wazuh-install.sh
     bash "${ABSOLUTE_PATH}"/wazuh-install.sh -dw "${sys_type}"
     echo "INFO: Downloading the resources..."
 
@@ -118,7 +118,7 @@ function download_resources() {
 }
 
 function enable_start_service() {
-    
+
     systemctl daemon-reload
     systemctl enable "${1}"
     systemctl start "${1}"
@@ -166,7 +166,7 @@ function filebeat_installation() {
         enable_start_service "filebeat"
     elif [ "${sys_type}" == "rpm" ]; then
         /usr/share/filebeat/bin/filebeat --environment systemd -c /etc/filebeat/filebeat.yml --path.home /usr/share/filebeat --path.config /etc/filebeat --path.data /var/lib/filebeat --path.logs /var/log/filebeat &
-    fi    
+    fi
 
     sleep 10
     check_shards
@@ -190,7 +190,7 @@ function indexer_initialize() {
         echo "ERROR: The indexer node is not started."
         exit 1
     fi
-    /usr/share/wazuh-indexer/bin/indexer-security-init.sh
+    /usr/share/wazuh-indexer/bin/indexer-init.sh
 
 }
 
@@ -199,10 +199,10 @@ function indexer_installation() {
     if [ "${sys_type}" == "rpm" ]; then
         rpm --import ./wazuh-offline/wazuh-files/GPG-KEY-WAZUH
     fi
-    
-    install_package "wazuh-indexer" 
+
+    install_package "wazuh-indexer"
     check_package "wazuh-indexer"
-    
+
     echo "INFO: Generating certificates of the Wazuh indexer..."
     NODE_NAME=node-1
     mkdir /etc/wazuh-indexer/certs
@@ -293,7 +293,7 @@ function install_package() {
         dpkg -i ./wazuh-offline/wazuh-packages/"${1}"*.deb
     elif [ "${sys_type}" == "rpm" ]; then
         rpm -ivh ./wazuh-offline/wazuh-packages/"${1}"*.rpm
-    fi    
+    fi
 
 }
 
@@ -306,6 +306,6 @@ function manager_installation() {
         enable_start_service "wazuh-manager"
     elif [ "${sys_type}" == "rpm" ]; then
         /var/ossec/bin/wazuh-control start
-    fi 
+    fi
 
 }

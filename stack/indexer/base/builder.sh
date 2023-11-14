@@ -67,6 +67,8 @@ cp -r /root/stack/indexer/base/files/etc/wazuh-indexer/* ./etc/wazuh-indexer/
 cp -r /root/stack/indexer/base/files/etc/sysconfig ./etc/
 cp -r /root/stack/indexer/base/files/etc/init.d ./etc/
 cp -r /root/stack/indexer/base/files/usr ./
+cp -r /root/stack/indexer/indexer-ism-init.sh bin/
+cp -r /root/stack/indexer/indexer-init.sh bin/
 rm -rf ./plugins/opensearch-security/tools/install_demo_configuration.sh
 cp /root/VERSION .
 
