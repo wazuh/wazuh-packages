@@ -14,8 +14,11 @@ target="wazuh-dashboard"
 architecture=$1
 revision=$2
 future=$3
-repository=$4
-reference=$5
+app_url=$4
+plugin_main=$5
+plugin_updates=$6
+plugin_core=$7
+reference=$8
 directory_base="/usr/share/wazuh-dashboard"
 
 if [ -z "${revision}" ]; then
@@ -32,19 +35,30 @@ else
     fi
 fi
 
-if [ "${repository}" ];then
+if [ "${app_url}" ];then
     valid_url='(https?|ftp|file)://[-[:alnum:]\+&@#/%?=~_|!:,.;]*[-[:alnum:]\+&@#/%=~_|]'
-    if [[ $repository =~ $valid_url ]];then
-        url="${repository}"
-        if ! curl --output /dev/null --silent --head --fail "${url}"; then
-            echo "The given URL to download the Wazuh plugin zip does not exist: ${url}"
+    if [[ $app_url =~ $valid_url ]];then
+        if ! curl --output /dev/null --silent --head --fail "${app_url}/${plugin_main}"; then
+            echo "The given URL to download the Wazuh main plugin ZIP does not exist: ${app_url}/${plugin_main}"
+            exit 1
+        fi
+        if ! curl --output /dev/null --silent --head --fail "${app_url}/${plugin_updates}"; then
+            echo "The given URL to download the Wazuh Check Updates plugin ZIP does not exist: ${app_url}/${plugin_updates}"
+            exit 1
+        fi
+        if ! curl --output /dev/null --silent --head --fail "${app_url}/${plugin_core}"; then
+            echo "The given URL to download the Wazuh Core plugin ZIP does not exist: ${app_url}/${plugin_core}"
             exit 1
         fi
     else
-        url="https://packages-dev.wazuh.com/${repository}/ui/dashboard/wazuh-${version}-${revision}.zip"
+        url_main="https://packages-dev.wazuh.com/${app_url}/ui/dashboard/wazuh-${version}-${revision}.zip"
+        url_updates="https://packages-dev.wazuh.com/${app_url}/ui/dashboard/wazuhCheckUpdates-${version}-${revision}.zip"
+        url_core="https://packages-dev.wazuh.com/${app_url}/ui/dashboard/wazuhCore-${version}-${revision}.zip"
     fi
 else
-    url="https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-${version}-${revision}.zip"
+    url_main="https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuh-${version}-${revision}.zip"
+    url_updates="https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuhCheckUpdates-${version}-${revision}.zip"
+    url_core="https://packages-dev.wazuh.com/pre-release/ui/dashboard/wazuhCore-${version}-${revision}.zip"
 fi
 
 # Build directories
@@ -74,7 +88,7 @@ cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${pkg_name}.tar.gz" "${pkg_
 # Building RPM
 /usr/bin/rpmbuild --define "_topdir ${rpm_build_dir}" --define "_version ${version}" \
     --define "_release ${revision}" --define "_localstatedir ${directory_base}" \
-    --define "_url ${url}" \
+    --define "_url ${app_url}" --define "_plugin_main ${plugin_main}" --define "_plugin_updates ${plugin_updates}" --define "_plugin_core ${plugin_core}" \
     --target ${architecture} -ba ${rpm_build_dir}/SPECS/${pkg_name}.spec
 
 cd ${pkg_path} && sha512sum ${rpm_file} > /tmp/${rpm_file}.sha512

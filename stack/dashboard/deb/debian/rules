@@ -83,8 +83,12 @@ override_dh_install:
 
 	if [ "$(VERSION)" = "99.99.0" ]; then \
 		runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/futures/ui/dashboard/wazuh-99.99.0-$(REVISION).zip" ;\
+		runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/futures/ui/dashboard/wazuhCheckUpdates-99.99.0-$(REVISION).zip" ;\
+		runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/futures/ui/dashboard/wazuhCore-99.99.0-$(REVISION).zip" ;\
 	else \
-		runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install $(URL)" ;\
+		runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install $(URL)/${PLUGINMAIN}" ;\
+		runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install $(URL)/${PLUGINUPDATES}" ;\
+		runuser $(USER) --shell="/bin/bash" --command="$(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-dashboards-plugin install $(URL)/${PLUGINCORE}" ;\
 	fi
 
 	find $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/wazuh/ -exec chown $(USER):$(GROUP) {} \;
