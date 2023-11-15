@@ -12,7 +12,7 @@ INDEXER_PASSWORD="admin"
 INDEXER_HOSTNAME="localhost"
 
 POLICY_NAME="rollover_policy"
-LOG_FILE="/var/log/wazuh-indexer/ism-init.log"
+LOG_FILE="/tmp/wazuh-indexer/ism-init.log"
 
 INDEXER_URL="https://${INDEXER_HOSTNAME}:9200"
 
@@ -90,7 +90,7 @@ function load_templates() {
         generate_rollover_template "${alias}" |
             if ! curl -s -k ${C_AUTH} \
                 -X PUT "${INDEXER_URL}/_template/${alias}-rollover" \
-                -o "${LOG_FILE}" \
+                -o "${LOG_FILE}" --create-dirs \
                 -H 'Content-Type: application/json' -d @-; then
                 echo "  ERROR: '${alias}' template creation failed"
                 return 1
@@ -113,7 +113,7 @@ function upload_rollover_policy() {
     policy_exists=$(
         curl -s -k ${C_AUTH} \
             -X GET "${INDEXER_URL}/_plugins/_ism/policies/${POLICY_NAME}" \
-            -o "${LOG_FILE}" \
+            -o "${LOG_FILE}" --create-dirs \
             -w "%{http_code}"
     )
 
@@ -122,7 +122,7 @@ function upload_rollover_policy() {
         policy_uploaded=$(
             curl -s -k ${C_AUTH} \
                 -X PUT "${INDEXER_URL}/_plugins/_ism/policies/${POLICY_NAME}" \
-                -o "${LOG_FILE}" \
+                -o "${LOG_FILE}" --create-dirs \
                 -H 'Content-Type: application/json' \
                 -d "$(generate_rollover_policy)" \
                 -w "%{http_code}"
@@ -179,7 +179,7 @@ function generate_write_index_alias() {
 #   1. The alias. String.
 #########################################################################
 function create_write_index() {
-    if ! curl -s -k ${C_AUTH} -o "${LOG_FILE}" \
+    if ! curl -s -k ${C_AUTH} -o "${LOG_FILE}" --create-dirs \
         -X PUT "$INDEXER_URL/%3C${1}-4.x-%7Bnow%2Fd%7D-000001%3E" \
         -H 'Content-Type: application/json' \
         -d "$(generate_write_index_alias "${1}")"; then
