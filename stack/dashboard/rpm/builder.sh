@@ -35,24 +35,33 @@ else
     fi
 fi
 
-if [ "${app_url}" ];then
+if [ "${app_url}" ] && [ "${plugin_main}" ] && [ "${plugin_updates}" ] && [ "${plugin_core}" ] ;then
     valid_url='(https?|ftp|file)://[-[:alnum:]\+&@#/%?=~_|!:,.;]*[-[:alnum:]\+&@#/%=~_|]'
-    if [[ $app_url =~ $valid_url ]];then
+    if [[ "${app_url}/${plugin_main}" =~ $valid_url ]];then
+        url_main="${app_url}/${plugin_main}"
         if ! curl --output /dev/null --silent --head --fail "${app_url}/${plugin_main}"; then
             echo "The given URL to download the Wazuh main plugin ZIP does not exist: ${app_url}/${plugin_main}"
             exit 1
         fi
-        if ! curl --output /dev/null --silent --head --fail "${app_url}/${plugin_updates}"; then
-            echo "The given URL to download the Wazuh Check Updates plugin ZIP does not exist: ${app_url}/${plugin_updates}"
-            exit 1
-        fi
-        if ! curl --output /dev/null --silent --head --fail "${app_url}/${plugin_core}"; then
-            echo "The given URL to download the Wazuh Core plugin ZIP does not exist: ${app_url}/${plugin_core}"
+    else
+        url_main="https://packages-dev.wazuh.com/${app_url}/ui/dashboard/wazuh-${version}-${revision}.zip"
+    fi
+    if [[ "${app_url}/${plugin_updates}" =~ $valid_url ]];then
+        url_updates="${app_url}/${plugin_updates}"
+        if ! curl --output /dev/null --silent --head --fail "${url_updates}"; then
+            echo "The given URL to download the Wazuh Check Updates plugin ZIP does not exist: ${url_updates}"
             exit 1
         fi
     else
-        url_main="https://packages-dev.wazuh.com/${app_url}/ui/dashboard/wazuh-${version}-${revision}.zip"
         url_updates="https://packages-dev.wazuh.com/${app_url}/ui/dashboard/wazuhCheckUpdates-${version}-${revision}.zip"
+    fi
+    if [[ "${app_url}/${plugin_core}" =~ $valid_url ]];then
+        url_core="${app_url}/${plugin_core}"
+        if ! curl --output /dev/null --silent --head --fail "${url_core}"; then
+            echo "The given URL to download the Wazuh Core plugin ZIP does not exist: ${url_core}"
+            exit 1
+        fi
+    else
         url_core="https://packages-dev.wazuh.com/${app_url}/ui/dashboard/wazuhCore-${version}-${revision}.zip"
     fi
 else
@@ -88,7 +97,7 @@ cd ${build_dir} && tar czf "${rpm_build_dir}/SOURCES/${pkg_name}.tar.gz" "${pkg_
 # Building RPM
 /usr/bin/rpmbuild --define "_topdir ${rpm_build_dir}" --define "_version ${version}" \
     --define "_release ${revision}" --define "_localstatedir ${directory_base}" \
-    --define "_url ${app_url}" --define "_plugin_main ${plugin_main}" --define "_plugin_updates ${plugin_updates}" --define "_plugin_core ${plugin_core}" \
+    --define "_url_plugin_main ${url_main}" --define "_url_plugin_updates ${url_updates}" --define "_url_plugin_core ${url_core}" \
     --target ${architecture} -ba ${rpm_build_dir}/SPECS/${pkg_name}.spec
 
 cd ${pkg_path} && sha512sum ${rpm_file} > /tmp/${rpm_file}.sha512
