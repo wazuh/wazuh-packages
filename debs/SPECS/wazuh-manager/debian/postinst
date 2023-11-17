@@ -170,6 +170,8 @@ case "$1" in
     chmod 0660 ${DIR}/logs/active-responses.log
     chmod 0640 ${DIR}/logs/integrations.log
 
+    # Set merged.mg permissions to new ones
+    find ${DIR}/etc/shared/ -type f -name 'merged.mg' -exec chmod 644 {} \;
 
     if [ -f ${DIR}/etc/shared/ar.conf ]; then
         chown root:wazuh ${DIR}/etc/shared/ar.conf
