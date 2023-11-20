@@ -330,6 +330,9 @@ fi
 rm -f %{_localstatedir}/etc/shared/ar.conf  >/dev/null 2>&1
 rm -f %{_localstatedir}/etc/shared/merged.mg  >/dev/null 2>&1
 
+# Set merged.mg permissions to new ones
+find %{_localstatedir}/etc/shared/ -type f -name 'merged.mg' -exec chmod 644 {} \;
+
 # CentOS
 if [ -r "/etc/centos-release" ]; then
   DIST_NAME="centos"
