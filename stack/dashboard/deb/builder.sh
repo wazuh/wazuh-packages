@@ -14,11 +14,10 @@ target="wazuh-dashboard"
 architecture=$1
 revision=$2
 future=$3
-app_url=$4
-plugin_main=$5
-plugin_updates=$6
-plugin_core=$7
-reference=$8
+plugin_main=$4
+plugin_updates=$5
+plugin_core=$6
+reference=$7
 directory_base="/usr/share/wazuh-dashboard"
 
 if [ -z "${revision}" ]; then
@@ -35,19 +34,19 @@ else
     fi
 fi
 
-if [ "${app_url}" ] && [ "${plugin_main}" ] && [ "${plugin_updates}" ] && [ "${plugin_core}" ] ;then
+if [ "${plugin_main}" ] && [ "${plugin_updates}" ] && [ "${plugin_core}" ] ;then
     valid_url='(https?|ftp|file)://[-[:alnum:]\+&@#/%?=~_|!:,.;]*[-[:alnum:]\+&@#/%=~_|]'
-    if [[ "${app_url}/${plugin_main}" =~ $valid_url ]];then
-        url_main="${app_url}/${plugin_main}"
-        if ! curl --output /dev/null --silent --head --fail "${app_url}/${plugin_main}"; then
-            echo "The given URL to download the Wazuh main plugin ZIP does not exist: ${app_url}/${plugin_main}"
+    if [[ "${plugin_main}" =~ $valid_url ]];then
+        url_main="${plugin_main}"
+        if ! curl --output /dev/null --silent --head --fail "${url_main}"; then
+            echo "The given URL to download the Wazuh main plugin ZIP does not exist: ${url_main}"
             exit 1
         fi
     else
         url_main="https://packages-dev.wazuh.com/${app_url}/ui/dashboard/wazuh-${version}-${revision}.zip"
     fi
-    if [[ "${app_url}/${plugin_updates}" =~ $valid_url ]];then
-        url_updates="${app_url}/${plugin_updates}"
+    if [[ "${plugin_updates}" =~ $valid_url ]];then
+        url_updates="${plugin_updates}"
         if ! curl --output /dev/null --silent --head --fail "${url_updates}"; then
             echo "The given URL to download the Wazuh Check Updates plugin ZIP does not exist: ${url_updates}"
             exit 1
@@ -55,8 +54,8 @@ if [ "${app_url}" ] && [ "${plugin_main}" ] && [ "${plugin_updates}" ] && [ "${p
     else
         url_updates="https://packages-dev.wazuh.com/${app_url}/ui/dashboard/wazuhCheckUpdates-${version}-${revision}.zip"
     fi
-    if [[ "${app_url}/${plugin_core}" =~ $valid_url ]];then
-        url_core="${app_url}/${plugin_core}"
+    if [[ "${plugin_core}" =~ $valid_url ]];then
+        url_core="${plugin_core}"
         if ! curl --output /dev/null --silent --head --fail "${url_core}"; then
             echo "The given URL to download the Wazuh Core plugin ZIP does not exist: ${url_core}"
             exit 1
@@ -75,7 +74,6 @@ build_dir=/build
 pkg_name="${target}-${version}"
 pkg_path="${build_dir}/${target}"
 source_dir="${pkg_path}/${pkg_name}"
-
 mkdir -p ${source_dir}/debian
 
 # Including spec file

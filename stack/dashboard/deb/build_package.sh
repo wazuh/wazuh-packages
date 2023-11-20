@@ -17,11 +17,14 @@ deb_amd64_builder="deb_dashboard_builder_amd64"
 deb_builder_dockerfile="${current_path}/docker"
 future="no"
 base_cmd=""
-app_url=""
 plugin_main=""
 plugin_updates=""
 plugin_core=""
 build_base="yes"
+have_main=false
+have_updates=false
+have_core=false
+version=""
 
 trap ctrl_c INT
 
@@ -38,13 +41,18 @@ ctrl_c() {
     clean 1
 }
 
+set_version() {
+    if [ "${reference}" ];then
+        version=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${reference}/VERSION | cat)
+    else
+        version=$(cat ${current_path}/../../../VERSION)
+    fi
+}
+
 build_deb() {
     container_name="$1"
     dockerfile_path="$2"
 
-    if [ "${app_url_reference}" ]; then
-        app_url="${app_url_reference}"
-    fi
     if [ "${plugin_main_reference}" ];then
         plugin_main="${plugin_main_reference}"
     fi
@@ -66,16 +74,11 @@ build_deb() {
         if [ "${reference}" ];then
             base_cmd+="--reference ${reference}"
         fi
-        if [ "${app_url_reference}" ];then
-            base_cmd+="--app-url ${app_url}/${plugin_main}"
+        if [ "${plugin_main_reference}" ];then
+            base_cmd+="--app-url ${plugin_main_reference}"
         fi
         ../base/generate_base.sh -s ${outdir} -r ${revision} ${base_cmd}
     else
-        if [ "${reference}" ];then
-            version=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${reference}/VERSION | cat)
-        else
-            version=$(cat ${current_path}/../../../VERSION)
-        fi
         basefile="${outdir}/wazuh-dashboard-base-${version}-${revision}-linux-x64.tar.xz"
         if ! test -f "${basefile}"; then
             echo "Did not find expected Wazuh dashboard base file: ${basefile} in output path. Exiting..."
@@ -93,12 +96,12 @@ build_deb() {
     if [ "${reference}" ];then
         docker run -t --rm ${volumes} \
             ${container_name} ${architecture} ${revision} \
-            ${future} ${app_url} ${plugin_main} ${plugin_updates} ${plugin_core} ${reference} || return 1
+            ${future} ${plugin_main} ${plugin_updates} ${plugin_core} ${reference} || return 1
     else
         docker run -t --rm ${volumes} \
             -v ${current_path}/../../..:/root:Z \
             ${container_name} ${architecture} ${revision} \
-            ${future} ${app_url} ${plugin_main} ${plugin_updates} ${plugin_core}  || return 1
+            ${future} ${plugin_main} ${plugin_updates} ${plugin_core}  || return 1
     fi
 
     echo "Package $(ls -Art ${outdir} | tail -n 1) added to ${outdir}."
@@ -134,17 +137,14 @@ help() {
     echo -e "        -a, --architecture <arch>"
     echo -e "                [Optional] Target architecture of the package [amd64]."
     echo -e ""
-    echo -e "        -ar, --app-repo <url>"
-    echo -e "                [Optional] URL where Wazuh plugins are located."
+    echo -e "        -m, --main-app <URL>"
+    echo -e "                [Optional] Wazuh main plugin URL."
     echo -e ""
-    echo -e "        -m, --main-app <name>"
-    echo -e "                [Required by '-ar, --app-repo'] Wazuh main plugin filename located at the URL provided, must include ZIP extension."
+    echo -e "        -u, --updates-app <URL>"
+    echo -e "                [Optional] Wazuh Check Updates plugin URL."
     echo -e ""
-    echo -e "        -u, --updates-app <name>"
-    echo -e "                [Required by '-ar, --app-repo'] Wazuh Check Updates plugin filename located at the URL provided, must include ZIP extension."
-    echo -e ""
-    echo -e "        -c, --core-app <name>"
-    echo -e "                [Required by '-ar, --app-repo'] Wazuh Core plugin filename located at the URL provided, must include ZIP extension."
+    echo -e "        -c, --core-app <URL>"
+    echo -e "                [Optional] Wazuh Core plugin URL."
     echo -e ""
     echo -e "        -b, --build-base <yes/no>"
     echo -e "                [Optional] Build a new base or use a existing one. By default, yes."
@@ -186,17 +186,10 @@ main() {
                 help 1
             fi
             ;;
-       "-ar"|"--app-repo")
-            if [ -n "$2" ]; then
-                app_url_reference="$2"
-                shift 2
-            else
-                help 1
-            fi
-            ;;
         "-m"|"--main-app-url")
             if [ -n "$2" ]; then
                 plugin_main_reference="$2"
+                have_main=true
                 shift 2
             else
                 help 1
@@ -205,6 +198,7 @@ main() {
         "-u"|"--updates-app-url")
             if [ -n "$2" ]; then
                 plugin_updates_reference="$2"
+                have_updates=true
                 shift 2
             else
                 help 1
@@ -213,6 +207,7 @@ main() {
         "-c"|"--core-app-url")
             if [ -n "$2" ]; then
                 plugin_core_reference="$2"
+                have_core=true
                 shift 2
             else
                 help 1
@@ -263,15 +258,12 @@ main() {
         esac
     done
 
-    if [ ${app_url_reference} ] && [ ${plugin_main_reference} ] && [ ${plugin_updates_reference} ] && [ ${plugin_core_reference} ]; then
-        echo "The Wazuh dashboard package will be created using the following plugins URLs:"
-        echo "Wazuh main plugin: ${app_url_reference}/${plugin_main_reference}"
-        echo "Wazuh Check Updates plugin: ${app_url_reference}/${plugin_updates_reference}"
-        echo "Wazuh Core plugin: ${app_url_reference}/${plugin_core_reference}"
-    elif [ ! ${app_url_reference} ] && [ ! ${plugin_main_reference} ] && [ ! ${plugin_updates_reference} ] && [ ! ${plugin_core_reference} ]; then
-        echo "No Wazuh plugins have been defined, will use pre-release."
-    else
-        echo "The -ar, -m, -u, and -c options must be used together."
+    set_version
+
+    if [ ! "${plugin_main_reference}" ] && [ ! "${plugin_updates_reference}" ] && [ ! "${plugin_core_reference}" ]; then
+        echo "No Wazuh plugins have been defined, ${version} pre-release development packages with revision ${revision} will be used."
+    elif [[ ${have_main} != ${have_updates} ]] || [[ ${have_updates} != ${have_core} ]]; then
+        echo "The -m, -u, and -c options must be used together."
         exit 1
     fi
 
