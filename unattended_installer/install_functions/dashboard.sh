@@ -216,32 +216,3 @@ function dashboard_install() {
     fi
 
 }
-
-function dashboard_installReportDependencies() {
-
-    # Flags that indicates that is an optional installation.
-    optional_installation=1
-    report_dependencies=1
-
-    installCommon_checkChromium
-
-    if [ "${sys_type}" == "yum" ]; then
-        dashboard_dependencies+=( nss xorg-x11-fonts-100dpi xorg-x11-fonts-75dpi xorg-x11-utils xorg-x11-fonts-cyrillic xorg-x11-fonts-Type1 xorg-x11-fonts-misc fontconfig freetype )
-        installCommon_yumInstallList "${dashboard_dependencies[@]}"
-
-        # In RHEL cases, remove the CentOS repositories configuration
-        if [ "${centos_repos_configured}" == 1 ]; then
-            installCommon_removeCentOSrepositories
-        fi
-    
-    elif [ "${sys_type}" == "apt-get" ]; then
-        dashboard_dependencies+=( libnss3-dev fonts-liberation libfontconfig1 )
-        installCommon_aptInstallList "${dashboard_dependencies[@]}"
-    fi
-
-    if [ "${pdf_warning}" == 1 ]; then
-        common_logger -w "Wazuh dashboard dependencies skipped. PDF report generation may not work."
-    fi
-    optional_installation=0
-
-}
