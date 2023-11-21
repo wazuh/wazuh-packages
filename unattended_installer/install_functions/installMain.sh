@@ -217,10 +217,6 @@ function main() {
 
     common_checkSystem
 
-    if [ -z "${uninstall}" ]; then
-        installCommon_installCheckDependencies
-    fi
-    
     if [ -z "${download}" ]; then
         check_dist
     fi

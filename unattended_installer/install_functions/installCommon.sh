@@ -6,6 +6,22 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
+function installCommon_addCentOSRepository() {
+
+    local repo_name="$1"
+    local repo_description="$2"
+    local repo_baseurl="$3"
+
+    echo "[$repo_name]" >> "${centos_repo}"
+    echo "name=${repo_description}" >> "${centos_repo}"
+    echo "baseurl=${repo_baseurl}" >> "${centos_repo}"
+    echo 'gpgcheck=1' >> "${centos_repo}"
+    echo 'enabled=1' >> "${centos_repo}"
+    echo "gpgkey=file://${centos_key}" >> "${centos_repo}"
+    echo '' >> "${centos_repo}"
+
+}
+
 function installCommon_cleanExit() {
 
     rollback_conf=""
@@ -263,6 +279,35 @@ function installCommon_changePasswords() {
 
 }
 
+# Adds the CentOS repository to install lsof.
+function installCommon_configureCentOSRepositories() {
+
+    centos_repos_configured=1
+    centos_key="/etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial"
+    eval "common_curl -sLo ${centos_key} 'https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official' --max-time 300 --retry 5 --retry-delay 5 --fail"
+
+    if [ ! -f "${centos_key}" ]; then
+        common_logger -w "The CentOS key could not be added. Chromium package skipped."
+        pdf_warning=1
+    else
+        centos_repo="/etc/yum.repos.d/centos.repo"
+        eval "touch ${centos_repo} ${debug}"
+        common_logger -d "CentOS repository file created."
+
+        if [ "${DIST_VER}" == "9" ]; then
+            installCommon_addCentOSRepository "appstream" "CentOS Stream \$releasever - AppStream" "https://mirror.stream.centos.org/9-stream/AppStream/\$basearch/os/"
+            installCommon_addCentOSRepository "baseos" "CentOS Stream \$releasever - BaseOS" "https://mirror.stream.centos.org/9-stream/BaseOS/\$basearch/os/"
+        elif [ "${DIST_VER}" == "8" ]; then
+            installCommon_addCentOSRepository "extras" "CentOS Linux \$releasever - Extras" "http://vault.centos.org/centos/\$releasever/extras/\$basearch/os/"
+            installCommon_addCentOSRepository "baseos" "CentOS Linux \$releasever - BaseOS" "http://vault.centos.org/centos/\$releasever/BaseOS/\$basearch/os/"
+            installCommon_addCentOSRepository "appstream" "CentOS Linux \$releasever - AppStream" "http://vault.centos.org/centos/\$releasever/AppStream/\$basearch/os/"
+        fi
+
+        common_logger -d "CentOS repositories added."
+    fi
+
+}
+
 function installCommon_extractConfig() {
 
     if ! tar -tf "${tar_file}" | grep -q wazuh-install-files/config.yml; then
@@ -302,7 +347,15 @@ function installCommon_installCheckDependencies() {
 
     if [ "${sys_type}" == "yum" ]; then
         dependencies=( systemd grep tar coreutils sed procps-ng gawk lsof curl openssl )
+        if [[ "${DIST_NAME}" == "rhel" ]] && [[ "${DIST_VER}" == "8" || "${DIST_VER}" == "9" ]]; then
+            installCommon_configureCentOSRepositories
+        fi
         installCommon_yumInstallList "${dependencies[@]}"
+
+        # In RHEL cases, remove the CentOS repositories configuration
+        if [ "${centos_repos_configured}" == 1 ]; then
+            installCommon_removeCentOSrepositories
+        fi
 
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "apt-get update -q ${debug}"
@@ -458,6 +511,16 @@ function installCommon_restoreWazuhrepo() {
         eval "sed -i 's/pre-release/4.x/g' ${file} ${debug}"
         eval "sed -i 's/unstable/stable/g' ${file} ${debug}"
     fi
+
+}
+
+function installCommon_removeCentOSrepositories() {
+
+    eval "rm -f ${centos_repo} ${debug}"
+    eval "rm -f ${centos_key} ${debug}"
+    eval "yum clean all ${debug}"
+    centos_repos_configured=0
+    common_logger -d "CentOS repositories and key deleted."
 
 }
 
