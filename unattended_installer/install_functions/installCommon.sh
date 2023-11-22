@@ -279,7 +279,7 @@ function installCommon_changePasswords() {
 
 }
 
-# Adds the CentOS repository to install the dashboard dependencies. 
+# Adds the CentOS repository to install lsof.
 function installCommon_configureCentOSRepositories() {
 
     centos_repos_configured=1
@@ -347,7 +347,15 @@ function installCommon_installCheckDependencies() {
 
     if [ "${sys_type}" == "yum" ]; then
         dependencies=( systemd grep tar coreutils sed procps-ng gawk lsof curl openssl )
+        if [[ "${DIST_NAME}" == "rhel" ]] && [[ "${DIST_VER}" == "8" || "${DIST_VER}" == "9" ]]; then
+            installCommon_configureCentOSRepositories
+        fi
         installCommon_yumInstallList "${dependencies[@]}"
+
+        # In RHEL cases, remove the CentOS repositories configuration
+        if [ "${centos_repos_configured}" == 1 ]; then
+            installCommon_removeCentOSrepositories
+        fi
 
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "apt-get update -q ${debug}"
@@ -507,7 +515,7 @@ function installCommon_restoreWazuhrepo() {
 }
 
 function installCommon_removeCentOSrepositories() {
-    
+
     eval "rm -f ${centos_repo} ${debug}"
     eval "rm -f ${centos_key} ${debug}"
     eval "yum clean all ${debug}"
