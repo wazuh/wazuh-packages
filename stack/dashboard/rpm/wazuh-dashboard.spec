@@ -331,6 +331,8 @@ rm -fr %{buildroot}
 %config(noreplace) %attr(640, %{USER}, %{GROUP}) "%{CONFIG_DIR}/opensearch_dashboards.yml"
 
 %changelog
+* Tue Jan 30 2024 support <info@wazuh.com> - 4.8.1
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-8-1.html
 * Fri Dec 15 2023 support <info@wazuh.com> - 4.8.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-8-0.html
 * Thu Dec 07 2023 support <info@wazuh.com> - 4.7.1
