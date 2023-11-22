@@ -78,7 +78,7 @@ jobs:
         if : steps.changes.outputs.rpm_packages == 'true' || (steps.changes.outputs.rpm_images_i386 == 'true' && matrix.ARCHITECTURE == 'i386') || (steps.changes.outputs.rpm_images_x86_64 == 'true' && matrix.ARCHITECTURE == 'x86_64')
         run: |
           VERSION=$(cat $GITHUB_WORKSPACE/VERSION)
-          REVISION=$( echo ${{ github.head_ref }} | sed 's/-/./g' )
+          REVISION=$( echo ${{ github.head_ref }} | sed 's/-/./g; s/\//./g' )
           echo "PACKAGE_NAME=wazuh-${{ matrix.type }}-${VERSION}-${REVISION}.${{matrix.system.ARCH}}.rpm" >> $GITHUB_ENV
 
       - name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.system.NAME }}
