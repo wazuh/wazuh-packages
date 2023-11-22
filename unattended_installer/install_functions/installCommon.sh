@@ -287,8 +287,7 @@ function installCommon_configureCentOSRepositories() {
     eval "common_curl -sLo ${centos_key} 'https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official' --max-time 300 --retry 5 --retry-delay 5 --fail"
 
     if [ ! -f "${centos_key}" ]; then
-        common_logger -w "The CentOS key could not be added. Chromium package skipped."
-        pdf_warning=1
+        common_logger -w "The CentOS key could not be added. Some dependencies may not be installed."
     else
         centos_repo="/etc/yum.repos.d/centos.repo"
         eval "touch ${centos_repo} ${debug}"
