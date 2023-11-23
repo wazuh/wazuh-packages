@@ -69,16 +69,32 @@ build() {
 # -----------------------------------------------------------------------------
 
 help() {
-    echo
-    echo "Usage: $0 [OPTIONS]"
-    echo
-    echo "    --app-url <url>            [Optional] Set the repository from where the Wazuh plugin should be downloaded. By default, will be used pre-release."
-    echo "    -s, --store <path>         [Optional] Set the destination path of package. By default, an output folder will be created."
-    echo "    --reference <ref>          [Optional] wazuh-packages branch or tag"
-    echo "    --future                   [Optional] Build test future package 99.99.0 Used for development purposes."
-    echo "    -r, --revision <rev>       [Optional] Package revision. By default ${revision}"
-    echo "    -h, --help                 Show this help."
-    echo
+    echo -e ""
+    echo -e "NAME"
+    echo -e "        $(basename "$0") - Build Wazuh dashboard base file."
+    echo -e ""
+    echo -e "SYNOPSIS"
+    echo -e "        $(basename "$0") -a | -s | -b | -f | -r | -h"
+    echo -e ""
+    echo -e "DESCRIPTION"
+    echo -e "        --app-url <url>"
+    echo -e "                [Optional] Set the repository from where the Wazuh plugin should be downloaded."
+    echo -e ""
+    echo -e "        -s, --store <path>"
+    echo -e "                [Optional] Set the destination path of package. By default, an output folder will be created."
+    echo -e ""
+    echo -e "        --reference <ref>"
+    echo -e "                [Optional] wazuh-packages branch or tag."
+    echo -e ""
+    echo -e "        --future"
+    echo -e "                [Optional] Build test future package. Used for development purposes."
+    echo -e ""
+    echo -e "        -r, --revision <rev>"
+    echo -e "                [Optional] Package revision."
+    echo -e ""
+    echo -e "        -h, --help"
+    echo -e "                Show this help."
+    echo -e ""
     exit $1
 }
 
