@@ -65,7 +65,7 @@ jobs:
         if : steps.changes.outputs.rpm_packages == 'true' || (steps.changes.outputs.rpm_images_i386 == 'true' && matrix.ARCHITECTURE == 'i386') || (steps.changes.outputs.rpm_images_x86_64 == 'true' && matrix.ARCHITECTURE == 'x86_64')
         working-directory: ./rpms
         run: |
-          REVISION=$( echo ${{ github.head_ref }} | sed 's/-/./g' )
+          REVISION=$( echo ${{ github.head_ref }} | sed 's/-/./g; s/\//./g' )
           bash generate_rpm_package.sh -b ${{ env.VERSION }} -t ${{ matrix.TYPE }} -a ${{ matrix.ARCHITECTURE }} --dev -j 2 --dont-build-docker --tag ${{ env.TAG }} -r $REVISION
           echo "PACKAGE_NAME=$(ls ./output | grep .rpm | head -n 1)" >> $GITHUB_ENV
 
