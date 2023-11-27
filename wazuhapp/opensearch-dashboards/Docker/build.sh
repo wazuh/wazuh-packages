@@ -9,8 +9,8 @@ app_revision=$3
 
 # Paths
 plugin_platform_dir="/tmp/source"
-source_dir="${plugin_platform_dir}/plugins/wazuh"
-build_dir="${source_dir}/build"
+source_dir="${plugin_platform_dir}/plugins"
+packages_list=( "main_wazuh" "wazuh-check-updates_wazuhCheckUpdates" "wazuh-core_wazuhCore" )
 destination_dir="/wazuh_app"
 checksum_dir="/var/local/checksum"
 git_clone_tmp_dir="/tmp/wazuh-app"
@@ -107,29 +107,53 @@ download_wazuh_app_sources() {
         exit 1
     fi
 
-    cp -r ${git_clone_tmp_dir}/plugins/main ${source_dir}
+    for item in ${packages_list[@]}; do
+        array=(${item//_/ })
+        cp -r "${git_clone_tmp_dir}/plugins/${array[0]}" "${source_dir}/${array[0]}"
+    done
+}
+
+check_revisions() {
+    dirs=()
+    for item in ${packages_list[@]}; do
+        dirs+=(${item//_/ })
+    done
+
+    main_revision=$(jq -r '.revision' ${source_dir}/${dirs[0]}/package.json)
+    check_update_revision=$(jq -r '.revision' ${source_dir}/${dirs[2]}/package.json)
+    core_revision=$(jq -r '.revision' ${source_dir}/${dirs[4]}/package.json)
+
+    if [ "${main_revision}" != "${check_update_revision}" ] || [ "${check_update_revision}" != "${core_revision}" ]; then
+        echo "The package.json revisions do not match. All revisions must be equal."
+        exit 1
+    else
+        echo "The package.json revision match."
+    fi
 }
 
 build_package(){
 
-    cd $source_dir
+    for item in ${packages_list[@]}; do
 
-    # Set pkg name
-    if [ -z "${app_revision}" ]; then
-        wazuh_app_pkg_name="wazuh-${wazuh_version}.zip"
-    else
-        wazuh_app_pkg_name="wazuh-${wazuh_version}-${app_revision}.zip"
-    fi
+        array=(${item//_/ })
 
-    # Build the package
-    yarn
-    OPENSEARCH_DASHBOARDS_VERSION=${plugin_platform_version} yarn build --allow-root
+        if [ -z "${app_revision}" ]; then
+            wazuh_app_pkg_name="${array[1]}-${wazuh_version}.zip"
+        else
+            wazuh_app_pkg_name="${array[1]}-${wazuh_version}-${app_revision}.zip"
+        fi
 
-    find ${build_dir} -name "*.zip" -exec mv {} ${destination_dir}/${wazuh_app_pkg_name} \;
+        cd "${source_dir}/${array[0]}"
+        yarn
+        OPENSEARCH_DASHBOARDS_VERSION=${plugin_platform_version} yarn build --allow-root
 
-    if [ "${checksum}" = "yes" ]; then
-        cd ${destination_dir} && sha512sum "${wazuh_app_pkg_name}" > "${checksum_dir}/${wazuh_app_pkg_name}".sha512
-    fi
+        find "${source_dir}/${array[0]}" -name "*.zip" -exec mv {} ${destination_dir}/${wazuh_app_pkg_name} \;
+
+        if [ "${checksum}" = "yes" ]; then
+            cd ${destination_dir} && sha512sum "${wazuh_app_pkg_name}" > "${checksum_dir}/${wazuh_app_pkg_name}".sha512
+        fi
+
+    done
 
     exit 0
 }
@@ -139,4 +163,5 @@ prepare_env
 download_plugin_platform_sources
 install_dependencies
 download_wazuh_app_sources
+check_revisions
 build_package
