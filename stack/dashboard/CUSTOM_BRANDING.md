@@ -4,7 +4,7 @@ Wazuh dashboard allows to apply a custom branding.
 
 ## Customize through OpenSearch Dashboards settings
 
-This uses the built-in settings of OpenSearch Dashboards, for more information, see: https://opensearch.org/docs/2.10/dashboards/branding/.
+This uses the built-in settings of OpenSearch Dashboards, for more information, see: https://opensearch.org/docs/2.10/dashboards/branding/
 
 ## Replace the default assets of Wazuh dashboard
 
