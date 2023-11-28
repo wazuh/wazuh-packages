@@ -70,7 +70,7 @@ function common_checkInstalled() {
     dashboard_installed=""
 
     if [ "${sys_type}" == "yum" ]; then
-        installCommon_checkYumLock
+        common_checkYumLock
         wazuh_installed=$(yum list installed 2>/dev/null | grep wazuh-manager)
     elif [ "${sys_type}" == "apt-get" ]; then
         wazuh_installed=$(apt list --installed  2>/dev/null | grep wazuh-manager)
@@ -82,7 +82,7 @@ function common_checkInstalled() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
-        installCommon_checkYumLock
+        common_checkYumLock
         indexer_installed=$(yum list installed 2>/dev/null | grep wazuh-indexer)
     elif [ "${sys_type}" == "apt-get" ]; then
         indexer_installed=$(apt list --installed 2>/dev/null | grep wazuh-indexer)
@@ -94,7 +94,7 @@ function common_checkInstalled() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
-        installCommon_checkYumLock
+        common_checkYumLock
         filebeat_installed=$(yum list installed 2>/dev/null | grep filebeat)
     elif [ "${sys_type}" == "apt-get" ]; then
         filebeat_installed=$(apt list --installed  2>/dev/null | grep filebeat)
@@ -106,7 +106,7 @@ function common_checkInstalled() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
-        installCommon_checkYumLock
+        common_checkYumLock
         dashboard_installed=$(yum list installed 2>/dev/null | grep wazuh-dashboard)
     elif [ "${sys_type}" == "apt-get" ]; then
         dashboard_installed=$(apt list --installed  2>/dev/null | grep wazuh-dashboard)
@@ -187,5 +187,19 @@ function common_remove_gpg_key() {
             return 1
         fi
     fi
+
+}
+
+function common_checkYumLock() {
+
+    attempt=0
+    seconds=30
+    max_attempts=10
+
+    while [ -f "${yum_lockfile}" ] && [ "${attempt}" -lt "${max_attempts}" ]; do
+        attempt=$((attempt+1))
+        common_logger "Another process is using YUM. Waiting for it to release the lock. Next retry in ${seconds} seconds (${attempt}/${max_attempts})"
+        sleep "${seconds}"
+    done
 
 }

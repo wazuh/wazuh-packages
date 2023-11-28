@@ -94,8 +94,12 @@ chown root:root %{buildroot}/etc/systemd/system/wazuh-dashboard.service
 
 if [ "%{version}" = "99.99.0" ];then
     runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/futures/ui/dashboard/wazuh-99.99.0-%{release}.zip"
+    runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/futures/ui/dashboard/wazuhCheckUpdates-99.99.0-%{release}.zip"
+    runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install https://packages-dev.wazuh.com/futures/ui/dashboard/wazuhCore-99.99.0-%{release}.zip"
 else
-    runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install %{_url}"
+    runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install %{_url_plugin_main}"
+    runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install %{_url_plugin_updates}"
+    runuser %{USER} --shell="/bin/bash" --command="%{buildroot}%{INSTALL_DIR}/bin/opensearch-dashboards-plugin install %{_url_plugin_core}"
 fi
 
 find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -exec chown %{USER}:%{GROUP} {} \;
@@ -333,13 +337,15 @@ rm -fr %{buildroot}
 %changelog
 * Thu Mar 28 2024 support <info@wazuh.com> - 4.9.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-9-0.html
+* Tue Jan 30 2024 support <info@wazuh.com> - 4.8.1
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-8-1.html
 * Fri Dec 15 2023 support <info@wazuh.com> - 4.8.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-8-0.html
-* Thu Dec 07 2023 support <info@wazuh.com> - 4.7.1
+* Tue Dec 05 2023 support <info@wazuh.com> - 4.7.1
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-7-1.html
 * Tue Nov 21 2023 support <info@wazuh.com> - 4.7.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-7-0.html
-* Tue Oct 24 2023 support <info@wazuh.com> - 4.6.0
+* Tue Oct 31 2023 support <info@wazuh.com> - 4.6.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-6-0.html
 * Tue Oct 24 2023 support <info@wazuh.com> - 4.5.4
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-5-4.html
