@@ -125,7 +125,8 @@ function installCommon_aptInstallList(){
             common_logger "Installing $dep."
             installCommon_aptInstall "${dep}"
             if [ "${install_result}" != 0 ]; then
-                installCommon_checkOptionalInstallation
+                common_logger -e "Cannot install dependency: ${dep}."
+                exit 1
             fi
         done
     fi
@@ -163,34 +164,6 @@ function installCommon_changePasswordApi() {
                 passwords_changeDashboardApiPassword "${password}"
         fi
     fi
-
-}
-
-function installCommon_checkOptionalInstallation() {
-
-    if [ "${optional_installation}" != 1 ]; then
-        common_logger -e "Cannot install dependency: ${dep}."
-        exit 1
-    else
-        common_logger -w "Cannot install optional dependency: ${dep}."
-        if [ "${report_dependencies}" == 1 ]; then
-            pdf_warning=1
-        fi
-    fi
-
-}
-
-function installCommon_checkAptLock() {
-
-    attempt=0
-    seconds=30
-    max_attempts=10
-
-    while fuser "${apt_lockfile}" >/dev/null 2>&1 && [ "${attempt}" -lt "${max_attempts}" ]; do
-        attempt=$((attempt+1))
-        common_logger "Another process is using APT. Waiting for it to release the lock. Next retry in ${seconds} seconds (${attempt}/${max_attempts})"
-        sleep "${seconds}"
-    done
 
 }
 
@@ -300,38 +273,7 @@ function installCommon_changePasswords() {
 
 }
 
-function installCommon_checkChromium() {
-
-    if [ "${sys_type}" == "yum" ]; then
-        common_checkYumLock
-        if (! yum list installed 2>/dev/null | grep -q -E ^"google-chrome-stable"\\.) && (! yum list installed 2>/dev/null | grep -q -E ^"chromium"\\.); then
-            if [ "${DIST_NAME}" == "amzn" ]; then
-                installCommon_installChrome
-            elif [[ "${DIST_NAME}" == "centos" ]] && [[ "${DIST_VER}" == "7" ]]; then
-                installCommon_installChrome
-            elif [[ "${DIST_NAME}" == "rhel" ]] && [[ "${DIST_VER}" == "8" || "${DIST_VER}" == "9" ]]; then
-                installCommon_configureCentOSRepositories
-                dashboard_dependencies=(chromium)
-            else
-                dashboard_dependencies=(chromium)
-            fi
-        fi
-
-    elif [ "${sys_type}" == "apt-get" ]; then
-        if (! apt list --installed 2>/dev/null | grep -q -E ^"google-chrome-stable"\/) && (! apt list --installed 2>/dev/null | grep -q -E ^"chromium-browser"\/); then
-
-            # Report generation doesn't work with Chromium in Ubuntu 22 and Ubuntu 20
-            if [[ "${DIST_NAME}" == "ubuntu" ]] && [[ "${DIST_VER}" == "22" || "${DIST_VER}" == "20" || "${DIST_VER}" == "18" ]]; then
-                installCommon_installChrome
-            else
-                dashboard_dependencies=(chromium-browser)
-            fi
-        fi
-    fi
-
-}
-
-# Adds the CentOS repository to install the dashboard dependencies.
+# Adds the CentOS repository to install lsof.
 function installCommon_configureCentOSRepositories() {
 
     centos_repos_configured=1
@@ -339,8 +281,7 @@ function installCommon_configureCentOSRepositories() {
     eval "common_curl -sLo ${centos_key} 'https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official' --max-time 300 --retry 5 --retry-delay 5 --fail"
 
     if [ ! -f "${centos_key}" ]; then
-        common_logger -w "The CentOS key could not be added. Chromium package skipped."
-        pdf_warning=1
+        common_logger -w "The CentOS key could not be added. Some dependencies may not be installed."
     else
         centos_repo="/etc/yum.repos.d/centos.repo"
         eval "touch ${centos_repo} ${debug}"
@@ -401,38 +342,20 @@ function installCommon_installCheckDependencies() {
     common_logger -d "Installing check dependencies."
     if [ "${sys_type}" == "yum" ]; then
         dependencies=( systemd grep tar coreutils sed procps-ng gawk lsof curl openssl )
+        if [[ "${DIST_NAME}" == "rhel" ]] && [[ "${DIST_VER}" == "8" || "${DIST_VER}" == "9" ]]; then
+            installCommon_configureCentOSRepositories
+        fi
         installCommon_yumInstallList "${dependencies[@]}"
+
+        # In RHEL cases, remove the CentOS repositories configuration
+        if [ "${centos_repos_configured}" == 1 ]; then
+            installCommon_removeCentOSrepositories
+        fi
 
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "apt-get update -q ${debug}"
         dependencies=( systemd grep tar coreutils sed procps gawk lsof curl openssl )
         installCommon_aptInstallList "${dependencies[@]}"
-    fi
-
-}
-
-function installCommon_installChrome() {
-
-    dep="chrome"
-    common_logger "Installing ${dep}."
-
-    if [ "${sys_type}" == "yum" ]; then
-        chrome_package="/tmp/wazuh-install-files/chrome.rpm"
-        common_curl -sSo "${chrome_package}" https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm --max-time 100 --retry 5 --retry-delay 5 --fail
-        eval "yum install ${chrome_package} -y ${debug}"
-
-        if [ "${PIPESTATUS[0]}" != 0 ]; then
-            installCommon_checkOptionalInstallation
-        fi
-
-    elif [ "${sys_type}" == "apt-get" ]; then
-        chrome_package="/tmp/wazuh-install-files/chrome.deb"
-        common_curl -sSo "${chrome_package}" https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb --max-time 100 --retry 5 --retry-delay 5 --fail
-        installCommon_aptInstall "${chrome_package}"
-
-        if [ "${install_result}" != 0 ]; then
-            installCommon_checkOptionalInstallation
-        fi
     fi
 
 }
@@ -822,8 +745,10 @@ function installCommon_yumInstallList(){
             installCommon_yumInstall "${dep}"
             yum_code="${PIPESTATUS[0]}"
 
-            if [  "${install_result}" != 0  ]; then
-                installCommon_checkOptionalInstallation
+            eval "echo \${yum_output} ${debug}"
+            if [  "${yum_code}" != 0  ]; then
+                common_logger -e "Cannot install dependency: ${dep}."
+                exit 1
             fi
         done
     fi
