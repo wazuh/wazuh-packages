@@ -181,18 +181,6 @@ if [ ${1} = 2 ]; then
     fi
 fi
 
-# If is an upgrade, move the securityconfig files if they exist (4.3.x versions)
-if [ ${1} = 2 ]; then
-    if [ -d "%{INSTALL_DIR}"/plugins/opensearch-security/securityconfig ]; then
-
-        if [ ! -d "%{CONFIG_DIR}"/opensearch-security ]; then
-            mkdir "%{CONFIG_DIR}"/opensearch-security
-        fi
-
-        cp -r "%{INSTALL_DIR}"/plugins/opensearch-security/securityconfig/* "%{CONFIG_DIR}"/opensearch-security
-    fi
-fi
-
 # -----------------------------------------------------------------------------
 
 %preun
