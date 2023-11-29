@@ -177,6 +177,9 @@ sed -i 's|OPENSEARCH_ON_DARK="ui/logos/opensearch_on_dark.svg"|OPENSEARCH_ON_DAR
 sed -i 's|OPENSEARCH_ON_LIGHT="ui/logos/opensearch_on_light.svg"|OPENSEARCH_ON_LIGHT="ui/logos/Wazuh-Logo.svg"|g' ./src/core/target/public/core.entry.js
 sed -i 's|OPENSEARCH_ON_DARK="ui/logos/opensearch_on_dark.svg"|OPENSEARCH_ON_DARK="ui/logos/Wazuh-Logo.svg"|g' ./src/core/target/public/core.entry.js
 
+# Collapse initially the application categories in the side menu
+sed -i 's|_storage\$getItem!==void 0?_storage\$getItem:"true"|_storage\$getItem!==void 0?_storage\$getItem:"false"|' ./src/core/target/public/core.entry.js
+
 # Redirections
 ## Redirections - Replace the redirections to the home app
 app_home='wz-home'
