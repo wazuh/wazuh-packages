@@ -154,6 +154,9 @@ sed -i 's|GITHUB_CREATE_ISSUE_LINK="https://github.com/opensearch-project/OpenSe
 ## Custom logos - Login logo
 sed -i 's|props.chrome.logos.OpenSearch.url|props.http.basePath.prepend("/ui/logos/wazuh_dashboard_login_mark.svg")|g' ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js
 
+# Collapse initially the application categories in the side menu
+sed -i 's|_storage\$getItem!==void 0?_storage\$getItem:"true"|_storage\$getItem!==void 0?_storage\$getItem:"false"|' ./src/core/target/public/core.entry.js
+
 # Redirections
 ## Redirections - Replace the redirections to the home app
 app_home='wz-home'
