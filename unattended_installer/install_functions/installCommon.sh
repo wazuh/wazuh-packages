@@ -120,6 +120,12 @@ function installCommon_aptInstall() {
 function installCommon_aptInstallList(){
 
     dependencies=("$@")
+    installed_in_WIA=()
+    if [ "${#not_installed[@]}" -gt 0 ]; then
+        installed_in_WIA=("${not_installed[@]}")
+        not_installed=()
+    fi
+
     for dep in "${dependencies[@]}"; do
         if ! apt list --installed 2>/dev/null | grep -q -E ^"${dep}"\/; then
             not_installed+=("${dep}")
@@ -136,6 +142,10 @@ function installCommon_aptInstallList(){
                 exit 1
             fi
         done
+    fi
+
+    if [ "${#installed_in_WIA[@]}" -gt 0 ]; then
+        not_installed=("${installed_in_WIA[@]}")
     fi
 
 }
@@ -689,18 +699,37 @@ function installCommon_startService() {
 
 function installCommon_yumInstallList(){
 
-    common_logger "--- Dependencies ---"
-    for dep in "${not_installed[@]}"; do
-        common_logger "Installing $dep."
-        yum_output=$(yum install ${dep} -y 2>&1)
-        yum_code="${PIPESTATUS[0]}"
+    dependencies=("$@")
+    installed_in_WIA=()
+    if [ "${#not_installed[@]}" -gt 0 ]; then
+        installed_in_WIA=("${not_installed[@]}")
+        not_installed=()
+    fi
 
-        eval "echo \${yum_output} ${debug}"
-        if [  "${yum_code}" != 0  ]; then
-            common_logger -e "Cannot install dependency: ${dep}."
-            exit 1
+    for dep in "${dependencies[@]}"; do
+        if ! yum list installed 2>/dev/null | grep -q -E ^"${dep}"\\.;then
+            not_installed+=("${dep}")
         fi
     done
+
+    if [ "${#not_installed[@]}" -gt 0 ]; then
+        common_logger "--- Dependencies ---"
+        for dep in "${not_installed[@]}"; do
+            common_logger "Installing $dep."
+            yum_output=$(yum install ${dep} -y 2>&1)
+            yum_code="${PIPESTATUS[0]}"
+
+            eval "echo \${yum_output} ${debug}"
+            if [  "${yum_code}" != 0  ]; then
+                common_logger -e "Cannot install dependency: ${dep}."
+                exit 1
+            fi
+        done
+    fi
+
+    if [ "${#installed_in_WIA[@]}" -gt 0 ]; then
+        not_installed=("${installed_in_WIA[@]}")
+    fi
 
 }
 
