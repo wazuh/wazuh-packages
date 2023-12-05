@@ -120,15 +120,16 @@ function installCommon_aptInstall() {
 function installCommon_aptInstallList(){
 
     dependencies=("$@")
-    installed_in_WIA=()
-    if [ "${#not_installed[@]}" -gt 0 ]; then
-        installed_in_WIA=("${not_installed[@]}")
-        not_installed=()
-    fi
+    not_installed=()
 
     for dep in "${dependencies[@]}"; do
         if ! apt list --installed 2>/dev/null | grep -q -E ^"${dep}"\/; then
             not_installed+=("${dep}")
+            for wia_dep in "${wia_apt_dependencies[@]}"; do
+                if [ "${wia_dep}" == "${dep}" ]; then
+                    wia_dependencies_installed+=("${dep}")
+                fi
+            done
         fi
     done
 
@@ -142,10 +143,6 @@ function installCommon_aptInstallList(){
                 exit 1
             fi
         done
-    fi
-
-    if [ "${#installed_in_WIA[@]}" -gt 0 ]; then
-        not_installed=("${installed_in_WIA[@]}")
     fi
 
 }
@@ -353,11 +350,10 @@ function installCommon_getPass() {
 function installCommon_installCheckDependencies() {
 
     if [ "${sys_type}" == "yum" ]; then
-        dependencies=( systemd grep tar coreutils sed procps-ng gawk lsof curl openssl )
         if [[ "${DIST_NAME}" == "rhel" ]] && [[ "${DIST_VER}" == "8" || "${DIST_VER}" == "9" ]]; then
             installCommon_configureCentOSRepositories
         fi
-        installCommon_yumInstallList "${dependencies[@]}"
+        installCommon_yumInstallList "${wia_yum_dependencies[@]}"
 
         # In RHEL cases, remove the CentOS repositories configuration
         if [ "${centos_repos_configured}" == 1 ]; then
@@ -366,8 +362,7 @@ function installCommon_installCheckDependencies() {
 
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "apt-get update -q ${debug}"
-        dependencies=( systemd grep tar coreutils sed procps gawk lsof curl openssl )
-        installCommon_aptInstallList "${dependencies[@]}"
+        installCommon_aptInstallList "${wia_apt_dependencies[@]}"
     fi
 
 }
@@ -375,18 +370,11 @@ function installCommon_installCheckDependencies() {
 function installCommon_installPrerequisites() {
 
     if [ "${sys_type}" == "yum" ]; then
-        dependencies=( libcap gnupg2 )
-        for dep in "${dependencies[@]}"; do
-            if ! yum list installed 2>/dev/null | grep -q -E ^"${dep}"\\.;then
-                not_installed+=("${dep}")
-            fi
-        done
-        installCommon_yumInstallList "${dependencies[@]}"
-
+        installCommon_yumInstallList "${wazuh_yum_dependencies[@]}"
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "apt-get update -q ${debug}"
-        dependencies=( apt-transport-https libcap2-bin software-properties-common gnupg )
-        installCommon_aptInstallList "${dependencies[@]}"
+        dependencies=
+        installCommon_aptInstallList "${wazuh_apt_dependencies[@]}"
     fi
 
 }
@@ -700,15 +688,15 @@ function installCommon_startService() {
 function installCommon_yumInstallList(){
 
     dependencies=("$@")
-    installed_in_WIA=()
-    if [ "${#not_installed[@]}" -gt 0 ]; then
-        installed_in_WIA=("${not_installed[@]}")
-        not_installed=()
-    fi
-
+    not_installed=()
     for dep in "${dependencies[@]}"; do
         if ! yum list installed 2>/dev/null | grep -q -E ^"${dep}"\\.;then
             not_installed+=("${dep}")
+            for wia_dep in "${wia_yum_dependencies[@]}"; do
+                if [ "${wia_dep}" == "${dep}" ]; then
+                    wia_dependencies_installed+=("${dep}")
+                fi
+            done
         fi
     done
 
@@ -725,10 +713,6 @@ function installCommon_yumInstallList(){
                 exit 1
             fi
         done
-    fi
-
-    if [ "${#installed_in_WIA[@]}" -gt 0 ]; then
-        not_installed=("${installed_in_WIA[@]}")
     fi
 
 }
