@@ -120,8 +120,6 @@ function installCommon_aptInstall() {
 function installCommon_aptInstallList(){
 
     dependencies=("$@")
-    not_installed=()
-
     for dep in "${dependencies[@]}"; do
         if ! apt list --installed 2>/dev/null | grep -q -E ^"${dep}"\/; then
             not_installed+=("${dep}")
@@ -368,6 +366,11 @@ function installCommon_installPrerequisites() {
 
     if [ "${sys_type}" == "yum" ]; then
         dependencies=( libcap gnupg2 )
+        for dep in "${dependencies[@]}"; do
+            if ! yum list installed 2>/dev/null | grep -q -E ^"${dep}"\\.;then
+                not_installed+=("${dep}")
+            fi
+        done
         installCommon_yumInstallList "${dependencies[@]}"
 
     elif [ "${sys_type}" == "apt-get" ]; then
@@ -686,24 +689,62 @@ function installCommon_startService() {
 
 function installCommon_yumInstallList(){
 
-    dependencies=("$@")
-    not_installed=()
-    for dep in "${dependencies[@]}"; do
-        if ! yum list installed 2>/dev/null | grep -q -E ^"${dep}"\\.;then
-            not_installed+=("${dep}")
+    common_logger "--- Dependencies ---"
+    for dep in "${not_installed[@]}"; do
+        common_logger "Installing $dep."
+        yum_output=$(yum install ${dep} -y 2>&1)
+        yum_code="${PIPESTATUS[0]}"
+
+        eval "echo \${yum_output} ${debug}"
+        if [  "${yum_code}" != 0  ]; then
+            common_logger -e "Cannot install dependency: ${dep}."
+            exit 1
         fi
     done
+
+}
+
+function installCommon_removeWIADependencies() {
+
+    if [ "${sys_type}" == "yum" ]; then
+        installCommon_yumRemoveWIADependencies
+    elif [ "${sys_type}" == "apt-get" ]; then
+        installCommon_aptRemoveWIADependencies
+    fi
+
+}
+
+function installCommon_yumRemoveWIADependencies(){
 
     if [ "${#not_installed[@]}" -gt 0 ]; then
         common_logger "--- Dependencies ---"
         for dep in "${not_installed[@]}"; do
-            common_logger "Installing $dep."
-            yum_output=$(yum install ${dep} -y 2>&1)
+            common_logger "Removing $dep."
+            yum_output=$(yum remove ${dep} -y 2>&1)
             yum_code="${PIPESTATUS[0]}"
 
             eval "echo \${yum_output} ${debug}"
             if [  "${yum_code}" != 0  ]; then
-                common_logger -e "Cannot install dependency: ${dep}."
+                common_logger -e "Cannot remove dependency: ${dep}."
+                exit 1
+            fi
+        done
+    fi
+
+}
+
+function installCommon_aptRemoveWIADependencies(){
+
+    if [ "${#not_installed[@]}" -gt 0 ]; then
+        common_logger "--- Dependencies ----"
+        for dep in "${not_installed[@]}"; do
+            common_logger "Removing $dep."
+            apt_output=$(apt-get remove --purge ${dep} -y 2>&1)
+            apt_code="${PIPESTATUS[0]}"
+
+            eval "echo \${apt_output} ${debug}"
+            if [  "${apt_code}" != 0  ]; then
+                common_logger -e "Cannot remove dependency: ${dep}."
                 exit 1
             fi
         done
