@@ -729,9 +729,9 @@ function installCommon_removeWIADependencies() {
 
 function installCommon_yumRemoveWIADependencies(){
 
-    if [ "${#not_installed[@]}" -gt 0 ]; then
+    if [ "${#wia_dependencies_installed[@]}" -gt 0 ]; then
         common_logger "--- Dependencies ---"
-        for dep in "${not_installed[@]}"; do
+        for dep in "${wia_dependencies_installed[@]}"; do
             common_logger "Removing $dep."
             yum_output=$(yum remove ${dep} -y 2>&1)
             yum_code="${PIPESTATUS[0]}"
@@ -748,9 +748,9 @@ function installCommon_yumRemoveWIADependencies(){
 
 function installCommon_aptRemoveWIADependencies(){
 
-    if [ "${#not_installed[@]}" -gt 0 ]; then
+    if [ "${#wia_dependencies_installed[@]}" -gt 0 ]; then
         common_logger "--- Dependencies ----"
-        for dep in "${not_installed[@]}"; do
+        for dep in "${wia_dependencies_installed[@]}"; do
             common_logger "Removing $dep."
             apt_output=$(apt-get remove --purge ${dep} -y 2>&1)
             apt_code="${PIPESTATUS[0]}"
