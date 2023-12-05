@@ -9,23 +9,29 @@
 function filebeat_configure(){
 
     common_logger -d "Configuring Filebeat."
-    eval "common_curl -sSo /etc/filebeat/wazuh-template.json ${filebeat_wazuh_template} --max-time 300 --retry 5 --retry-delay 5 --fail"
-    if [ ! -f "/etc/filebeat/wazuh-template.json" ]; then
-        common_logger -e "Error downloading wazuh-template.json file."
-        installCommon_rollBack
-        exit 1
+
+    if [ -z "${offline_install}" ]; then
+        eval "common_curl -sSo /etc/filebeat/wazuh-template.json ${filebeat_wazuh_template} --max-time 300 --retry 5 --retry-delay 5 --fail"
+        if [ ! -f "/etc/filebeat/wazuh-template.json" ]; then
+            common_logger -e "Error downloading wazuh-template.json file."
+            installCommon_rollBack
+            exit 1
+        fi
+        common_logger -d "Filebeat template was download successfully."
+
+        eval "(common_curl -sS ${filebeat_wazuh_module} --max-time 300 --retry 5 --retry-delay 5 --fail | tar -xvz -C /usr/share/filebeat/module) ${debug}"
+        if [ ! -d "/usr/share/filebeat/module" ]; then
+            common_logger -e "Error downloading wazuh filebeat module."
+            installCommon_rollBack
+            exit 1
+        fi
+        common_logger -d "Filebeat module was downloaded successfully."
+    else
+        eval "cp ${offline_files_path}/wazuh-template.json /etc/filebeat/wazuh-template.json ${debug}"
+        eval "tar -xvzf ${offline_files_path}/wazuh-filebeat-*.tar.gz -C /usr/share/filebeat/module ${debug}"
     fi
-    common_logger -d "Filebeat template was download successfully."
 
     eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
-    eval "(common_curl -sS ${filebeat_wazuh_module} --max-time 300 --retry 5 --retry-delay 5 --fail | tar -xvz -C /usr/share/filebeat/module) ${debug}"
-    if [ ! -d "/usr/share/filebeat/module" ]; then
-        common_logger -e "Error downloading wazuh filebeat module."
-        installCommon_rollBack
-        exit 1
-    fi
-    common_logger -d "Filebeat module was downloaded successfully."
-
     if [ -n "${AIO}" ]; then
         eval "installCommon_getConfig filebeat/filebeat_unattended.yml /etc/filebeat/filebeat.yml ${debug}"
     else
