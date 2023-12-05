@@ -30,7 +30,7 @@ function checks_arguments() {
 
     # -------------- Offline installation ---------------------
 
-    if [ -n "${offline_installation}" ]; then
+    if [ -n "${offline_install}" ]; then
         if [ -z "${AIO}" ] && [ -z "${dashboard}" ] && [ -z "${indexer}" ] && [ -z "${wazuh}" ]; then
             common_logger -e "The -of|--offline-installation option must be used with -a, -ws, -wi, or -wd."
             exit 1

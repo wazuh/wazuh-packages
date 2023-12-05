@@ -118,7 +118,7 @@ function main() {
                 shift 1
                 ;;
             "-of"|"--offline-installation")
-                offline_installation=1
+                offline_install=1
                 shift 1
                 ;;
             "-p"|"--port")
@@ -224,9 +224,9 @@ function main() {
 
     common_checkSystem
 
-    if [ -z "${uninstall}" ] && [ -z "${offline_installation}" ]; then
+    if [ -z "${uninstall}" ] && [ -z "${offline_install}" ]; then
         installCommon_installCheckDependencies
-    elif [ -n "${offline_installation}" ]; then
+    elif [ -n "${offline_install}" ]; then
         offline_checkDependencies
     fi
     
@@ -281,13 +281,13 @@ function main() {
 # -------------- Prerequisites and Wazuh repo  ----------------------
 
     # Offline installation case: extract the compressed files,
-    if [ -n "${offline_installation}" ]; then
+    if [ -n "${offline_install}" ]; then
         offline_checkPreinstallation
         offline_extractFiles
     fi
 
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
-        if [ -z "${offline_installation}" ]; then
+        if [ -z "${offline_install}" ]; then
             installCommon_installPrerequisites
         fi
         check_curlVersion
