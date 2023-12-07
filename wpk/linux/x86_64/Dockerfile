@@ -40,7 +40,7 @@ RUN curl -OL http://packages.wazuh.com/utils/openssl/openssl-1.1.1a.tar.gz && \
     tar xf openssl-1.1.1a.tar.gz && cd openssl-1.1.1a && \
     ./config --prefix=/usr/ --openssldir=/usr/ shared zlib && \
     make -j$(nproc) && make install && echo "/usr/lib" > /etc/ld.so.conf.d/openssl-1.1.1a.conf && \
-    ldconfig -v && cd / && rm -rf openssl-1.1.1a*    
+    ldconfig -v && cd / && rm -rf openssl-1.1.1a*
 
 RUN yum install zlib-devel libffi-devel -y
 
@@ -54,7 +54,7 @@ RUN cd Python-3.7.16 &&  \
     make install
 
 RUN pip3 install cryptography==2.9.2 typing awscli
-RUN pip3 install --upgrade botocore==1.20.54
+RUN pip3 install --upgrade botocore==1.33.9
 
 ADD wpkpack.py /usr/local/bin/wpkpack
 ADD run.sh /usr/local/bin/run
