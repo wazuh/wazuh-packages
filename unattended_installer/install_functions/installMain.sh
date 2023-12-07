@@ -296,6 +296,10 @@ function main() {
         checks_names
     fi
 
+    if [ -n "${configurations}" ]; then
+        installCommon_removeWIADependencies
+    fi
+
 # -------------- Wazuh indexer case -------------------------------
 
     if [ -n "${indexer}" ]; then
@@ -304,6 +308,7 @@ function main() {
         indexer_configure
         installCommon_startService "wazuh-indexer"
         indexer_initialize
+        installCommon_removeWIADependencies
     fi
 
 # -------------- Start Wazuh indexer cluster case  ------------------
@@ -311,6 +316,7 @@ function main() {
     if [ -n "${start_indexer_cluster}" ]; then
         indexer_startCluster
         installCommon_changePasswords
+        installCommon_removeWIADependencies
     fi
 
 # -------------- Wazuh dashboard case  ------------------------------
@@ -322,6 +328,7 @@ function main() {
         installCommon_startService "wazuh-dashboard"
         installCommon_changePasswords
         dashboard_initialize
+        installCommon_removeWIADependencies
 
     fi
 
@@ -338,6 +345,7 @@ function main() {
         filebeat_configure
         installCommon_changePasswords
         installCommon_startService "filebeat"
+        installCommon_removeWIADependencies
     fi
 
 # -------------- AIO case  ------------------------------------------
@@ -361,6 +369,7 @@ function main() {
         installCommon_startService "wazuh-dashboard"
         installCommon_changePasswords
         dashboard_initializeAIO
+        installCommon_removeWIADependencies
 
     fi
 
