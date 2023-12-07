@@ -296,6 +296,10 @@ function main() {
         checks_names
     fi
 
+    if [ -n "${configurations}" ]; then
+        installCommon_removeWIADependencies
+    fi
+
 # -------------- Wazuh indexer case -------------------------------
 
     if [ -n "${indexer}" ]; then
@@ -312,6 +316,7 @@ function main() {
     if [ -n "${start_indexer_cluster}" ]; then
         indexer_startCluster
         installCommon_changePasswords
+        installCommon_removeWIADependencies
     fi
 
 # -------------- Wazuh dashboard case  ------------------------------

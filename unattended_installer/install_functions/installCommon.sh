@@ -617,6 +617,8 @@ function installCommon_rollBack() {
 
     common_remove_gpg_key
 
+    installCommon_removeWIADependencies
+
     eval "systemctl daemon-reload ${debug}"
 
     if [ -z "${uninstall}" ]; then
