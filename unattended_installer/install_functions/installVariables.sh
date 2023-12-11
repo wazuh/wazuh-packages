@@ -7,8 +7,8 @@
 # Foundation.
 
 ## Package vars
-readonly wazuh_major="4.7"
-readonly wazuh_version="4.7.2"
+readonly wazuh_major="4.8"
+readonly wazuh_version="4.8.0"
 readonly filebeat_version="7.10.2"
 readonly wazuh_install_vesion="0.1"
 readonly source_branch="v${wazuh_version}"
@@ -30,6 +30,8 @@ readonly indexer_cert_path="/etc/wazuh-indexer/certs"
 
 readonly logfile="/var/log/wazuh-install.log"
 debug=">> ${logfile} 2>&1"
+readonly yum_lockfile="/var/run/yum.pid"
+readonly apt_lockfile="/var/lib/dpkg/lock"
 
 ## Offline Installation vars
 readonly base_dest_folder="wazuh-offline"

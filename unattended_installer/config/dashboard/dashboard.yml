@@ -11,5 +11,5 @@ server.ssl.enabled: true
 server.ssl.key: "/etc/wazuh-dashboard/certs/kibana-key.pem"
 server.ssl.certificate: "/etc/wazuh-dashboard/certs/kibana.pem"
 opensearch.ssl.certificateAuthorities: ["/etc/wazuh-dashboard/certs/root-ca.pem"]
-server.defaultRoute: /app/wazuh
+server.defaultRoute: /app/wz-home
 opensearch_security.cookie.secure: true

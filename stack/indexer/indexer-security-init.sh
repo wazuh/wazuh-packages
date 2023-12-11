@@ -122,7 +122,7 @@ help() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "    -ho, --host <host>    [Optional] Target IP or DNS to configure security."
-    echo "    -p, --port <port>     [Optional] wazuh-indexer security port."
+    echo "    --port <port>         [Optional] wazuh-indexer security port."
     echo "    --options <options>   [Optional] Custom securityadmin options."
     echo "    -h, --help            Show this help."
     echo
@@ -156,7 +156,7 @@ main() {
                 help 1
             fi
             ;;
-        "-p"|"--port")
+        "--port")
             if [ -n "$2" ]; then
                 PORT="$2"
                 PORT=$(echo "${PORT}" | tr -d "[\"\']")

@@ -63,7 +63,7 @@ function installCommon_addWazuhRepo() {
                 common_logger -e "Cannot import Wazuh GPG key"
                 exit 1
             fi
-            eval "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\${releasever} - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo ${debug}"
+            eval "(echo -e '[wazuh]\ngpgcheck=1\ngpgkey=${repogpg}\nenabled=1\nname=EL-\${releasever} - Wazuh\nbaseurl='${repobaseurl}'/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo)" "${debug}"
             eval "chmod 644 /etc/yum.repos.d/wazuh.repo ${debug}"
         elif [ "${sys_type}" == "apt-get" ]; then
             eval "common_curl -s ${repogpg} --max-time 300 --retry 5 --retry-delay 5 --fail | gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import - ${debug}"
@@ -72,7 +72,7 @@ function installCommon_addWazuhRepo() {
                 exit 1
             fi
             eval "chmod 644 /usr/share/keyrings/wazuh.gpg ${debug}"
-            eval "echo \"deb [signed-by=/usr/share/keyrings/wazuh.gpg] ${repobaseurl}/apt/ ${reporelease} main\" | tee /etc/apt/sources.list.d/wazuh.list ${debug}"
+            eval "(echo \"deb [signed-by=/usr/share/keyrings/wazuh.gpg] ${repobaseurl}/apt/ ${reporelease} main\" | tee /etc/apt/sources.list.d/wazuh.list)" "${debug}"
             eval "apt-get update -q ${debug}"
             eval "chmod 644 /etc/apt/sources.list.d/wazuh.list ${debug}"
         fi
@@ -98,22 +98,13 @@ function installCommon_aptInstall() {
         installer=${package}
     fi
     command="DEBIAN_FRONTEND=noninteractive apt-get install ${installer} -y -q"
-    seconds=30
-    apt_output=$(eval "${command} 2>&1")
-    install_result="${PIPESTATUS[0]}"
-    eval "echo \${apt_output} ${debug}"
-    eval "tail -n 2 ${logfile} | grep -q 'Could not get lock'"
-    grep_result="${PIPESTATUS[0]}"
-    while [ "${grep_result}" -eq 0 ] && [ "${attempt}" -lt 10 ]; do
-        attempt=$((attempt+1))
-        common_logger "An external process is using APT. This process has to end to proceed with the Wazuh installation. Next retry in ${seconds} seconds (${attempt}/10)"
-        sleep "${seconds}"
+    installCommon_checkAptLock
+
+    if [ "${attempt}" -ne "${max_attempts}" ]; then
         apt_output=$(eval "${command} 2>&1")
         install_result="${PIPESTATUS[0]}"
         eval "echo \${apt_output} ${debug}"
-        eval "tail -n 2 ${logfile} | grep -q 'Could not get lock'"
-        grep_result="${PIPESTATUS[0]}"
-    done
+    fi
 
 }
 
@@ -149,6 +140,8 @@ function installCommon_aptInstallList(){
 
 function installCommon_changePasswordApi() {
 
+    common_logger -d "Changing API passwords."
+
     #Change API password tool
     if [ -n "${changeall}" ]; then
         for i in "${!api_passwords[@]}"; do
@@ -181,6 +174,7 @@ function installCommon_changePasswordApi() {
 
 function installCommon_createCertificates() {
 
+    common_logger -d "Creating Wazuh certificates."
     if [ -n "${AIO}" ]; then
         eval "installCommon_getConfig certificate/config_aio.yml ${config_file} ${debug}"
     fi
@@ -229,11 +223,11 @@ function installCommon_createInstallFiles() {
         fi
         gen_file="/tmp/wazuh-install-files/wazuh-passwords.txt"
         passwords_generatePasswordFile
-        eval "cp '${config_file}' '/tmp/wazuh-install-files/config.yml'"
-        eval "chown root:root /tmp/wazuh-install-files/*"
+        eval "cp '${config_file}' '/tmp/wazuh-install-files/config.yml' ${debug}"
+        eval "chown root:root /tmp/wazuh-install-files/* ${debug}"
         eval "tar -zcf '${tar_file}' -C '/tmp/' wazuh-install-files/ ${debug}"
         eval "rm -rf '/tmp/wazuh-install-files' ${debug}"
-	eval "rm -rf ${config_file} ${debug}"
+	    eval "rm -rf ${config_file} ${debug}"
         common_logger "Created ${tar_file_name}. It contains the Wazuh cluster key, certificates, and passwords necessary for installation."
     else
         common_logger -e "Unable to create /tmp/wazuh-install-files"
@@ -314,6 +308,7 @@ function installCommon_configureCentOSRepositories() {
 
 function installCommon_extractConfig() {
 
+    common_logger -d "Extracting Wazuh configuration."
     if ! tar -tf "${tar_file}" | grep -q wazuh-install-files/config.yml; then
         common_logger -e "There is no config.yml file in ${tar_file}."
         exit 1
@@ -349,6 +344,7 @@ function installCommon_getPass() {
 
 function installCommon_installCheckDependencies() {
 
+    common_logger -d "Installing check dependencies."
     if [ "${sys_type}" == "yum" ]; then
         if [[ "${DIST_NAME}" == "rhel" ]] && [[ "${DIST_VER}" == "8" || "${DIST_VER}" == "9" ]]; then
             installCommon_configureCentOSRepositories
@@ -369,6 +365,7 @@ function installCommon_installCheckDependencies() {
 
 function installCommon_installPrerequisites() {
 
+    common_logger -d "Installing prerequisites dependencies."
     if [ "${sys_type}" == "yum" ]; then
         installCommon_yumInstallList "${wazuh_yum_dependencies[@]}"
     elif [ "${sys_type}" == "apt-get" ]; then
@@ -499,6 +496,7 @@ For Wazuh API users, the file must have this format:
 
 function installCommon_restoreWazuhrepo() {
 
+    common_logger -d "Restoring Wazuh repository."
     if [ -n "${development}" ]; then
         if [ "${sys_type}" == "yum" ] && [ -f "/etc/yum.repos.d/wazuh.repo" ]; then
             file="/etc/yum.repos.d/wazuh.repo"
@@ -531,21 +529,33 @@ function installCommon_rollBack() {
     fi
 
     if [ -f "/etc/yum.repos.d/wazuh.repo" ]; then
-        eval "rm /etc/yum.repos.d/wazuh.repo"
+        eval "rm /etc/yum.repos.d/wazuh.repo ${debug}"
     elif [ -f "/etc/zypp/repos.d/wazuh.repo" ]; then
-        eval "rm /etc/zypp/repos.d/wazuh.repo"
+        eval "rm /etc/zypp/repos.d/wazuh.repo ${debug}"
     elif [ -f "/etc/apt/sources.list.d/wazuh.list" ]; then
-        eval "rm /etc/apt/sources.list.d/wazuh.list"
+        eval "rm /etc/apt/sources.list.d/wazuh.list ${debug}"
     fi
 
     if [[ -n "${wazuh_installed}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]];then
         common_logger "Removing Wazuh manager."
         if [ "${sys_type}" == "yum" ]; then
-            eval "yum remove wazuh-manager -y ${debug}"
+            common_checkYumLock
+            if [ "${attempt}" -ne "${max_attempts}" ]; then
+                eval "yum remove wazuh-manager -y ${debug}"
+                manager_installed=$(yum list installed 2>/dev/null | grep wazuh-manager)
+            fi
         elif [ "${sys_type}" == "apt-get" ]; then
+            installCommon_checkAptLock
             eval "apt-get remove --purge wazuh-manager -y ${debug}"
+            manager_installed=$(apt list --installed 2>/dev/null | grep wazuh-manager)
         fi
-        common_logger "Wazuh manager removed."
+
+        if [ -n "${manager_installed}" ]; then
+            common_logger -w "The Wazuh manager package could not be removed."
+        else
+            common_logger "Wazuh manager removed."
+        fi
+
     fi
 
     if [[ ( -n "${wazuh_remaining_files}"  || -n "${wazuh_installed}" ) && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
@@ -555,11 +565,22 @@ function installCommon_rollBack() {
     if [[ -n "${indexer_installed}" && ( -n "${indexer}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         common_logger "Removing Wazuh indexer."
         if [ "${sys_type}" == "yum" ]; then
-            eval "yum remove wazuh-indexer -y ${debug}"
+            common_checkYumLock
+            if [ "${attempt}" -ne "${max_attempts}" ]; then
+                eval "yum remove wazuh-indexer -y ${debug}"
+                indexer_installed=$(yum list installed 2>/dev/null | grep wazuh-indexer)
+            fi
         elif [ "${sys_type}" == "apt-get" ]; then
+            installCommon_checkAptLock
             eval "apt-get remove --purge wazuh-indexer -y ${debug}"
+            indexer_installed=$(apt list --installed 2>/dev/null | grep wazuh-indexer)
         fi
-        common_logger "Wazuh indexer removed."
+
+        if [ -n "${indexer_installed}" ]; then
+            common_logger -w "The Wazuh indexer package could not be removed."
+        else
+            common_logger "Wazuh indexer removed."
+        fi
     fi
 
     if [[ ( -n "${indexer_remaining_files}" || -n "${indexer_installed}" ) && ( -n "${indexer}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
@@ -571,11 +592,22 @@ function installCommon_rollBack() {
     if [[ -n "${filebeat_installed}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         common_logger "Removing Filebeat."
         if [ "${sys_type}" == "yum" ]; then
-            eval "yum remove filebeat -y ${debug}"
+            common_checkYumLock
+            if [ "${attempt}" -ne "${max_attempts}" ]; then
+                eval "yum remove filebeat -y ${debug}"
+                filebeat_installed=$(yum list installed 2>/dev/null | grep filebeat)
+            fi
         elif [ "${sys_type}" == "apt-get" ]; then
+            installCommon_checkAptLock
             eval "apt-get remove --purge filebeat -y ${debug}"
+            filebeat_installed=$(apt list --installed 2>/dev/null | grep filebeat)
         fi
-        common_logger "Filebeat removed."
+
+        if [ -n "${filebeat_installed}" ]; then
+            common_logger -w "The Filebeat package could not be removed."
+        else
+            common_logger "Filebeat removed."
+        fi
     fi
 
     if [[ ( -n "${filebeat_remaining_files}" || -n "${filebeat_installed}" ) && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
@@ -587,11 +619,22 @@ function installCommon_rollBack() {
     if [[ -n "${dashboard_installed}" && ( -n "${dashboard}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         common_logger "Removing Wazuh dashboard."
         if [ "${sys_type}" == "yum" ]; then
-            eval "yum remove wazuh-dashboard -y ${debug}"
+            common_checkYumLock
+            if [ "${attempt}" -ne "${max_attempts}" ]; then
+                eval "yum remove wazuh-dashboard -y ${debug}"
+                dashboard_installed=$(yum list installed 2>/dev/null | grep wazuh-dashboard)
+            fi
         elif [ "${sys_type}" == "apt-get" ]; then
+            installCommon_checkAptLock
             eval "apt-get remove --purge wazuh-dashboard -y ${debug}"
+            dashboard_installed=$(apt list --installed 2>/dev/null | grep wazuh-dashboard)
         fi
-        common_logger "Wazuh dashboard removed."
+
+        if [ -n "${dashboard_installed}" ]; then
+            common_logger -w "The Wazuh dashboard package could not be removed."
+        else
+            common_logger "Wazuh dashboard removed."
+        fi
     fi
 
     if [[ ( -n "${dashboard_remaining_files}" || -n "${dashboard_installed}" ) && ( -n "${dashboard}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
@@ -613,7 +656,7 @@ function installCommon_rollBack() {
                             "/lib/firewalld/services/dashboard.xml"
                             "/lib/firewalld/services/opensearch.xml" )
 
-    eval "rm -rf ${elements_to_remove[*]}"
+    eval "rm -rf ${elements_to_remove[*]} ${debug}"
 
     common_remove_gpg_key
 
@@ -692,6 +735,7 @@ function installCommon_yumInstallList(){
     dependencies=("$@")
     not_installed=()
     for dep in "${dependencies[@]}"; do
+        common_checkYumLock
         if ! yum list installed 2>/dev/null | grep -q -E ^"${dep}"\\.;then
             not_installed+=("${dep}")
             for wia_dep in "${wia_yum_dependencies[@]}"; do
@@ -706,7 +750,7 @@ function installCommon_yumInstallList(){
         common_logger "--- Dependencies ---"
         for dep in "${not_installed[@]}"; do
             common_logger "Installing $dep."
-            yum_output=$(yum install ${dep} -y 2>&1)
+            installCommon_yumInstall "${dep}"
             yum_code="${PIPESTATUS[0]}"
 
             eval "echo \${yum_output} ${debug}"
@@ -763,6 +807,27 @@ function installCommon_aptRemoveWIADependencies(){
                 exit 1
             fi
         done
+    fi
+
+}
+function installCommon_yumInstall() {
+
+    package="${1}"
+    version="${2}"
+    install_result=1
+    if [ -n "${version}" ]; then
+        installer="${package}-${version}"
+    else
+        installer="${package}"
+    fi
+
+    command="yum install ${installer} -y"
+    common_checkYumLock
+
+    if [ "${attempt}" -ne "${max_attempts}" ]; then
+        yum_output=$(eval "${command} 2>&1")
+        install_result="${PIPESTATUS[0]}"
+        eval "echo \${yum_output} ${debug}"
     fi
 
 }

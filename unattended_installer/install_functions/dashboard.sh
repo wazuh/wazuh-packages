@@ -19,12 +19,13 @@ function dashboard_changePort() {
 
 function dashboard_configure() {
 
+    common_logger -d "Configuring Wazuh dashboard."
     if [ -n "${AIO}" ]; then
         eval "installCommon_getConfig dashboard/dashboard_unattended.yml /etc/wazuh-dashboard/opensearch_dashboards.yml ${debug}"
-        dashboard_copyCertificates
+        dashboard_copyCertificates "${debug}"
     else
         eval "installCommon_getConfig dashboard/dashboard_unattended_distributed.yml /etc/wazuh-dashboard/opensearch_dashboards.yml ${debug}"
-        dashboard_copyCertificates
+        dashboard_copyCertificates "${debug}"
         if [ "${#dashboard_node_names[@]}" -eq 1 ]; then
             pos=0
             ip=${dashboard_node_ips[0]}
@@ -61,6 +62,7 @@ function dashboard_configure() {
 
 function dashboard_copyCertificates() {
 
+    common_logger -d "Copying Wazuh dashboard certificates."
     eval "rm -f ${dashboard_cert_path}/* ${debug}"
     name=${dashboard_node_names[pos]}
 
@@ -114,9 +116,11 @@ function dashboard_initialize() {
     until [ "$(curl -XGET https://"${nodes_dashboard_ip}":"${http_port}"/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)" -eq "200" ] || [ "${j}" -eq "12" ]; do
         sleep 10
         j=$((j+1))
+        common_logger -d "Retrying Wazuh dashboard connection..."
     done
 
     if [ ${j} -lt 12 ]; then
+        common_logger -d "Wazuh dashboard connection was successful."
         if [ "${#server_node_names[@]}" -eq 1 ]; then
             wazuh_api_address=${server_node_ips[0]}
         else
@@ -216,4 +220,3 @@ function dashboard_install() {
     fi
 
 }
-

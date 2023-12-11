@@ -10,8 +10,8 @@ function passwords_changePassword() {
 
     if [ -n "${changeall}" ]; then
         if [ -n "${indexer_installed}" ] && [ -z ${no_indexer_backup} ]; then
-            eval "mkdir /etc/wazuh-indexer/backup/ 2>/dev/null"
-            eval "cp /etc/wazuh-indexer/opensearch-security/* /etc/wazuh-indexer/backup/ 2>/dev/null"
+            eval "mkdir /etc/wazuh-indexer/backup/ ${debug}"
+            eval "cp /etc/wazuh-indexer/opensearch-security/* /etc/wazuh-indexer/backup/ ${debug}"
             passwords_createBackUp
         fi
         for i in "${!passwords[@]}"
@@ -29,12 +29,12 @@ function passwords_changePassword() {
         done
     else
         if [ -z "${api}" ] && [ -n "${indexer_installed}" ]; then
-            eval "mkdir /etc/wazuh-indexer/backup/ 2>/dev/null"
-            eval "cp /etc/wazuh-indexer/opensearch-security/* /etc/wazuh-indexer/backup/ 2>/dev/null"
+            eval "mkdir /etc/wazuh-indexer/backup/ ${debug}"
+            eval "cp /etc/wazuh-indexer/opensearch-security/* /etc/wazuh-indexer/backup/ ${debug}"
             passwords_createBackUp
         fi
         if [ -n "${indexer_installed}" ] && [ -f "/etc/wazuh-indexer/backup/internal_users.yml" ]; then
-            awk -v new="${hash}" 'prev=="'${nuser}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /etc/wazuh-indexer/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /etc/wazuh-indexer/backup/internal_users.yml
+            awk -v new='"'"${hash}"'"' 'prev=="'${nuser}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /etc/wazuh-indexer/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /etc/wazuh-indexer/backup/internal_users.yml
         fi
 
         if [ "${nuser}" == "admin" ]; then
@@ -48,7 +48,7 @@ function passwords_changePassword() {
     if [ "${nuser}" == "admin" ] || [ -n "${changeall}" ]; then
         if [ -n "${filebeat_installed}" ]; then
             if filebeat keystore list | grep -q password ; then
-                eval "echo ${adminpass} | filebeat keystore add password --force --stdin ${debug}"
+                eval "(echo ${adminpass} | filebeat keystore add password --force --stdin)" "${debug}"
             else
                 wazuhold=$(grep "password:" /etc/filebeat/filebeat.yml )
                 ra="  password: "
@@ -118,7 +118,7 @@ function passwords_changeDashboardApiPassword() {
     j=0
     until [ -n "${file_exists}" ] || [ "${j}" -eq "12" ]; do
         if [ -f "/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml" ]; then
-            eval "sed -i 's|password: .*|password: \"${1}\"|g' /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml"
+            eval "sed -i 's|password: .*|password: \"${1}\"|g' /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml ${debug}"
             if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_indexer_cluster}" ]; then
                 common_logger "Updated wazuh-wui user password in wazuh dashboard. Remember to restart the service."
             fi
@@ -262,6 +262,7 @@ function passwords_generatePassword() {
 
 function passwords_generatePasswordFile() {
 
+    common_logger -d "Generating password file."
     users=( admin kibanaserver kibanaro logstash readall snapshotrestore )
     api_users=( wazuh wazuh-wui )
     user_description=(
@@ -494,6 +495,7 @@ For Wazuh API users, the file must have this format:
 
 function passwords_readUsers() {
 
+    passwords_updateInternalUsers
     susers=$(grep -B 1 hash: /etc/wazuh-indexer/opensearch-security/internal_users.yml | grep -v hash: | grep -v "-" | awk '{ print substr( $0, 1, length($0)-1 ) }')
     mapfile -t users <<< "${susers[@]}"
 
@@ -501,6 +503,7 @@ function passwords_readUsers() {
 
 function passwords_restartService() {
 
+    common_logger -d "Restarting ${1} service..."
     if [ "$#" -ne 1 ]; then
         common_logger -e "passwords_restartService must be called with 1 argument."
         exit 1
@@ -561,6 +564,7 @@ function passwords_restartService() {
 
 function passwords_runSecurityAdmin() {
 
+    common_logger -d "Running security admin tool."
     if [ -z "${indexer_installed}" ] && [ -z "${dashboard_installed}" ] && [ -z "${filebeat_installed}" ]; then
         common_logger -e "Cannot find Wazuh indexer, Wazuh dashboard or Filebeat on the system."
         exit 1;
@@ -600,5 +604,26 @@ function passwords_runSecurityAdmin() {
             common_logger -d "Passwords changed."
         fi
     fi
+
+}
+
+function passwords_updateInternalUsers() {
+    
+    common_logger "Updating the internal users."
+    backup_datetime=$(date +"%Y%m%d_%H%M%S")
+    internal_users_backup_path="/etc/wazuh-indexer/internalusers-backup"
+    passwords_getNetworkHost
+    passwords_createBackUp
+
+    eval "mkdir -p ${internal_users_backup_path} ${debug}"
+    eval "cp /etc/wazuh-indexer/backup/internal_users.yml ${internal_users_backup_path}/internal_users_${backup_datetime}.yml.bkp ${debug}"
+    eval "chmod 750 ${internal_users_backup_path} ${debug}"
+    eval "chmod 640 ${internal_users_backup_path}/internal_users_${backup_datetime}.yml.bkp"
+    eval "chown -R wazuh-indexer:wazuh-indexer ${internal_users_backup_path} ${debug}"
+    common_logger "A backup of the internal users has been saved in the /etc/wazuh-indexer/internalusers-backup folder."
+
+    eval "cp /etc/wazuh-indexer/backup/internal_users.yml /etc/wazuh-indexer/opensearch-security/internal_users.yml ${debug}"
+    eval "rm -rf /etc/wazuh-indexer/backup/ ${debug}"
+    common_logger -d "The internal users have been updated before changing the passwords."
 
 }
