@@ -58,6 +58,6 @@ readonly wazuh_manager_ports=( 1514 1515 1516 55000 )
 wazuh_dashboard_port="${http_port}"
 readonly wia_yum_dependencies=( systemd grep tar coreutils sed procps-ng gawk lsof curl openssl )
 readonly wia_apt_dependencies=( systemd grep tar coreutils sed procps gawk lsof curl openssl )
-readonly wazuh_yum_dependencies=( libcap gnupg2 )
+readonly wazuh_yum_dependencies=( libcap )
 readonly wazuh_apt_dependencies=( apt-transport-https libcap2-bin software-properties-common gnupg )
 wia_dependencies_installed=()
