@@ -1,10 +1,6 @@
 # Spec file for AIX systems
 Name:        wazuh-agent
-<<<<<<< HEAD
-Version:     4.7.2
-=======
 Version:     4.8.0
->>>>>>> eaf77a84bb66dbf01ef63f47982019c9d23798b4
 Release:     1
 License:     GPL
 URL:         https://www.wazuh.com/
