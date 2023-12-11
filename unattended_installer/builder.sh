@@ -16,7 +16,8 @@ readonly resources_certs="${base_path_builder}/cert_tool"
 readonly resources_passwords="${base_path_builder}/passwords_tool"
 readonly resources_common="${base_path_builder}/common_functions"
 readonly resources_download="${base_path_builder}/downloader"
-readonly source_branch="4.7.2"
+readonly source_directory="$(git rev-parse --show-toplevel)"
+source_branch=`cat ${source_directory}/VERSION`
 
 function getHelp() {
 
@@ -47,6 +48,8 @@ function getHelp() {
 }
 
 function buildInstaller() {
+
+    checkDistDetectURL
 
     output_script_path="${base_path_builder}/wazuh-install.sh"
 
@@ -131,7 +134,6 @@ function buildInstaller() {
     echo >> "${output_script_path}"
     echo "main \"\$@\"" >> "${output_script_path}"
 
-    checkDistDetectURL
     checkFilebeatURL
 
 }
@@ -284,17 +286,21 @@ function builder_main() {
 
 function checkDistDetectURL() {
 
-    retries=0
-    eval "curl -s -o /dev/null 'https://raw.githubusercontent.com/wazuh/wazuh/${source_branch}/src/init/dist-detect.sh' --retry 5 --retry-delay 5 --max-time 300 --fail"
-    e_code="${PIPESTATUS[0]}"
-    while [ "${e_code}" -eq 7 ] && [ "${retries}" -ne 12 ]; do
-        retries=$((retries+1))
-        sleep 5
-        eval "curl -s -o /dev/null 'https://raw.githubusercontent.com/wazuh/wazuh/${source_branch}/src/init/dist-detect.sh' --fail"
+    urls=("https://raw.githubusercontent.com/wazuh/wazuh/${source_branch}/src/init/dist-detect.sh"
+          "https://raw.githubusercontent.com/wazuh/wazuh/v${source_branch}/src/init/dist-detect.sh"
+          "https://raw.githubusercontent.com/wazuh/wazuh/master/src/init/dist-detect.sh")
+
+    for url in "${urls[@]}"; do
+        eval "curl -s -o /dev/null '${url}' --retry 5 --retry-delay 5 --max-time 300 --fail"
         e_code="${PIPESTATUS[0]}"
+
+        if [ "${e_code}" -eq 0 ]; then
+            source_branch=$(echo "${url}" | awk -F'/' '{print $(NF-3)}')
+            break
+        fi
     done
 
-    if [[ "${retries}" -eq 12 ]] || [[ "${e_code}" -ne 0 ]]; then
+    if [ "${e_code}" -ne 0 ]; then
         echo -e "Error: Could not get the dist-detect file."
         exit 1
     fi
