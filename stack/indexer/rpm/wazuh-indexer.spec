@@ -181,18 +181,6 @@ if [ ${1} = 2 ]; then
     fi
 fi
 
-# If is an upgrade, move the securityconfig files if they exist (4.3.x versions)
-if [ ${1} = 2 ]; then
-    if [ -d "%{INSTALL_DIR}"/plugins/opensearch-security/securityconfig ]; then
-
-        if [ ! -d "%{CONFIG_DIR}"/opensearch-security ]; then
-            mkdir "%{CONFIG_DIR}"/opensearch-security
-        fi
-
-        cp -r "%{INSTALL_DIR}"/plugins/opensearch-security/securityconfig/* "%{CONFIG_DIR}"/opensearch-security
-    fi
-fi
-
 # -----------------------------------------------------------------------------
 
 %preun
@@ -697,10 +685,12 @@ rm -fr %{buildroot}
 
 
 %changelog
-* Tue Jan 30 2024 support <info@wazuh.com> - 4.8.1
+* Tue Feb 13 2024 support <info@wazuh.com> - 4.8.1
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-8-1.html
-* Fri Dec 15 2023 support <info@wazuh.com> - 4.8.0
+* Wed Jan 31 2024 support <info@wazuh.com> - 4.8.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-8-0.html
+* Sun Dec 17 2023 support <info@wazuh.com> - 4.7.2
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-7-2.html
 * Tue Dec 05 2023 support <info@wazuh.com> - 4.7.1
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-7-1.html
 * Tue Nov 21 2023 support <info@wazuh.com> - 4.7.0
