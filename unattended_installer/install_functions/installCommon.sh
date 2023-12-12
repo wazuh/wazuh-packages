@@ -365,13 +365,41 @@ function installCommon_installCheckDependencies() {
 
 function installCommon_installPrerequisites() {
 
-    common_logger -d "Installing prerequisites dependencies."
+    message="Installing prerequisites dependencies."
     if [ "${sys_type}" == "yum" ]; then
-        installCommon_yumInstallList "${wazuh_yum_dependencies[@]}"
+        if [ "${1}" == "AIO" ]; then
+            common_logger -d "${message}"
+            installCommon_yumInstallList "${indexer_yum_dependencies[@]}"
+            installCommon_yumInstallList "${dashboard_yum_dependencies[@]}"
+        fi
+        if [ "${1}" == "indexer" ]; then
+            common_logger -d "${message}"
+            installCommon_yumInstallList "${indexer_yum_dependencies[@]}"
+        fi
+        if [ "${1}" == "dashboard" ]; then
+            common_logger -d "${message}"
+            installCommon_yumInstallList "${dashboard_yum_dependencies[@]}"
+        fi
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "apt-get update -q ${debug}"
-        dependencies=
-        installCommon_aptInstallList "${wazuh_apt_dependencies[@]}"
+        if [ "${1}" == "AIO" ]; then
+            common_logger -d "${message}"
+            installCommon_yumInstallList "${indexer_apt_dependencies[@]}"
+            installCommon_yumInstallList "${dashboard_apt_dependencies[@]}"
+            installCommon_yumInstallList "${wazuh_apt_dependencies[@]}"
+        fi
+        if [ "${1}" == "indexer" ]; then
+            common_logger -d "${message}"
+            installCommon_yumInstallList "${indexer_apt_dependencies[@]}"
+        fi
+        if [ "${1}" == "dashboard" ]; then
+            common_logger -d "${message}"
+            installCommon_yumInstallList "${dashboard_apt_dependencies[@]}"
+        fi
+        if [ "${1}" == "wazuh" ]; then
+            common_logger -d "${message}"
+            installCommon_yumInstallList "${wazuh_apt_dependencies[@]}"
+        fi
     fi
 
 }
