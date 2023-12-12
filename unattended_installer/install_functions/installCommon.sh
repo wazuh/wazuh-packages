@@ -116,6 +116,11 @@ function installCommon_aptInstallList(){
     for dep in "${dependencies[@]}"; do
         if ! apt list --installed 2>/dev/null | grep -q -E ^"${dep}"\/; then
             not_installed+=("${dep}")
+            for wia_dep in "${wia_apt_dependencies[@]}"; do
+                if [ "${wia_dep}" == "${dep}" ]; then
+                    wia_dependencies_installed+=("${dep}")
+                fi
+            done
         fi
     done
 
@@ -341,11 +346,10 @@ function installCommon_installCheckDependencies() {
 
     common_logger -d "Installing check dependencies."
     if [ "${sys_type}" == "yum" ]; then
-        dependencies=( systemd grep tar coreutils sed procps-ng gawk lsof curl openssl )
         if [[ "${DIST_NAME}" == "rhel" ]] && [[ "${DIST_VER}" == "8" || "${DIST_VER}" == "9" ]]; then
             installCommon_configureCentOSRepositories
         fi
-        installCommon_yumInstallList "${dependencies[@]}"
+        installCommon_yumInstallList "${wia_yum_dependencies[@]}"
 
         # In RHEL cases, remove the CentOS repositories configuration
         if [ "${centos_repos_configured}" == 1 ]; then
@@ -354,8 +358,7 @@ function installCommon_installCheckDependencies() {
 
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "apt-get update -q ${debug}"
-        dependencies=( systemd grep tar coreutils sed procps gawk lsof curl openssl )
-        installCommon_aptInstallList "${dependencies[@]}"
+        installCommon_aptInstallList "${wia_apt_dependencies[@]}"
     fi
 
 }
@@ -364,13 +367,11 @@ function installCommon_installPrerequisites() {
 
     common_logger -d "Installing prerequisites dependencies."
     if [ "${sys_type}" == "yum" ]; then
-        dependencies=( libcap gnupg2 )
-        installCommon_yumInstallList "${dependencies[@]}"
-
+        installCommon_yumInstallList "${wazuh_yum_dependencies[@]}"
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "apt-get update -q ${debug}"
-        dependencies=( apt-transport-https libcap2-bin software-properties-common gnupg )
-        installCommon_aptInstallList "${dependencies[@]}"
+        dependencies=
+        installCommon_aptInstallList "${wazuh_apt_dependencies[@]}"
     fi
 
 }
@@ -659,6 +660,8 @@ function installCommon_rollBack() {
 
     common_remove_gpg_key
 
+    installCommon_removeWIADependencies
+
     eval "systemctl daemon-reload ${debug}"
 
     if [ -z "${uninstall}" ]; then
@@ -735,6 +738,11 @@ function installCommon_yumInstallList(){
         common_checkYumLock
         if ! yum list installed 2>/dev/null | grep -q -E ^"${dep}"\\.;then
             not_installed+=("${dep}")
+            for wia_dep in "${wia_yum_dependencies[@]}"; do
+                if [ "${wia_dep}" == "${dep}" ]; then
+                    wia_dependencies_installed+=("${dep}")
+                fi
+            done
         fi
     done
 
@@ -755,6 +763,53 @@ function installCommon_yumInstallList(){
 
 }
 
+function installCommon_removeWIADependencies() {
+
+    if [ "${sys_type}" == "yum" ]; then
+        installCommon_yumRemoveWIADependencies
+    elif [ "${sys_type}" == "apt-get" ]; then
+        installCommon_aptRemoveWIADependencies
+    fi
+
+}
+
+function installCommon_yumRemoveWIADependencies(){
+
+    if [ "${#wia_dependencies_installed[@]}" -gt 0 ]; then
+        common_logger "--- Dependencies ---"
+        for dep in "${wia_dependencies_installed[@]}"; do
+            common_logger "Removing $dep."
+            yum_output=$(yum remove ${dep} -y 2>&1)
+            yum_code="${PIPESTATUS[0]}"
+
+            eval "echo \${yum_output} ${debug}"
+            if [  "${yum_code}" != 0  ]; then
+                common_logger -e "Cannot remove dependency: ${dep}."
+                exit 1
+            fi
+        done
+    fi
+
+}
+
+function installCommon_aptRemoveWIADependencies(){
+
+    if [ "${#wia_dependencies_installed[@]}" -gt 0 ]; then
+        common_logger "--- Dependencies ----"
+        for dep in "${wia_dependencies_installed[@]}"; do
+            common_logger "Removing $dep."
+            apt_output=$(apt-get remove --purge ${dep} -y 2>&1)
+            apt_code="${PIPESTATUS[0]}"
+
+            eval "echo \${apt_output} ${debug}"
+            if [  "${apt_code}" != 0  ]; then
+                common_logger -e "Cannot remove dependency: ${dep}."
+                exit 1
+            fi
+        done
+    fi
+
+}
 function installCommon_yumInstall() {
 
     package="${1}"
