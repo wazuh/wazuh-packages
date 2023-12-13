@@ -205,8 +205,7 @@ function dashboard_install() {
 
     common_logger "Starting Wazuh dashboard installation."
     if [ "${sys_type}" == "yum" ]; then
-        eval "yum install wazuh-dashboard${sep}${wazuh_version} -y ${debug}"
-        install_result="${PIPESTATUS[0]}"
+        installCommon_yumInstall "wazuh-dashboard" "${wazuh_version}-*"
     elif [ "${sys_type}" == "apt-get" ]; then
         installCommon_aptInstall "wazuh-dashboard" "${wazuh_version}-*"
     fi

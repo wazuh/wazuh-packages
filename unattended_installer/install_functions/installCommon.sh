@@ -785,6 +785,12 @@ function installCommon_yumInstall() {
         installer="${package}"
     fi
 
+    # Offline installation case: get package name and install it
+    if [ -n "${offline_install}" ]; then
+        package_name=$(ls ${offline_packages_path} | grep ${package})
+        installer="${offline_packages_path}/${package_name}"
+    fi
+
     command="yum install ${installer} -y"
     common_checkYumLock
 
