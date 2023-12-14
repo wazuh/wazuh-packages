@@ -105,7 +105,7 @@ function installCommon_aptInstall() {
     fi
 
     command="DEBIAN_FRONTEND=noninteractive apt-get install ${installer} -y -q"
-    installCommon_checkAptLock
+    common_checkAptLock
 
     if [ "${attempt}" -ne "${max_attempts}" ]; then
         apt_output=$(eval "${command} 2>&1")
@@ -551,7 +551,7 @@ function installCommon_rollBack() {
                 manager_installed=$(yum list installed 2>/dev/null | grep wazuh-manager)
             fi
         elif [ "${sys_type}" == "apt-get" ]; then
-            installCommon_checkAptLock
+            common_checkAptLock
             eval "apt-get remove --purge wazuh-manager -y ${debug}"
             manager_installed=$(apt list --installed 2>/dev/null | grep wazuh-manager)
         fi
@@ -577,7 +577,7 @@ function installCommon_rollBack() {
                 indexer_installed=$(yum list installed 2>/dev/null | grep wazuh-indexer)
             fi
         elif [ "${sys_type}" == "apt-get" ]; then
-            installCommon_checkAptLock
+            common_checkAptLock
             eval "apt-get remove --purge wazuh-indexer -y ${debug}"
             indexer_installed=$(apt list --installed 2>/dev/null | grep wazuh-indexer)
         fi
@@ -604,7 +604,7 @@ function installCommon_rollBack() {
                 filebeat_installed=$(yum list installed 2>/dev/null | grep filebeat)
             fi
         elif [ "${sys_type}" == "apt-get" ]; then
-            installCommon_checkAptLock
+            common_checkAptLock
             eval "apt-get remove --purge filebeat -y ${debug}"
             filebeat_installed=$(apt list --installed 2>/dev/null | grep filebeat)
         fi
@@ -631,7 +631,7 @@ function installCommon_rollBack() {
                 dashboard_installed=$(yum list installed 2>/dev/null | grep wazuh-dashboard)
             fi
         elif [ "${sys_type}" == "apt-get" ]; then
-            installCommon_checkAptLock
+            common_checkAptLock
             eval "apt-get remove --purge wazuh-dashboard -y ${debug}"
             dashboard_installed=$(apt list --installed 2>/dev/null | grep wazuh-dashboard)
         fi
