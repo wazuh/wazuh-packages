@@ -47,12 +47,13 @@ function offline_checkPreinstallation() {
 function offline_extractFiles() {
 
     common_logger -d "Extracting files from ${offline_tarfile}"
-    eval "rm -rf ${base_path}/wazuh-offline/"
-    eval "tar -xzf ${offline_tarfile} ${debug}"
-
     if [ ! -d "${base_path}/wazuh-offline/" ]; then
-        common_logger -e "The ${offline_tarfile} file could not be decompressed."
-        exit 1
+        eval "tar -xzf ${offline_tarfile} ${debug}"
+
+        if [ ! -d "${base_path}/wazuh-offline/" ]; then
+            common_logger -e "The ${offline_tarfile} file could not be decompressed."
+            exit 1
+        fi
     fi
 
     offline_files_path="${base_path}/wazuh-offline/wazuh-files"
