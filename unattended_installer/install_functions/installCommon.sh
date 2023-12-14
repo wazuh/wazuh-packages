@@ -790,6 +790,7 @@ function installCommon_yumInstall() {
         package_name=$(ls ${offline_packages_path} | grep ${package})
         installer="${offline_packages_path}/${package_name}"
         command="rpm -ivh ${installer}"
+        common_logger -d "Installing local package: ${installer}"
     else
         command="yum install ${installer} -y"
     fi

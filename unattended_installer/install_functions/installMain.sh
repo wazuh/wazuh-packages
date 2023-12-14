@@ -280,7 +280,7 @@ function main() {
 
 # -------------- Prerequisites and Wazuh repo  ----------------------
 
-    # Offline installation case: extract the compressed files,
+    # Offline installation case: extract the compressed files
     if [ -n "${offline_install}" ]; then
         offline_checkPreinstallation
         offline_extractFiles
