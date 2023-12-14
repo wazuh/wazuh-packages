@@ -368,9 +368,9 @@ function installCommon_installPrerequisites() {
     message="Installing prerequisites dependencies."
     if [ "${sys_type}" == "yum" ]; then
         if [ "${1}" == "AIO" ]; then
+            deps=($(echo "${indexer_yum_dependencies[@]}" "${dashboard_yum_dependencies[@]}" | tr ' ' '\n' | sort -u))
             common_logger -d "${message}"
-            installCommon_yumInstallList "${indexer_yum_dependencies[@]}"
-            installCommon_yumInstallList "${dashboard_yum_dependencies[@]}"
+            installCommon_yumInstallList "${deps[@]}"
         fi
         if [ "${1}" == "indexer" ]; then
             common_logger -d "${message}"
@@ -383,22 +383,21 @@ function installCommon_installPrerequisites() {
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "apt-get update -q ${debug}"
         if [ "${1}" == "AIO" ]; then
+            deps=($(echo "${wazuh_apt_dependencies[@]}" "${indexer_apt_dependencies[@]}" "${dashboard_apt_dependencies[@]}" | tr ' ' '\n' | sort -u))
             common_logger -d "${message}"
-            installCommon_yumInstallList "${indexer_apt_dependencies[@]}"
-            installCommon_yumInstallList "${dashboard_apt_dependencies[@]}"
-            installCommon_yumInstallList "${wazuh_apt_dependencies[@]}"
+            installCommon_aptInstallList "${deps[@]}"
         fi
         if [ "${1}" == "indexer" ]; then
             common_logger -d "${message}"
-            installCommon_yumInstallList "${indexer_apt_dependencies[@]}"
+            installCommon_aptInstallList "${indexer_apt_dependencies[@]}"
         fi
         if [ "${1}" == "dashboard" ]; then
             common_logger -d "${message}"
-            installCommon_yumInstallList "${dashboard_apt_dependencies[@]}"
+            installCommon_aptInstallList "${dashboard_apt_dependencies[@]}"
         fi
         if [ "${1}" == "wazuh" ]; then
             common_logger -d "${message}"
-            installCommon_yumInstallList "${wazuh_apt_dependencies[@]}"
+            installCommon_aptInstallList "${wazuh_apt_dependencies[@]}"
         fi
     fi
 
@@ -857,5 +856,20 @@ function installCommon_yumInstall() {
         install_result="${PIPESTATUS[0]}"
         eval "echo \${yum_output} ${debug}"
     fi
+
+}
+
+
+function installCommon_checkAptLock() {
+
+    attempt=0
+    seconds=30
+    max_attempts=10
+
+    while fuser "${apt_lockfile}" >/dev/null 2>&1 && [ "${attempt}" -lt "${max_attempts}" ]; do
+        attempt=$((attempt+1))
+        common_logger "Another process is using APT. Waiting for it to release the lock. Next retry in ${seconds} seconds (${attempt}/${max_attempts})"
+        sleep "${seconds}"
+    done
 
 }
