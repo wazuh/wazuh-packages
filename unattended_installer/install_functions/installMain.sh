@@ -228,7 +228,7 @@ function main() {
         exit 0
     fi
 
-# -------------- Preliminary checks  --------------------------------
+# -------------- Preliminary checks and Prerequisites --------------------------------
 
     if [ -z "${uninstall}" ]; then
         installCommon_installCheckDependencies
@@ -254,22 +254,26 @@ function main() {
     if [ -n "${AIO}" ]; then
         rm -f "${tar_file}"
         checks_ports "${wazuh_aio_ports[@]}"
+        installCommon_installPrerequisites "AIO"
     fi
 
     if [ -n "${indexer}" ]; then
         checks_ports "${wazuh_indexer_ports[@]}"
+        installCommon_installPrerequisites "indexer"
     fi
 
     if [ -n "${wazuh}" ]; then
         checks_ports "${wazuh_manager_ports[@]}"
+        installCommon_installPrerequisites "wazuh"
     fi
 
     if [ -n "${dashboard}" ]; then
         checks_ports "${wazuh_dashboard_port}"
+        installCommon_installPrerequisites "dashboard"
     fi
 
 
-# -------------- Prerequisites and Wazuh repo  ----------------------
+# --------------  Wazuh repo  ----------------------
 
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
         installCommon_installPrerequisites
