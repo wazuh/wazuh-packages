@@ -7,6 +7,20 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
+function common_checkAptLock() {
+
+    attempt=0
+    seconds=30
+    max_attempts=10
+
+    while fuser "${apt_lockfile}" >/dev/null 2>&1 && [ "${attempt}" -lt "${max_attempts}" ]; do
+        attempt=$((attempt+1))
+        common_logger "Another process is using APT. Waiting for it to release the lock. Next retry in ${seconds} seconds (${attempt}/${max_attempts})"
+        sleep "${seconds}"
+    done
+
+}
+
 function common_logger() {
 
     now=$(date +'%d/%m/%Y %H:%M:%S')
