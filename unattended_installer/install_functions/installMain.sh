@@ -291,7 +291,9 @@ function main() {
             installCommon_installPrerequisites
         fi
         check_curlVersion
-        installCommon_addWazuhRepo
+        if [ -z "${offline_install}" ]; then
+            installCommon_addWazuhRepo
+        fi
     fi
 
 # -------------- Configuration creation case  -----------------------
@@ -391,7 +393,7 @@ function main() {
 
 # -------------------------------------------------------------------
 
-    if [ -z "${configurations}" ] && [ -z "${download}" ]; then
+    if [ -z "${configurations}" ] && [ -z "${download}" ] && [ -z "${offline_install}" ]; then
         installCommon_restoreWazuhrepo
     fi
 
