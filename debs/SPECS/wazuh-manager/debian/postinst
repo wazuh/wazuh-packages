@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # postinst script for Wazuh
 # Wazuh, Inc 2015
 set -e
@@ -234,6 +234,12 @@ case "$1" in
 
     fi
 
+    # Upgrade old (< v4.8) VD configuration if present.
+    CONFIG_VD_TEMPLATE="${SCRIPTS_DIR}/etc/templates/config/generic/wodle-vulnerability-detection.manager.template"
+    CONFIG_INDEXER_TEMPLATE="${SCRIPTS_DIR}/etc/templates/config/generic/wodle-indexer.manager.template"
+    . ./src/init/replace_vulnerability_detector.sh
+    updateVulnerabilityDetector "${DIR}/etc/ossec.conf" $CONFIG_VD_TEMPLATE $CONFIG_INDEXER_TEMPLATE
+
     # Restoring file permissions
     ${SCRIPTS_DIR}/restore-permissions.sh > /dev/null 2>&1 || true
 
@@ -264,52 +270,6 @@ case "$1" in
         if getent group ossec > /dev/null 2>&1; then 
             delgroup ossec > /dev/null 2>&1
         fi
-    fi
-
-    # Function that checks if the old (< v4.8) VD configuration is present.
-    is_old_vulndet_config_present()
-    {
-        local CONFIG_FILE="$1"
-        local VULNERABILITY_DETECTOR_PATTERN="<vulnerability-detector>"
-
-        if ( grep -q "$VULNERABILITY_DETECTOR_PATTERN" "$CONFIG_FILE" ); then
-            return 0
-        fi
-        return 1
-    }
-
-    # Function that updates the old (< v4.8) VD configuration with the latest one.
-    update_vulndet_config()
-    {
-        local CONFIG_FILE="$1"
-        local CONFIG_FILE_TMP="$1.tmp"
-
-        touch $CONFIG_FILE_TMP
-        local CONFIG_BEFORE_VD="$(sed -ne '/<vulnerability-detector>/q;p' $CONFIG_FILE)"
-        local CONFIG_AFTER_VD="$(sed -e '1,/<\/vulnerability-detector>/d' $CONFIG_FILE)"
-
-        # Append current config preceding the old VD config.
-        echo "${CONFIG_BEFORE_VD}" >> $CONFIG_FILE_TMP
-        echo "" >> $CONFIG_FILE_TMP
-
-        # Append new VD config.
-        local VULNDET_TEMPLATE_FILE="${SCRIPTS_DIR}/etc/templates/config/generic/wodle-vulnerability-detection.manager.template"
-        cat ${VULNDET_TEMPLATE_FILE} >> $CONFIG_FILE_TMP
-        echo "" >> $CONFIG_FILE_TMP
-
-        # Append new Indexer config.
-        local INDEXER_TEMPLATE_FILE="${SCRIPTS_DIR}/etc/templates/config/generic/wodle-indexer.manager.template"
-        cat ${INDEXER_TEMPLATE_FILE} >> $CONFIG_FILE_TMP
-
-        # Append current config succeeding the old VD config.
-        echo "$CONFIG_AFTER_VD" >> $CONFIG_FILE_TMP
-
-        mv $CONFIG_FILE_TMP $CONFIG_FILE
-    }
-
-    # Update VD configuration if necessary.
-    if is_old_vulndet_config_present "${DIR}/etc/ossec.conf"; then
-        update_vulndet_config "${DIR}/etc/ossec.conf"
     fi
 
     if [ ! -z "$2" ]; then
