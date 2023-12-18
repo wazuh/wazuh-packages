@@ -73,6 +73,9 @@ case "$1" in
 
     if [ -f "${DIR}/vd.tar.xz" ]; then
         tar -xf ${DIR}/vd.tar.xz -C ${DIR}
+        chown ${USER}:${GROUP} ${DIR}/queue/vd
+        chown ${USER}:${GROUP} ${DIR}/queue/vd-updater
+        rm -rf ${DIR}/vd.tar.xz
     fi
 
     # Delete uncompatible DBs versions
