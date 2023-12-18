@@ -85,7 +85,7 @@ build_deb() {
         ${CONTAINER_NAME}:${DOCKER_TAG} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
         ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} \
         ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} \
-        ${USE_LOCAL_SOURCE_CODE} ${FUTURE} {DOWNLOAD_CONTENT}|| return 1
+        ${USE_LOCAL_SOURCE_CODE} ${FUTURE} ${DOWNLOAD_CONTENT}|| return 1
 
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
 
