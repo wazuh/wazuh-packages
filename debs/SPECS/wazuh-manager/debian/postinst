@@ -237,7 +237,7 @@ case "$1" in
     # Upgrade old (< v4.8) VD configuration if present.
     CONFIG_VD_TEMPLATE="${SCRIPTS_DIR}/etc/templates/config/generic/wodle-vulnerability-detection.manager.template"
     CONFIG_INDEXER_TEMPLATE="${SCRIPTS_DIR}/etc/templates/config/generic/wodle-indexer.manager.template"
-    . ./src/init/replace_vulnerability_detector.sh
+    . ${SCRIPTS_DIR}/src/init/replace_vulnerability_detector.sh
     updateVulnerabilityDetector "${DIR}/etc/ossec.conf" $CONFIG_VD_TEMPLATE $CONFIG_INDEXER_TEMPLATE
 
     # Restoring file permissions
