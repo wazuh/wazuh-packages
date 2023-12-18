@@ -71,6 +71,10 @@ case "$1" in
         chown ${USER}:${GROUP} ${DIR}/queue/db/global.db*
     fi
 
+    if [ -f "${DIR}/vd.tar.xz" ]; then
+        tar -xf ${DIR}/vd.tar.xz -C ${DIR}
+    fi
+
     # Delete uncompatible DBs versions
     if [ ! -z $2 ]; then
 
