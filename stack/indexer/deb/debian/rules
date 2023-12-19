@@ -153,6 +153,7 @@ override_dh_fixperms:
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/jvm.options
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/aggs-matrix-stats
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch.yml
+	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/wazuh-template.json
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/roles_mapping.yml
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/internal_users.yml
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/roles.yml
