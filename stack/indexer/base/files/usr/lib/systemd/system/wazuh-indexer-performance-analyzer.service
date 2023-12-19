@@ -4,7 +4,7 @@ PartOf=wazuh-indexer.service
 After=wazuh-indexer.service
 
 [Service]
-ExecStart=/usr/share/wazuh-indexer/bin/performance-analyzer-agent-cli
+ExecStart=/usr/share/wazuh-indexer/bin/opensearch-performance-analyzer/performance-analyzer-agent-cli
 Restart=on-failure
 User=wazuh-indexer
 Group=wazuh-indexer
