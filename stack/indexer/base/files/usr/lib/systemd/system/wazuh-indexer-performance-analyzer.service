@@ -9,6 +9,7 @@ Restart=on-failure
 User=wazuh-indexer
 Group=wazuh-indexer
 Environment=OPENSEARCH_HOME=/usr/share/wazuh-indexer
+Environment=OPENSEARCH_PATH_CONF=/etc/wazuh-indexer/
 WorkingDirectory=/usr/share/wazuh-indexer
 
 [Install]
