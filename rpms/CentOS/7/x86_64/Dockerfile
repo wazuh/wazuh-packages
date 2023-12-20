@@ -19,7 +19,7 @@ RUN yum install -y gcc make wget git \
     libffi-devel libtirpc-devel libGL-devel libuuid-devel \
     libX11-devel ncurses-devel pkgconfig readline-devel \
     redhat-rpm-config sqlite-devel gdb tar tcl-devel tix-devel tk-devel \
-    valgrind-devel python-rpm-macros python3
+    valgrind-devel python-rpm-macros python3 perl-IPC-Cmd
 
 # Update rpmbuild, rpm and autoconf
 RUN curl -O http://packages.wazuh.com/utils/autoconf/autoconf-2.69.tar.gz && \
