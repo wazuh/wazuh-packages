@@ -17,7 +17,7 @@ RUN yum -y install util-linux-ng \
     e2fsprogs-devel libacl-devel libattr-devel \
     openssl-devel libxml2-devel kexec-tools elfutils \
     libarchive-devel elfutils-libelf-devel \
-    elfutils-libelf patchelf elfutils-devel libgcrypt-devel
+    elfutils-libelf patchelf elfutils-devel libgcrypt-devel perl-IPC-Cmd
 
 RUN yum-builddep python34 -y
 

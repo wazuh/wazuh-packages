@@ -6,7 +6,7 @@ ADD centos-5-i386.tar.gz /
 RUN rm /etc/yum.repos.d/* && echo "exactarch=1" >> /etc/yum.conf
 COPY CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo
 
-RUN linux32 yum install -y gcc-c++
+RUN linux32 yum install -y gcc-c++ perl-IPC-Cmd
 
 # Install Perl 5.10
 RUN curl -OL http://packages.wazuh.com/utils/perl/perl-5.10.1.tar.gz && \

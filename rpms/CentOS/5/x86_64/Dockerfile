@@ -7,7 +7,7 @@ RUN yum clean all && yum update -y && yum downgrade -y libselinux
 # Install sudo, SSH and compilers
 RUN yum install -y sudo ca-certificates make gcc curl initscripts tar \
     rpm-build automake autoconf libtool wget libselinux devicemapper \
-    libselinux-python krb5-libs policycoreutils checkpolicy
+    libselinux-python krb5-libs policycoreutils checkpolicy perl-IPC-Cmd
 
 RUN yum groupinstall -y "Development tools"
 RUN yum install -y zlib-devel bzip2-devel openssl-devel ncurses-devel
