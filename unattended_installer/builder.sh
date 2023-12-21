@@ -16,7 +16,8 @@ readonly resources_certs="${base_path_builder}/cert_tool"
 readonly resources_passwords="${base_path_builder}/passwords_tool"
 readonly resources_common="${base_path_builder}/common_functions"
 readonly resources_download="${base_path_builder}/downloader"
-readonly source_branch="master"
+readonly source_directory="$(git rev-parse --show-toplevel)"
+source_branch=`cat ${source_directory}/VERSION`
 
 function getHelp() {
 
@@ -48,6 +49,8 @@ function getHelp() {
 
 function buildInstaller() {
 
+    checkDistDetectURL
+
     output_script_path="${base_path_builder}/wazuh-install.sh"
 
     ## Create installer script
@@ -71,7 +74,7 @@ function buildInstaller() {
         echo 'readonly repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"' >> "${output_script_path}"
         echo 'readonly repobaseurl="https://packages-dev.wazuh.com/'${devrepo}'"' >> "${output_script_path}"
         echo 'readonly reporelease="unstable"' >> "${output_script_path}"
-        echo 'readonly filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.2.tar.gz"' >> "${output_script_path}"
+        echo 'readonly filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.4.tar.gz"' >> "${output_script_path}"
         echo 'readonly bucket="packages-dev.wazuh.com"' >> "${output_script_path}"
         echo 'readonly repository="'"${devrepo}"'"' >> "${output_script_path}"
         sed -i 's|v${wazuh_version}|${wazuh_version}|g' "${resources_installer}/installVariables.sh"
@@ -79,7 +82,7 @@ function buildInstaller() {
         echo 'readonly repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"' >> "${output_script_path}"
         echo 'readonly repobaseurl="https://packages.wazuh.com/4.x"' >> "${output_script_path}"
         echo 'readonly reporelease="stable"' >> "${output_script_path}"
-        echo 'readonly filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.2.tar.gz"' >> "${output_script_path}"
+        echo 'readonly filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.4.tar.gz"' >> "${output_script_path}"
         echo 'readonly bucket="packages.wazuh.com"' >> "${output_script_path}"
         echo 'readonly repository="4.x"' >> "${output_script_path}"
     fi
@@ -131,7 +134,6 @@ function buildInstaller() {
     echo >> "${output_script_path}"
     echo "main \"\$@\"" >> "${output_script_path}"
 
-    checkDistDetectURL
     checkFilebeatURL
 
 }
@@ -284,17 +286,21 @@ function builder_main() {
 
 function checkDistDetectURL() {
 
-    retries=0
-    eval "curl -s -o /dev/null 'https://raw.githubusercontent.com/wazuh/wazuh/${source_branch}/src/init/dist-detect.sh' --retry 5 --retry-delay 5 --max-time 300 --fail"
-    e_code="${PIPESTATUS[0]}"
-    while [ "${e_code}" -eq 7 ] && [ "${retries}" -ne 12 ]; do
-        retries=$((retries+1))
-        sleep 5
-        eval "curl -s -o /dev/null 'https://raw.githubusercontent.com/wazuh/wazuh/${source_branch}/src/init/dist-detect.sh' --fail"
+    urls=("https://raw.githubusercontent.com/wazuh/wazuh/${source_branch}/src/init/dist-detect.sh"
+          "https://raw.githubusercontent.com/wazuh/wazuh/v${source_branch}/src/init/dist-detect.sh"
+          "https://raw.githubusercontent.com/wazuh/wazuh/master/src/init/dist-detect.sh")
+
+    for url in "${urls[@]}"; do
+        eval "curl -s -o /dev/null '${url}' --retry 5 --retry-delay 5 --max-time 300 --fail"
         e_code="${PIPESTATUS[0]}"
+
+        if [ "${e_code}" -eq 0 ]; then
+            source_branch=$(echo "${url}" | awk -F'/' '{print $(NF-3)}')
+            break
+        fi
     done
 
-    if [[ "${retries}" -eq 12 ]] || [[ "${e_code}" -ne 0 ]]; then
+    if [ "${e_code}" -ne 0 ]; then
         echo -e "Error: Could not get the dist-detect file."
         exit 1
     fi

@@ -20,7 +20,7 @@ jobs:
           skip_after_successful_duplicate: 'false'
 
       - name: Wait for the package to be built
-        uses: ArcticLampyrid/action-wait-for-workflow@v1.0.3
+        uses: ArcticLampyrid/action-wait-for-workflow@v1.0.4
         id: wait-for-build
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -68,7 +68,7 @@ jobs:
         if: steps.changes.outputs.deb_packages == 'true' || (steps.changes.outputs.deb_images_agent_i386 == 'true' && matrix.ARCHITECTURE == 'i386') || (steps.changes.outputs.deb_images_amd64 == 'true' && matrix.ARCHITECTURE == 'amd64')
         run: |
           VERSION=$(cat $GITHUB_WORKSPACE/VERSION)
-          REVISION=$( echo ${{ github.head_ref }})
+          REVISION=$( echo ${{ github.head_ref }} | sed 's/-/./g; s/\//./g' )
           echo "PACKAGE_NAME=wazuh-${{ matrix.type }}_${VERSION}-${REVISION}_${{ matrix.arch }}.deb" >> $GITHUB_ENV
 
       - name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.system.NAME }}

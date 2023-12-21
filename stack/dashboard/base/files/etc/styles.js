@@ -128,7 +128,7 @@ const Styles = ({
             font-weight: 400;
           }
 
-          .osdLoaderWrap svg {
+          .osdLoaderWrap svg, .osdLoaderWrap img  {
             width: 384px;
             height: 112px;
             margin: auto;

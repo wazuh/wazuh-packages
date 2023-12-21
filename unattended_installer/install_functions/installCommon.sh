@@ -98,7 +98,7 @@ function installCommon_aptInstall() {
         installer=${package}
     fi
     command="DEBIAN_FRONTEND=noninteractive apt-get install ${installer} -y -q"
-    installCommon_checkAptLock
+    common_checkAptLock
 
     if [ "${attempt}" -ne "${max_attempts}" ]; then
         apt_output=$(eval "${command} 2>&1")
@@ -116,6 +116,11 @@ function installCommon_aptInstallList(){
     for dep in "${dependencies[@]}"; do
         if ! apt list --installed 2>/dev/null | grep -q -E ^"${dep}"\/; then
             not_installed+=("${dep}")
+            for wia_dep in "${wia_apt_dependencies[@]}"; do
+                if [ "${wia_dep}" == "${dep}" ]; then
+                    wia_dependencies_installed+=("${dep}")
+                fi
+            done
         fi
     done
 
@@ -125,7 +130,8 @@ function installCommon_aptInstallList(){
             common_logger "Installing $dep."
             installCommon_aptInstall "${dep}"
             if [ "${install_result}" != 0 ]; then
-                installCommon_checkOptionalInstallation
+                common_logger -e "Cannot install dependency: ${dep}."
+                exit 1
             fi
         done
     fi
@@ -163,48 +169,6 @@ function installCommon_changePasswordApi() {
                 passwords_changeDashboardApiPassword "${password}"
         fi
     fi
-
-}
-
-function installCommon_checkOptionalInstallation() {
-
-    if [ "${optional_installation}" != 1 ]; then
-        common_logger -e "Cannot install dependency: ${dep}."
-        exit 1
-    else
-        common_logger -w "Cannot install optional dependency: ${dep}."
-        if [ "${report_dependencies}" == 1 ]; then 
-            pdf_warning=1
-        fi
-    fi
-
-}
-
-function installCommon_checkAptLock() {
-
-    attempt=0
-    seconds=30
-    max_attempts=10
-
-    while fuser "${apt_lockfile}" >/dev/null 2>&1 && [ "${attempt}" -lt "${max_attempts}" ]; do
-        attempt=$((attempt+1))
-        common_logger "Another process is using APT. Waiting for it to release the lock. Next retry in ${seconds} seconds (${attempt}/${max_attempts})"
-        sleep "${seconds}"
-    done
-
-}
-
-function installCommon_checkYumLock() {
-
-    attempt=0
-    seconds=30
-    max_attempts=10
-
-    while [ -f "${yum_lockfile}" ] && [ "${attempt}" -lt "${max_attempts}" ]; do
-        attempt=$((attempt+1))
-        common_logger "Another process is using YUM. Waiting for it to release the lock. Next retry in ${seconds} seconds (${attempt}/${max_attempts})"
-        sleep "${seconds}"
-    done
 
 }
 
@@ -314,38 +278,7 @@ function installCommon_changePasswords() {
 
 }
 
-function installCommon_checkChromium() {
-
-    if [ "${sys_type}" == "yum" ]; then
-        installCommon_checkYumLock
-        if (! yum list installed 2>/dev/null | grep -q -E ^"google-chrome-stable"\\.) && (! yum list installed 2>/dev/null | grep -q -E ^"chromium"\\.); then
-            if [ "${DIST_NAME}" == "amzn" ]; then
-                installCommon_installChrome
-            elif [[ "${DIST_NAME}" == "centos" ]] && [[ "${DIST_VER}" == "7" ]]; then
-                installCommon_installChrome
-            elif [[ "${DIST_NAME}" == "rhel" ]] && [[ "${DIST_VER}" == "8" || "${DIST_VER}" == "9" ]]; then
-                installCommon_configureCentOSRepositories
-                dashboard_dependencies=(chromium)
-            else
-                dashboard_dependencies=(chromium)
-            fi
-        fi
-        
-    elif [ "${sys_type}" == "apt-get" ]; then
-        if (! apt list --installed 2>/dev/null | grep -q -E ^"google-chrome-stable"\/) && (! apt list --installed 2>/dev/null | grep -q -E ^"chromium-browser"\/); then
-
-            # Report generation doesn't work with Chromium in Ubuntu 22 and Ubuntu 20
-            if [[ "${DIST_NAME}" == "ubuntu" ]] && [[ "${DIST_VER}" == "22" || "${DIST_VER}" == "20" || "${DIST_VER}" == "18" ]]; then
-                installCommon_installChrome
-            else
-                dashboard_dependencies=(chromium-browser)
-            fi
-        fi
-    fi
-
-}
-
-# Adds the CentOS repository to install the dashboard dependencies. 
+# Adds the CentOS repository to install lsof.
 function installCommon_configureCentOSRepositories() {
 
     centos_repos_configured=1
@@ -353,8 +286,7 @@ function installCommon_configureCentOSRepositories() {
     eval "common_curl -sLo ${centos_key} 'https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official' --max-time 300 --retry 5 --retry-delay 5 --fail"
 
     if [ ! -f "${centos_key}" ]; then
-        common_logger -w "The CentOS key could not be added. Chromium package skipped."
-        pdf_warning=1
+        common_logger -w "The CentOS key could not be added. Some dependencies may not be installed."
     else
         centos_repo="/etc/yum.repos.d/centos.repo"
         eval "touch ${centos_repo} ${debug}"
@@ -414,39 +346,19 @@ function installCommon_installCheckDependencies() {
 
     common_logger -d "Installing check dependencies."
     if [ "${sys_type}" == "yum" ]; then
-        dependencies=( systemd grep tar coreutils sed procps-ng gawk lsof curl openssl )
-        installCommon_yumInstallList "${dependencies[@]}"
+        if [[ "${DIST_NAME}" == "rhel" ]] && [[ "${DIST_VER}" == "8" || "${DIST_VER}" == "9" ]]; then
+            installCommon_configureCentOSRepositories
+        fi
+        installCommon_yumInstallList "${wia_yum_dependencies[@]}"
+
+        # In RHEL cases, remove the CentOS repositories configuration
+        if [ "${centos_repos_configured}" == 1 ]; then
+            installCommon_removeCentOSrepositories
+        fi
 
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "apt-get update -q ${debug}"
-        dependencies=( systemd grep tar coreutils sed procps gawk lsof curl openssl )
-        installCommon_aptInstallList "${dependencies[@]}"
-    fi
-
-}
-
-function installCommon_installChrome() {
-
-    dep="chrome"
-    common_logger "Installing ${dep}."
-
-    if [ "${sys_type}" == "yum" ]; then
-        chrome_package="/tmp/wazuh-install-files/chrome.rpm"
-        common_curl -sSo "${chrome_package}" https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm --max-time 100 --retry 5 --retry-delay 5 --fail
-        eval "yum install ${chrome_package} -y ${debug}"
-
-        if [ "${PIPESTATUS[0]}" != 0 ]; then
-            installCommon_checkOptionalInstallation
-        fi
-
-    elif [ "${sys_type}" == "apt-get" ]; then
-        chrome_package="/tmp/wazuh-install-files/chrome.deb"
-        common_curl -sSo "${chrome_package}" https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb --max-time 100 --retry 5 --retry-delay 5 --fail
-        installCommon_aptInstall "${chrome_package}"
-
-        if [ "${install_result}" != 0 ]; then
-            installCommon_checkOptionalInstallation
-        fi
+        installCommon_aptInstallList "${wia_apt_dependencies[@]}"
     fi
 
 }
@@ -455,13 +367,11 @@ function installCommon_installPrerequisites() {
 
     common_logger -d "Installing prerequisites dependencies."
     if [ "${sys_type}" == "yum" ]; then
-        dependencies=( libcap gnupg2 )
-        installCommon_yumInstallList "${dependencies[@]}"
-
+        installCommon_yumInstallList "${wazuh_yum_dependencies[@]}"
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "apt-get update -q ${debug}"
-        dependencies=( apt-transport-https libcap2-bin software-properties-common gnupg )
-        installCommon_aptInstallList "${dependencies[@]}"
+        dependencies=
+        installCommon_aptInstallList "${wazuh_apt_dependencies[@]}"
     fi
 
 }
@@ -603,7 +513,7 @@ function installCommon_restoreWazuhrepo() {
 }
 
 function installCommon_removeCentOSrepositories() {
-    
+
     eval "rm -f ${centos_repo} ${debug}"
     eval "rm -f ${centos_key} ${debug}"
     eval "yum clean all ${debug}"
@@ -629,13 +539,13 @@ function installCommon_rollBack() {
     if [[ -n "${wazuh_installed}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]];then
         common_logger "Removing Wazuh manager."
         if [ "${sys_type}" == "yum" ]; then
-            installCommon_checkYumLock
+            common_checkYumLock
             if [ "${attempt}" -ne "${max_attempts}" ]; then
                 eval "yum remove wazuh-manager -y ${debug}"
                 manager_installed=$(yum list installed 2>/dev/null | grep wazuh-manager)
             fi
         elif [ "${sys_type}" == "apt-get" ]; then
-            installCommon_checkAptLock
+            common_checkAptLock
             eval "apt-get remove --purge wazuh-manager -y ${debug}"
             manager_installed=$(apt list --installed 2>/dev/null | grep wazuh-manager)
         fi
@@ -645,7 +555,7 @@ function installCommon_rollBack() {
         else
             common_logger "Wazuh manager removed."
         fi
-        
+
     fi
 
     if [[ ( -n "${wazuh_remaining_files}"  || -n "${wazuh_installed}" ) && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
@@ -655,13 +565,13 @@ function installCommon_rollBack() {
     if [[ -n "${indexer_installed}" && ( -n "${indexer}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         common_logger "Removing Wazuh indexer."
         if [ "${sys_type}" == "yum" ]; then
-            installCommon_checkYumLock
+            common_checkYumLock
             if [ "${attempt}" -ne "${max_attempts}" ]; then
                 eval "yum remove wazuh-indexer -y ${debug}"
                 indexer_installed=$(yum list installed 2>/dev/null | grep wazuh-indexer)
             fi
         elif [ "${sys_type}" == "apt-get" ]; then
-            installCommon_checkAptLock
+            common_checkAptLock
             eval "apt-get remove --purge wazuh-indexer -y ${debug}"
             indexer_installed=$(apt list --installed 2>/dev/null | grep wazuh-indexer)
         fi
@@ -682,13 +592,13 @@ function installCommon_rollBack() {
     if [[ -n "${filebeat_installed}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         common_logger "Removing Filebeat."
         if [ "${sys_type}" == "yum" ]; then
-            installCommon_checkYumLock
+            common_checkYumLock
             if [ "${attempt}" -ne "${max_attempts}" ]; then
                 eval "yum remove filebeat -y ${debug}"
                 filebeat_installed=$(yum list installed 2>/dev/null | grep filebeat)
             fi
         elif [ "${sys_type}" == "apt-get" ]; then
-            installCommon_checkAptLock
+            common_checkAptLock
             eval "apt-get remove --purge filebeat -y ${debug}"
             filebeat_installed=$(apt list --installed 2>/dev/null | grep filebeat)
         fi
@@ -709,13 +619,13 @@ function installCommon_rollBack() {
     if [[ -n "${dashboard_installed}" && ( -n "${dashboard}" || -n "${AIO}" || -n "${uninstall}" ) ]]; then
         common_logger "Removing Wazuh dashboard."
         if [ "${sys_type}" == "yum" ]; then
-            installCommon_checkYumLock
+            common_checkYumLock
             if [ "${attempt}" -ne "${max_attempts}" ]; then
                 eval "yum remove wazuh-dashboard -y ${debug}"
                 dashboard_installed=$(yum list installed 2>/dev/null | grep wazuh-dashboard)
             fi
         elif [ "${sys_type}" == "apt-get" ]; then
-            installCommon_checkAptLock
+            common_checkAptLock
             eval "apt-get remove --purge wazuh-dashboard -y ${debug}"
             dashboard_installed=$(apt list --installed 2>/dev/null | grep wazuh-dashboard)
         fi
@@ -749,6 +659,8 @@ function installCommon_rollBack() {
     eval "rm -rf ${elements_to_remove[*]} ${debug}"
 
     common_remove_gpg_key
+
+    installCommon_removeWIADependencies
 
     eval "systemctl daemon-reload ${debug}"
 
@@ -823,9 +735,14 @@ function installCommon_yumInstallList(){
     dependencies=("$@")
     not_installed=()
     for dep in "${dependencies[@]}"; do
-        installCommon_checkYumLock
+        common_checkYumLock
         if ! yum list installed 2>/dev/null | grep -q -E ^"${dep}"\\.;then
             not_installed+=("${dep}")
+            for wia_dep in "${wia_yum_dependencies[@]}"; do
+                if [ "${wia_dep}" == "${dep}" ]; then
+                    wia_dependencies_installed+=("${dep}")
+                fi
+            done
         fi
     done
 
@@ -836,14 +753,63 @@ function installCommon_yumInstallList(){
             installCommon_yumInstall "${dep}"
             yum_code="${PIPESTATUS[0]}"
 
-            if [  "${install_result}" != 0  ]; then
-                installCommon_checkOptionalInstallation
+            eval "echo \${yum_output} ${debug}"
+            if [  "${yum_code}" != 0  ]; then
+                common_logger -e "Cannot install dependency: ${dep}."
+                exit 1
             fi
         done
     fi
 
 }
 
+function installCommon_removeWIADependencies() {
+
+    if [ "${sys_type}" == "yum" ]; then
+        installCommon_yumRemoveWIADependencies
+    elif [ "${sys_type}" == "apt-get" ]; then
+        installCommon_aptRemoveWIADependencies
+    fi
+
+}
+
+function installCommon_yumRemoveWIADependencies(){
+
+    if [ "${#wia_dependencies_installed[@]}" -gt 0 ]; then
+        common_logger "--- Dependencies ---"
+        for dep in "${wia_dependencies_installed[@]}"; do
+            common_logger "Removing $dep."
+            yum_output=$(yum remove ${dep} -y 2>&1)
+            yum_code="${PIPESTATUS[0]}"
+
+            eval "echo \${yum_output} ${debug}"
+            if [  "${yum_code}" != 0  ]; then
+                common_logger -e "Cannot remove dependency: ${dep}."
+                exit 1
+            fi
+        done
+    fi
+
+}
+
+function installCommon_aptRemoveWIADependencies(){
+
+    if [ "${#wia_dependencies_installed[@]}" -gt 0 ]; then
+        common_logger "--- Dependencies ----"
+        for dep in "${wia_dependencies_installed[@]}"; do
+            common_logger "Removing $dep."
+            apt_output=$(apt-get remove --purge ${dep} -y 2>&1)
+            apt_code="${PIPESTATUS[0]}"
+
+            eval "echo \${apt_output} ${debug}"
+            if [  "${apt_code}" != 0  ]; then
+                common_logger -e "Cannot remove dependency: ${dep}."
+                exit 1
+            fi
+        done
+    fi
+
+}
 function installCommon_yumInstall() {
 
     package="${1}"
@@ -854,12 +820,12 @@ function installCommon_yumInstall() {
     else
         installer="${package}"
     fi
-    
+
     command="yum install ${installer} -y"
-    installCommon_checkYumLock
+    common_checkYumLock
 
     if [ "${attempt}" -ne "${max_attempts}" ]; then
-        yum_output=$(eval "${command} 2>&1")  
+        yum_output=$(eval "${command} 2>&1")
         install_result="${PIPESTATUS[0]}"
         eval "echo \${yum_output} ${debug}"
     fi
