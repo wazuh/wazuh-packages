@@ -306,11 +306,12 @@ if [ $1 = 2 ]; then
   updateIndexerTemplate "%{_localstatedir}/etc/ossec.conf" $CONFIG_INDEXER_TEMPLATE
 fi
 
-if [ -f "%{_localstatedir}/vd.tar.xz" ]; then
-    tar -xf %{_localstatedir}/vd.tar.xz -C %{_localstatedir}
+VD_FILENAME='vd_1.0.0_vd_4.8.0.tar.xz'
+if [ -f "%{_localstatedir}/${VD_FILENAME}" ]; then
+    tar -xf %{_localstatedir}/${VD_FILENAME} -C %{_localstatedir}
     chown wazuh:wazuh %{_localstatedir}/queue/vd
     chown wazuh:wazuh %{_localstatedir}/queue/vd-updater
-    rm -rf tar -xf %{_localstatedir}/vd.tar.xz
+    rm -rf tar -xf %{_localstatedir}/${VD_FILENAME}
 fi
 
 # Fresh install code block
