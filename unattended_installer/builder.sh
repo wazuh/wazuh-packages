@@ -16,8 +16,8 @@ readonly resources_certs="${base_path_builder}/cert_tool"
 readonly resources_passwords="${base_path_builder}/passwords_tool"
 readonly resources_common="${base_path_builder}/common_functions"
 readonly resources_download="${base_path_builder}/downloader"
-readonly source_directory="$(git rev-parse --show-toplevel)"
-source_branch=`cat ${source_directory}/VERSION`
+readonly source_directory="$( cd $(dirname $0) ; pwd -P )"
+source_branch=$(cat ${source_directory}/../VERSION)
 
 function getHelp() {
 
@@ -74,7 +74,7 @@ function buildInstaller() {
         echo 'readonly repogpg="https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH"' >> "${output_script_path}"
         echo 'readonly repobaseurl="https://packages-dev.wazuh.com/'${devrepo}'"' >> "${output_script_path}"
         echo 'readonly reporelease="unstable"' >> "${output_script_path}"
-        echo 'readonly filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.3.tar.gz"' >> "${output_script_path}"
+        echo 'readonly filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.4.tar.gz"' >> "${output_script_path}"
         echo 'readonly bucket="packages-dev.wazuh.com"' >> "${output_script_path}"
         echo 'readonly repository="'"${devrepo}"'"' >> "${output_script_path}"
         sed -i 's|v${wazuh_version}|${wazuh_version}|g' "${resources_installer}/installVariables.sh"
@@ -82,7 +82,7 @@ function buildInstaller() {
         echo 'readonly repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"' >> "${output_script_path}"
         echo 'readonly repobaseurl="https://packages.wazuh.com/4.x"' >> "${output_script_path}"
         echo 'readonly reporelease="stable"' >> "${output_script_path}"
-        echo 'readonly filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.3.tar.gz"' >> "${output_script_path}"
+        echo 'readonly filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.4.tar.gz"' >> "${output_script_path}"
         echo 'readonly bucket="packages.wazuh.com"' >> "${output_script_path}"
         echo 'readonly repository="4.x"' >> "${output_script_path}"
     fi
