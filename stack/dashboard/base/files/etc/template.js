@@ -57,46 +57,23 @@ const Template = ({
 }) => {
   var _injectedMetadata$bra, _injectedMetadata$bra2, _injectedMetadata$bra3, _injectedMetadata$bra4;
 
-  const openSearchLogo = /*#__PURE__*/_react.default.createElement("svg", {
-    width: "64",
-    height: "64",
-    viewBox: "0 0 64 64",
-    fill: "none",
-    xmlns: "http://www.w3.org/2000/svg"
-  }, /*#__PURE__*/_react.default.createElement("path", {
-    d: "M61.7374 23.5C60.4878 23.5 59.4748 24.513 59.4748 25.7626C59.4748 44.3813 44.3813 59.4748 25.7626 59.4748C24.513 59.4748 23.5 60.4878 23.5 61.7374C23.5 62.987 24.513 64 25.7626 64C46.8805 64 64 46.8805 64 25.7626C64 24.513 62.987 23.5 61.7374 23.5Z",
-    fill: "#005EB8"
-  }), /*#__PURE__*/_react.default.createElement("path", {
-    d: "M48.0814 38C50.2572 34.4505 52.3615 29.7178 51.9475 23.0921C51.0899 9.36725 38.6589 -1.04463 26.9206 0.0837327C22.3253 0.525465 17.6068 4.2712 18.026 10.9805C18.2082 13.8961 19.6352 15.6169 21.9544 16.9399C24.1618 18.1992 26.9978 18.9969 30.2128 19.9011C34.0962 20.9934 38.6009 22.2203 42.063 24.7717C46.2125 27.8295 49.0491 31.3743 48.0814 38Z",
-    fill: "#003B5C"
-  }), /*#__PURE__*/_react.default.createElement("path", {
-    d: "M3.91861 14C1.74276 17.5495 -0.361506 22.2822 0.0524931 28.9079C0.910072 42.6327 13.3411 53.0446 25.0794 51.9163C29.6747 51.4745 34.3932 47.7288 33.974 41.0195C33.7918 38.1039 32.3647 36.3831 30.0456 35.0601C27.8382 33.8008 25.0022 33.0031 21.7872 32.0989C17.9038 31.0066 13.3991 29.7797 9.93694 27.2283C5.78746 24.1704 2.95092 20.6257 3.91861 14Z",
-    fill: "#005EB8"
-  }));
+  const openSearchLogo = _react.default.createElement("img", {
+    alt: 'Loading logo',
+    className: 'loadingLogo',
+    src: `${uiPublicUrl}/logos/opensearch.svg`
+  });
 
-  const openSearchLogoSpinner = _react.default.createElement("svg", {
-    viewBox:"0 0 1024 200",
-    fill: "none",
-    xmlns: "http://www.w3.org/2000/svg"
-  },
-  _react.default.createElement("polygon",{points:"204.11 142.81 174.37 46.12 150.88 46.12 121.13 142.81 91.65 46.06 64.64 46.06 107.69 187.04 129.61 187.04 162.63 85 195.5 187.04 217.42 187.04 260.48 46.12 233.6 46.12 204.11 142.81", fill:"black"}),
-  _react.default.createElement("polygon",{points:"451.67 70.52 524.33 70.52 444.36 182.73 444.36 187.04 563.74 187.04 563.74 162.64 487.81 162.64 567.65 50.56 567.65 46.12 451.67 46.12 451.67 70.52", fill:"black"}),
-  _react.default.createElement("path",{d:"M390,61c-12.09-12.61-28.57-19.24-48-19.24-41,0-72,32.22-72,75s30.95,75,72,75c19.35,0,35.84-6.6,48-19.12v16.16h27.58V44.7H390Zm-45.15,104.7c-27.1,0-46.77-20.6-46.77-49s19.67-48.84,46.77-48.84S391.5,88.4,391.5,116.7,371.89,165.68,344.88,165.68Z", fill:"black"}),
-  _react.default.createElement("path",{d:"M696.14,125.88c0,25.29-13.92,39.8-38.18,39.8s-38.32-14.51-38.32-39.8V44.7H592v83.39c0,46.91,35.51,63.56,65.92,63.56s65.77-16.65,65.77-63.56V44.7H696.14Z", fill:"black"}),
-  _react.default.createElement("path",{d:"M883.3,93.62A85.09,85.09,0,0,0,878.86,76a56.88,56.88,0,0,0-9.46-16.64A45.46,45.46,0,0,0,853.3,47q-9.93-4.71-24.54-4.7-19.05,0-32.48,8.22A53,53,0,0,0,782.19,63V8.35h-24.4V187h27.66V113.71q0-12.52,2.8-21.27A37.82,37.82,0,0,1,796,78.35a28.86,28.86,0,0,1,11.42-7.76,39.44,39.44,0,0,1,13.83-2.42c7.47,0,13.55,1.53,18.2,4.57a31.27,31.27,0,0,1,10.82,12,52.22,52.22,0,0,1,5.22,16.12,107.39,107.39,0,0,1,1.38,16.89V187h27.66V108.75A114.2,114.2,0,0,0,883.3,93.62Z", fill:"black"}),
-	_react.default.createElement("circle",{fill:"#3585F9",cx:"937.12",cy:"167.6",r:"22.24"}));
+  const openSearchLogoSpinner = _react.default.createElement("img", {
+    alt: 'Loading logo',
+    className: 'loadingLogo',
+    src: `${uiPublicUrl}/logos/opensearch_spinner_on_light.svg`
+  });
 
-  const openSearchLogoSpinnerDark = _react.default.createElement("svg", {
-    viewBox:"0 0 1024 200",
-    fill: "none",
-    xmlns: "http://www.w3.org/2000/svg"
-  },
-  _react.default.createElement("polygon",{points:"204.11 142.81 174.37 46.12 150.88 46.12 121.13 142.81 91.65 46.06 64.64 46.06 107.69 187.04 129.61 187.04 162.63 85 195.5 187.04 217.42 187.04 260.48 46.12 233.6 46.12 204.11 142.81", fill:"white"}),
-  _react.default.createElement("polygon",{points:"451.67 70.52 524.33 70.52 444.36 182.73 444.36 187.04 563.74 187.04 563.74 162.64 487.81 162.64 567.65 50.56 567.65 46.12 451.67 46.12 451.67 70.52", fill:"white"}),
-  _react.default.createElement("path",{d:"M390,61c-12.09-12.61-28.57-19.24-48-19.24-41,0-72,32.22-72,75s30.95,75,72,75c19.35,0,35.84-6.6,48-19.12v16.16h27.58V44.7H390Zm-45.15,104.7c-27.1,0-46.77-20.6-46.77-49s19.67-48.84,46.77-48.84S391.5,88.4,391.5,116.7,371.89,165.68,344.88,165.68Z", fill:"white"}),
-  _react.default.createElement("path",{d:"M696.14,125.88c0,25.29-13.92,39.8-38.18,39.8s-38.32-14.51-38.32-39.8V44.7H592v83.39c0,46.91,35.51,63.56,65.92,63.56s65.77-16.65,65.77-63.56V44.7H696.14Z", fill:"white"}),
-  _react.default.createElement("path",{d:"M883.3,93.62A85.09,85.09,0,0,0,878.86,76a56.88,56.88,0,0,0-9.46-16.64A45.46,45.46,0,0,0,853.3,47q-9.93-4.71-24.54-4.7-19.05,0-32.48,8.22A53,53,0,0,0,782.19,63V8.35h-24.4V187h27.66V113.71q0-12.52,2.8-21.27A37.82,37.82,0,0,1,796,78.35a28.86,28.86,0,0,1,11.42-7.76,39.44,39.44,0,0,1,13.83-2.42c7.47,0,13.55,1.53,18.2,4.57a31.27,31.27,0,0,1,10.82,12,52.22,52.22,0,0,1,5.22,16.12,107.39,107.39,0,0,1,1.38,16.89V187h27.66V108.75A114.2,114.2,0,0,0,883.3,93.62Z", fill:"white"}),
-  _react.default.createElement("circle",{fill:"#3585F9",cx:"937.12",cy:"167.6",r:"22.24"}));
+  const openSearchLogoSpinnerDark = _react.default.createElement("img", {
+    alt: 'Loading logo',
+    className: 'loadingLogo',
+    src: `${uiPublicUrl}/logos/opensearch_spinner_on_dark.svg`
+  });
 
 
   const loadingLogoDefault = (_injectedMetadata$bra = injectedMetadata.branding.loadingLogo) === null || _injectedMetadata$bra === void 0 ? void 0 : _injectedMetadata$bra.defaultUrl;
