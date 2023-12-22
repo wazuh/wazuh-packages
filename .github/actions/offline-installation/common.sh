@@ -150,7 +150,7 @@ function filebeat_installation() {
     filebeat keystore create
     echo admin | filebeat keystore add username --stdin --force
     echo admin | filebeat keystore add password --stdin --force
-    tar -xzf ./wazuh-offline/wazuh-files/wazuh-filebeat-0.2.tar.gz -C /usr/share/filebeat/module
+    tar -xzf ./wazuh-offline/wazuh-files/wazuh-filebeat-0.4.tar.gz -C /usr/share/filebeat/module
 
     echo "INFO: Generating certificates of Filebeat..."
     NODE_NAME=wazuh-1
