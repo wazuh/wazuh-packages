@@ -16,8 +16,8 @@ readonly resources_certs="${base_path_builder}/cert_tool"
 readonly resources_passwords="${base_path_builder}/passwords_tool"
 readonly resources_common="${base_path_builder}/common_functions"
 readonly resources_download="${base_path_builder}/downloader"
-readonly source_directory="$(git rev-parse --show-toplevel)"
-source_branch=`cat ${source_directory}/VERSION`
+readonly source_directory="$( cd $(dirname $0) ; pwd -P )"
+source_branch=$(cat ${source_directory}/../VERSION)
 
 function getHelp() {
 
