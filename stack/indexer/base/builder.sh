@@ -65,7 +65,7 @@ mkdir -p ./etc/wazuh-indexer/
 cp -r ./config/* ./etc/wazuh-indexer/
 rm -rf ./config
 cp -r /root/stack/indexer/base/files/etc/wazuh-indexer/* ./etc/wazuh-indexer/
-curl -so ./etc/wazuh-indexer/wazuh-template.json "https://github.com/wazuh/wazuh/blob/${filebeat_module_reference}/extensions/elasticsearch/7.x/wazuh-template.json"
+curl -so ./etc/wazuh-indexer/wazuh-template.json "https://raw.githubusercontent.com/wazuh/wazuh/${filebeat_module_reference}/extensions/elasticsearch/7.x/wazuh-template.json"
 cp -r /root/stack/indexer/base/files/etc/sysconfig ./etc/
 cp -r /root/stack/indexer/base/files/etc/init.d ./etc/
 cp -r /root/stack/indexer/base/files/usr ./
