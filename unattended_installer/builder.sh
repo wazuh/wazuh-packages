@@ -18,6 +18,7 @@ readonly resources_common="${base_path_builder}/common_functions"
 readonly resources_download="${base_path_builder}/downloader"
 readonly source_directory="$( cd $(dirname $0) ; pwd -P )"
 source_branch=$(cat ${source_directory}/../VERSION)
+cat "Source Branch  ${source_branch}"
 
 function getHelp() {
 
