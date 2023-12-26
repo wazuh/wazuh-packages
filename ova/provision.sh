@@ -40,6 +40,7 @@ systemConfig
 preInstall
 
 # Install
+bash ls ${RESOURCES_PATH}/${INSTALLER}
 bash ${RESOURCES_PATH}/${INSTALLER} ${INSTALL_ARGS}
 
 systemctl stop wazuh-dashboard filebeat wazuh-indexer wazuh-manager
