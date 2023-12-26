@@ -18,8 +18,6 @@ readonly resources_common="${base_path_builder}/common_functions"
 readonly resources_download="${base_path_builder}/downloader"
 readonly source_directory="$( cd $(dirname $0) ; pwd -P )"
 source_branch=$(cat ${source_directory}/../VERSION)
-echo "Source Branch"
-echo $(cat ${source_directory}/../VERSION)
 
 function getHelp() {
 
@@ -226,7 +224,8 @@ function buildCertsTool() {
 function builder_main() {
 
     umask 066
-
+    echo "Source Branch"
+    echo $(cat ${source_directory}/../VERSION)
     while [ -n "${1}" ]
     do
         case "${1}" in
