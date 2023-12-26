@@ -96,10 +96,8 @@ sed -i 's/exec "${NODE}"/NODE_ENV=production exec "${NODE}" ${NODE_OPTIONS} /g' 
 cp ./etc/custom_welcome/template.js.hbs ./src/legacy/ui/ui_render/bootstrap/template.js.hbs
 cp ./etc/custom_welcome/light_theme.style.css ./src/core/server/core_app/assets/legacy_light_theme.css
 # SVG
-cp ./etc/custom_welcome/*svg ./src/core/server/core_app/assets/logos/
+cp ./etc/custom_welcome/Assets/default_branding/*svg ./src/core/server/core_app/assets/logos/
 # Copy Home button
-cp ./etc/custom_welcome/Assets/default_branding/home.svg ./src/core/server/core_app/assets/logos/
-cp ./etc/custom_welcome/Assets/default_branding/home_dark_mode.svg ./src/core/server/core_app/assets/logos/
 # Copy favicons
 cp ./etc/custom_welcome/Assets/Favicons/* ./src/core/server/core_app/assets/favicons/
 cp ./etc/custom_welcome/Assets/Favicons/favicon.ico ./src/core/server/core_app/assets/favicons/favicon.ico
@@ -115,11 +113,6 @@ cp ./etc/styles.js ./src/core/server/rendering/views/styles.js
 # Replace App Title
 sed -i "s|defaultValue: ''|defaultValue: \'Wazuh\'|g" ./src/core/server/opensearch_dashboards_config.js
 sed -i "90s|defaultValue: true|defaultValue: false|g" ./src/core/server/opensearch_dashboards_config.js
-
-## Remove OpenSearch from the upper bar with empty svg
-cp ./etc/custom_welcome/Assets/default_branding/logo_full_alpha.svg ./src/core/server/core_app/assets/logos/opensearch_dashboards.svg
-cp ./etc/custom_welcome/Assets/default_branding/logo_full_alpha.svg ./src/core/server/core_app/assets/logos/opensearch_dashboards_on_light.svg
-cp ./etc/custom_welcome/Assets/default_branding/logo_full_alpha.svg ./src/core/server/core_app/assets/logos/opensearch_dashboards_on_dark.svg
 
 # Remove the `home` button from the sidebar menu
 sed -i 's|\["EuiHorizontalRule"\],{margin:"none"})),external_osdSharedDeps_React_default.a.createElement(external_osdSharedDeps_ElasticEui_\["EuiFlexItem"\],{grow:false,style:{flexShrink:0}},external_osdSharedDeps_React_default.a.createElement(external_osdSharedDeps_ElasticEui_\["EuiCollapsibleNavGroup"\]|["EuiHorizontalRule"],{margin:"none"})),false\&\&external_osdSharedDeps_React_default.a.createElem(external_osdSharedDeps_ElasticEui_["EuiFlexItem"],{grow:false,style:{flexShrink:0}},external_osdSharedDeps_React_default.a.createElement(external_osdSharedDeps_ElasticEui_["EuiCollapsibleNavGroup"]|' ./src/core/target/public/core.entry.js
@@ -158,24 +151,11 @@ sed -i 's|https://survey.opensearch.org|https://wazuh.com/community/join-us-on-s
 sed -i 's|GITHUB_CREATE_ISSUE_LINK="https://github.com/opensearch-project/OpenSearch-Dashboards/issues/new/choose"|GITHUB_CREATE_ISSUE_LINK="https://github.com/wazuh/wazuh/issues/new/choose"|' ./src/core/target/public/core.entry.js
 
 # Custom logos
-## Custom logos - Home button logo
-sed -i 's|MARK_THEMED="ui/logos/opensearch_mark.svg"|MARK_THEMED="ui/logos/home.svg"|g' ./src/core/target/public/core.entry.js
-sed -i 's|MARK_ON_LIGHT="ui/logos/opensearch_mark_on_light.svg"|MARK_ON_LIGHT="ui/logos/home.svg"|g' ./src/core/target/public/core.entry.js
-sed -i 's|MARK_ON_DARK="ui/logos/opensearch_mark_on_dark.svg"|MARK_ON_DARK="ui/logos/home_dark_mode.svg"|g' ./src/core/target/public/core.entry.js
-sed -i 's|MARK_THEMED="ui/logos/opensearch_mark.svg"|MARK_THEMED="ui/logos/home.svg"|g' ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
-sed -i 's|MARK_ON_LIGHT="ui/logos/opensearch_mark_on_light.svg"|MARK_ON_LIGHT="ui/logos/home.svg"|g' ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
-sed -i 's|MARK_ON_DARK="ui/logos/opensearch_mark_on_dark.svg"|MARK_ON_DARK="ui/logos/home_dark_mode.svg"|g' ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
 ## Custom logos - Login logo
-sed -i 's|OPENSEARCH_ON_LIGHT="ui/logos/opensearch_on_light.svg"|OPENSEARCH_ON_LIGHT="ui/logos/Wazuh-Logo.svg"|g' ./plugins/alertingDashboards/target/public/alertingDashboards.plugin.js
-sed -i 's|OPENSEARCH_ON_DARK="ui/logos/opensearch_on_dark.svg"|OPENSEARCH_ON_DARK="ui/logos/Wazuh-Logo.svg"|g' ./plugins/alertingDashboards/target/public/alertingDashboards.plugin.js
-sed -i 's|OPENSEARCH_ON_LIGHT="ui/logos/opensearch_on_light.svg"|OPENSEARCH_ON_LIGHT="ui/logos/Wazuh-Logo.svg"|g' ./plugins/indexManagementDashboards/target/public/indexManagementDashboards.plugin.js
-sed -i 's|OPENSEARCH_ON_DARK="ui/logos/opensearch_on_dark.svg"|OPENSEARCH_ON_DARK="ui/logos/Wazuh-Logo.svg"|g' ./plugins/indexManagementDashboards/target/public/indexManagementDashboards.plugin.js
-sed -i 's|OPENSEARCH_ON_LIGHT="ui/logos/opensearch_on_light.svg"|OPENSEARCH_ON_LIGHT="ui/logos/Wazuh-Logo.svg"|g' ./plugins/notificationsDashboards/target/public/notificationsDashboards.plugin.js
-sed -i 's|OPENSEARCH_ON_DARK="ui/logos/opensearch_on_dark.svg"|OPENSEARCH_ON_DARK="ui/logos/Wazuh-Logo.svg"|g' ./plugins/notificationsDashboards/target/public/notificationsDashboards.plugin.js
-sed -i 's|OPENSEARCH_ON_LIGHT="ui/logos/opensearch_on_light.svg"|OPENSEARCH_ON_LIGHT="ui/logos/Wazuh-Logo.svg"|g' ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
-sed -i 's|OPENSEARCH_ON_DARK="ui/logos/opensearch_on_dark.svg"|OPENSEARCH_ON_DARK="ui/logos/Wazuh-Logo.svg"|g' ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
-sed -i 's|OPENSEARCH_ON_LIGHT="ui/logos/opensearch_on_light.svg"|OPENSEARCH_ON_LIGHT="ui/logos/Wazuh-Logo.svg"|g' ./src/core/target/public/core.entry.js
-sed -i 's|OPENSEARCH_ON_DARK="ui/logos/opensearch_on_dark.svg"|OPENSEARCH_ON_DARK="ui/logos/Wazuh-Logo.svg"|g' ./src/core/target/public/core.entry.js
+sed -i 's|props.chrome.logos.OpenSearch.url|props.http.basePath.prepend("/ui/logos/wazuh_dashboard_login_mark.svg")|g' ./plugins/securityDashboards/target/public/securityDashboards.chunk.5.js
+
+# Collapse initially the application categories in the side menu
+sed -i 's|_storage\$getItem!==void 0?_storage\$getItem:"true"|_storage\$getItem!==void 0?_storage\$getItem:"false"|' ./src/core/target/public/core.entry.js
 
 # Redirections
 ## Redirections - Replace the redirections to the home app

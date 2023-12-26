@@ -98,7 +98,7 @@ function installCommon_aptInstall() {
         installer=${package}
     fi
     command="DEBIAN_FRONTEND=noninteractive apt-get install ${installer} -y -q"
-    installCommon_checkAptLock
+    common_checkAptLock
 
     if [ "${attempt}" -ne "${max_attempts}" ]; then
         apt_output=$(eval "${command} 2>&1")
@@ -116,6 +116,11 @@ function installCommon_aptInstallList(){
     for dep in "${dependencies[@]}"; do
         if ! apt list --installed 2>/dev/null | grep -q -E ^"${dep}"\/; then
             not_installed+=("${dep}")
+            for wia_dep in "${wia_apt_dependencies[@]}"; do
+                if [ "${wia_dep}" == "${dep}" ]; then
+                    wia_dependencies_installed+=("${dep}")
+                fi
+            done
         fi
     done
 
@@ -341,11 +346,10 @@ function installCommon_installCheckDependencies() {
 
     common_logger -d "Installing check dependencies."
     if [ "${sys_type}" == "yum" ]; then
-        dependencies=( systemd grep tar coreutils sed procps-ng gawk lsof curl openssl )
         if [[ "${DIST_NAME}" == "rhel" ]] && [[ "${DIST_VER}" == "8" || "${DIST_VER}" == "9" ]]; then
             installCommon_configureCentOSRepositories
         fi
-        installCommon_yumInstallList "${dependencies[@]}"
+        installCommon_yumInstallList "${wia_yum_dependencies[@]}"
 
         # In RHEL cases, remove the CentOS repositories configuration
         if [ "${centos_repos_configured}" == 1 ]; then
@@ -354,23 +358,47 @@ function installCommon_installCheckDependencies() {
 
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "apt-get update -q ${debug}"
-        dependencies=( systemd grep tar coreutils sed procps gawk lsof curl openssl )
-        installCommon_aptInstallList "${dependencies[@]}"
+        installCommon_aptInstallList "${wia_apt_dependencies[@]}"
     fi
 
 }
 
 function installCommon_installPrerequisites() {
 
-    common_logger -d "Installing prerequisites dependencies."
+    message="Installing prerequisites dependencies."
     if [ "${sys_type}" == "yum" ]; then
-        dependencies=( libcap gnupg2 )
-        installCommon_yumInstallList "${dependencies[@]}"
-
+        if [ "${1}" == "AIO" ]; then
+            deps=($(echo "${indexer_yum_dependencies[@]}" "${dashboard_yum_dependencies[@]}" | tr ' ' '\n' | sort -u))
+            common_logger -d "${message}"
+            installCommon_yumInstallList "${deps[@]}"
+        fi
+        if [ "${1}" == "indexer" ]; then
+            common_logger -d "${message}"
+            installCommon_yumInstallList "${indexer_yum_dependencies[@]}"
+        fi
+        if [ "${1}" == "dashboard" ]; then
+            common_logger -d "${message}"
+            installCommon_yumInstallList "${dashboard_yum_dependencies[@]}"
+        fi
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "apt-get update -q ${debug}"
-        dependencies=( apt-transport-https libcap2-bin software-properties-common gnupg )
-        installCommon_aptInstallList "${dependencies[@]}"
+        if [ "${1}" == "AIO" ]; then
+            deps=($(echo "${wazuh_apt_dependencies[@]}" "${indexer_apt_dependencies[@]}" "${dashboard_apt_dependencies[@]}" | tr ' ' '\n' | sort -u))
+            common_logger -d "${message}"
+            installCommon_aptInstallList "${deps[@]}"
+        fi
+        if [ "${1}" == "indexer" ]; then
+            common_logger -d "${message}"
+            installCommon_aptInstallList "${indexer_apt_dependencies[@]}"
+        fi
+        if [ "${1}" == "dashboard" ]; then
+            common_logger -d "${message}"
+            installCommon_aptInstallList "${dashboard_apt_dependencies[@]}"
+        fi
+        if [ "${1}" == "wazuh" ]; then
+            common_logger -d "${message}"
+            installCommon_aptInstallList "${wazuh_apt_dependencies[@]}"
+        fi
     fi
 
 }
@@ -544,7 +572,7 @@ function installCommon_rollBack() {
                 manager_installed=$(yum list installed 2>/dev/null | grep wazuh-manager)
             fi
         elif [ "${sys_type}" == "apt-get" ]; then
-            installCommon_checkAptLock
+            common_checkAptLock
             eval "apt-get remove --purge wazuh-manager -y ${debug}"
             manager_installed=$(apt list --installed 2>/dev/null | grep wazuh-manager)
         fi
@@ -570,7 +598,7 @@ function installCommon_rollBack() {
                 indexer_installed=$(yum list installed 2>/dev/null | grep wazuh-indexer)
             fi
         elif [ "${sys_type}" == "apt-get" ]; then
-            installCommon_checkAptLock
+            common_checkAptLock
             eval "apt-get remove --purge wazuh-indexer -y ${debug}"
             indexer_installed=$(apt list --installed 2>/dev/null | grep wazuh-indexer)
         fi
@@ -597,7 +625,7 @@ function installCommon_rollBack() {
                 filebeat_installed=$(yum list installed 2>/dev/null | grep filebeat)
             fi
         elif [ "${sys_type}" == "apt-get" ]; then
-            installCommon_checkAptLock
+            common_checkAptLock
             eval "apt-get remove --purge filebeat -y ${debug}"
             filebeat_installed=$(apt list --installed 2>/dev/null | grep filebeat)
         fi
@@ -624,7 +652,7 @@ function installCommon_rollBack() {
                 dashboard_installed=$(yum list installed 2>/dev/null | grep wazuh-dashboard)
             fi
         elif [ "${sys_type}" == "apt-get" ]; then
-            installCommon_checkAptLock
+            common_checkAptLock
             eval "apt-get remove --purge wazuh-dashboard -y ${debug}"
             dashboard_installed=$(apt list --installed 2>/dev/null | grep wazuh-dashboard)
         fi
@@ -658,6 +686,8 @@ function installCommon_rollBack() {
     eval "rm -rf ${elements_to_remove[*]} ${debug}"
 
     common_remove_gpg_key
+
+    installCommon_removeWIADependencies
 
     eval "systemctl daemon-reload ${debug}"
 
@@ -735,6 +765,11 @@ function installCommon_yumInstallList(){
         common_checkYumLock
         if ! yum list installed 2>/dev/null | grep -q -E ^"${dep}"\\.;then
             not_installed+=("${dep}")
+            for wia_dep in "${wia_yum_dependencies[@]}"; do
+                if [ "${wia_dep}" == "${dep}" ]; then
+                    wia_dependencies_installed+=("${dep}")
+                fi
+            done
         fi
     done
 
@@ -755,6 +790,53 @@ function installCommon_yumInstallList(){
 
 }
 
+function installCommon_removeWIADependencies() {
+
+    if [ "${sys_type}" == "yum" ]; then
+        installCommon_yumRemoveWIADependencies
+    elif [ "${sys_type}" == "apt-get" ]; then
+        installCommon_aptRemoveWIADependencies
+    fi
+
+}
+
+function installCommon_yumRemoveWIADependencies(){
+
+    if [ "${#wia_dependencies_installed[@]}" -gt 0 ]; then
+        common_logger "--- Dependencies ---"
+        for dep in "${wia_dependencies_installed[@]}"; do
+            common_logger "Removing $dep."
+            yum_output=$(yum remove ${dep} -y 2>&1)
+            yum_code="${PIPESTATUS[0]}"
+
+            eval "echo \${yum_output} ${debug}"
+            if [  "${yum_code}" != 0  ]; then
+                common_logger -e "Cannot remove dependency: ${dep}."
+                exit 1
+            fi
+        done
+    fi
+
+}
+
+function installCommon_aptRemoveWIADependencies(){
+
+    if [ "${#wia_dependencies_installed[@]}" -gt 0 ]; then
+        common_logger "--- Dependencies ----"
+        for dep in "${wia_dependencies_installed[@]}"; do
+            common_logger "Removing $dep."
+            apt_output=$(apt-get remove --purge ${dep} -y 2>&1)
+            apt_code="${PIPESTATUS[0]}"
+
+            eval "echo \${apt_output} ${debug}"
+            if [  "${apt_code}" != 0  ]; then
+                common_logger -e "Cannot remove dependency: ${dep}."
+                exit 1
+            fi
+        done
+    fi
+
+}
 function installCommon_yumInstall() {
 
     package="${1}"
@@ -774,5 +856,20 @@ function installCommon_yumInstall() {
         install_result="${PIPESTATUS[0]}"
         eval "echo \${yum_output} ${debug}"
     fi
+
+}
+
+
+function installCommon_checkAptLock() {
+
+    attempt=0
+    seconds=30
+    max_attempts=10
+
+    while fuser "${apt_lockfile}" >/dev/null 2>&1 && [ "${attempt}" -lt "${max_attempts}" ]; do
+        attempt=$((attempt+1))
+        common_logger "Another process is using APT. Waiting for it to release the lock. Next retry in ${seconds} seconds (${attempt}/${max_attempts})"
+        sleep "${seconds}"
+    done
 
 }

@@ -4432,7 +4432,7 @@ input:focus {
 
 /*------------- WAZUH -------------*/
 .wz-login {
-  background: url(./logos/wazuh_wazuh_bg.svg) !important;
+  background: url(./logos/wazuh_dashboard_login_background.svg) !important;
   width: 100% !important;
   height: 100% !important;
   background-size: cover !important;
@@ -4473,25 +4473,9 @@ input:focus {
   margin-top: 32px;
 }
 
-.loginWelcome__logo {
-  display: inline-block;
-  width: 80px;
-  height: 80px;
-  line-height: 80px;
-  text-align: center;
-  background-color: #FFF;
-  border-radius: 100%;
-  padding: 16px;
-  box-shadow: 0 6px 12px -1px rgba(152, 162, 179, 0.2), 0 4px 4px -1px rgba(152, 162, 179, 0.2), 0 2px 2px 0 rgba(152, 162, 179, 0.2);
-  margin-bottom: 32px;
-}
-
 div.euiFormRow > div.euiFormRow__fieldWrapper > button {
   background-color: #3595F9!important;
   border-color: #3595F9!important;
   color: #fff;
 }
 
-.loginWelcome__logo {
-  background: url(./logos/Wazuh-Logo.svg) center center no-repeat !important;
-}
