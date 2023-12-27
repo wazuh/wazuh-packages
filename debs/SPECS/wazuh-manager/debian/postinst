@@ -75,7 +75,7 @@ case "$1" in
     if [ -f "${DIR}/${VD_FILENAME}" ]; then
         tar -xf ${DIR}/${VD_FILENAME} -C ${DIR}
         chown ${USER}:${GROUP} ${DIR}/queue/vd
-        chown ${USER}:${GROUP} ${DIR}/queue/vd-updater
+        chown ${USER}:${GROUP} ${DIR}/queue/vd_updater
         rm -rf ${DIR}/${VD_FILENAME}
     fi
 
