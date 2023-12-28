@@ -311,7 +311,7 @@ if [ -f "%{_localstatedir}/%{_vdfilename}" ]; then
     tar -xf %{_localstatedir}/%{_vdfilename} -C %{_localstatedir}
     chown wazuh:wazuh %{_localstatedir}/queue/vd
     chown wazuh:wazuh %{_localstatedir}/queue/vd_updater
-    rm -rf tar -xf %{_localstatedir}/%{_vdfilename}
+    rm -rf %{_localstatedir}/%{_vdfilename}
 fi
 
 # Fresh install code block
