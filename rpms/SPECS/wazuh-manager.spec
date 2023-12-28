@@ -306,12 +306,12 @@ if [ $1 = 2 ]; then
   updateIndexerTemplate "%{_localstatedir}/etc/ossec.conf" $CONFIG_INDEXER_TEMPLATE
 fi
 
-VD_FILENAME='vd_1.0.0_vd_4.8.0.tar.xz'
-if [ -f "%{_localstatedir}/${VD_FILENAME}" ]; then
-    tar -xf %{_localstatedir}/${VD_FILENAME} -C %{_localstatedir}
+%define _vdfilename vd_1.0.0_vd_4.8.0.tar.xz
+if [ -f "%{_localstatedir}/%{_vdfilename}" ]; then
+    tar -xf %{_localstatedir}/%{_vdfilename} -C %{_localstatedir}
     chown wazuh:wazuh %{_localstatedir}/queue/vd
     chown wazuh:wazuh %{_localstatedir}/queue/vd_updater
-    rm -rf tar -xf %{_localstatedir}/${VD_FILENAME}
+    rm -rf tar -xf %{_localstatedir}/%{_vdfilename}
 fi
 
 # Fresh install code block
@@ -734,7 +734,7 @@ rm -fr %{buildroot}
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/centos/*
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/rhel
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/rhel/*
-%attr(750, wazuh, wazuh) %{_localstatedir}/${VD_FILENAME}
+%attr(750, wazuh, wazuh) %{_localstatedir}/%{_vdfilename}
 %dir %attr(750, root, wazuh) %{_localstatedir}/queue
 %attr(600, root, wazuh) %ghost %{_localstatedir}/queue/agents-timestamp
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/agentless
