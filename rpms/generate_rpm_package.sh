@@ -18,6 +18,7 @@ REVISION="1"
 TARGET=""
 JOBS="2"
 DEBUG="no"
+DOWNLOAD_CONTENT="no"
 BUILD_DOCKER="yes"
 DOCKER_TAG="latest"
 USER_PATH="no"
@@ -110,7 +111,7 @@ build_rpm() {
         ${CONTAINER_NAME}:${DOCKER_TAG} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
         ${JOBS} ${REVISION} ${INSTALLATION_PATH} ${DEBUG} \
         ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} ${SRC} \
-        ${LEGACY} ${USE_LOCAL_SOURCE_CODE} ${FUTURE}|| return 1
+        ${LEGACY} ${USE_LOCAL_SOURCE_CODE} ${FUTURE} ${DOWNLOAD_CONTENT}|| return 1
 
     echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
 
@@ -209,6 +210,7 @@ help() {
     echo "    -p, --path <path>            [Optional] Installation path for the package. By default: /var/ossec."
     echo "    -d, --debug                  [Optional] Build the binaries with debug symbols and create debuginfo packages. By default: no."
     echo "    -c, --checksum <path>        [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
+    echo "    --download-content           [Optional] Download content and add it to the package."
     echo "    --dont-build-docker          [Optional] Locally built docker image will be used instead of generating a new one."
     echo "    --tag                        [Optional] Tag to use with the docker image."
     echo "    --sources <path>             [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
@@ -285,6 +287,10 @@ main() {
             ;;
         "-d"|"--debug")
             DEBUG="yes"
+            shift 1
+            ;;
+        "--download-content")
+            DOWNLOAD_CONTENT="yes"
             shift 1
             ;;
         "--dont-build-docker")

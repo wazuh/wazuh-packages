@@ -23,6 +23,7 @@ wazuh_packages_branch=$9
 use_local_specs=${10}
 local_source_code=${11}
 future=${12}
+download_content=${13}
 
 if [ -z "${package_release}" ]; then
     package_release="1"
@@ -87,6 +88,7 @@ cd ${build_dir}/${build_target} && tar -czf ${package_full_name}.orig.tar.gz "${
 sed -i "s:RELEASE:${package_release}:g" ${sources_dir}/debian/changelog
 sed -i "s:export JOBS=.*:export JOBS=${jobs}:g" ${sources_dir}/debian/rules
 sed -i "s:export DEBUG_ENABLED=.*:export DEBUG_ENABLED=${debug}:g" ${sources_dir}/debian/rules
+sed -i "s:export DOWNLOAD_CONTENT_ENABLED=.*:export DOWNLOAD_CONTENT_ENABLED=${download_content}:g" ${sources_dir}/debian/rules
 sed -i "s#export PATH=.*#export PATH=/usr/local/gcc-5.5.0/bin:${PATH}#g" ${sources_dir}/debian/rules
 sed -i "s#export LD_LIBRARY_PATH=.*#export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}#g" ${sources_dir}/debian/rules
 sed -i "s:export INSTALLATION_DIR=.*:export INSTALLATION_DIR=${dir_path}:g" ${sources_dir}/debian/rules
