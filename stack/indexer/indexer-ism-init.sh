@@ -12,7 +12,7 @@ INDEXER_PASSWORD="admin"
 INDEXER_HOSTNAME="localhost"
 
 POLICY_NAME="rollover_policy"
-LOG_FILE="/tmp/wazuh-indexer/ism-init.log"
+LOG_FILE="/var/log/wazuh-indexer/ism-init.log"
 
 INDEXER_URL="https://${INDEXER_HOSTNAME}:9200"
 
