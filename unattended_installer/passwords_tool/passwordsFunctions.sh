@@ -366,6 +366,9 @@ function passwords_getNetworkHost() {
     IP=$(grep -hr "^network.host:" /etc/wazuh-indexer/opensearch.yml)
     NH="network.host: "
     IP="${IP//$NH}"
+    
+    # Remove surrounding double quotes if present
+    IP="${IP//\"}"
 
     #allow to find ip with an interface
     if [[ ${IP} =~ _.*_ ]]; then
