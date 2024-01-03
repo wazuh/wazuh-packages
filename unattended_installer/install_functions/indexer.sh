@@ -144,8 +144,7 @@ function indexer_install() {
     common_logger "Starting Wazuh indexer installation."
 
     if [ "${sys_type}" == "yum" ]; then
-        eval "yum install wazuh-indexer-${wazuh_version} -y ${debug}"
-        install_result="${PIPESTATUS[0]}"
+        installCommon_yumInstall "wazuh-indexer" "${wazuh_version}-*"
     elif [ "${sys_type}" == "apt-get" ]; then
         installCommon_aptInstall "wazuh-indexer" "${wazuh_version}-*"
     fi

@@ -40,6 +40,9 @@ function getHelp() {
     echo -e "        -o,  --overwrite"
     echo -e "                Overwrites previously installed components. This will erase all the existing configuration and data."
     echo -e ""
+    echo -e "        -of,  --offline-installation"
+    echo -e "                Perform an offline installation. This option must be used with -a, -ws, -wi, or -wd."
+    echo -e ""
     echo -e "        -p,  --port"
     echo -e "                Specifies the Wazuh web user interface port. By default is the 443 TCP port. Recommended ports are: 8443, 8444, 8080, 8888, 9000."
     echo -e ""
@@ -112,6 +115,10 @@ function main() {
                 ;;
             "-o"|"--overwrite")
                 overwrite=1
+                shift 1
+                ;;
+            "-of"|"--offline-installation")
+                offline_install=1
                 shift 1
                 ;;
             "-p"|"--port")
@@ -217,6 +224,12 @@ function main() {
 
     common_checkSystem
 
+    if [ -z "${uninstall}" ] && [ -z "${offline_install}" ]; then
+        installCommon_installCheckDependencies
+    elif [ -n "${offline_install}" ]; then
+        offline_checkDependencies
+    fi
+    
     if [ -z "${download}" ]; then
         check_dist
     fi
@@ -229,10 +242,6 @@ function main() {
     fi
 
 # -------------- Preliminary checks and Prerequisites --------------------------------
-
-    if [ -z "${uninstall}" ]; then
-        installCommon_installCheckDependencies
-    fi
 
     if [ -z "${configurations}" ] && [ -z "${AIO}" ] && [ -z "${download}" ]; then
         checks_previousCertificate
@@ -275,10 +284,20 @@ function main() {
 
 # --------------  Wazuh repo  ----------------------
 
+    # Offline installation case: extract the compressed files
+    if [ -n "${offline_install}" ]; then
+        offline_checkPreinstallation
+        offline_extractFiles
+    fi
+
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
-        installCommon_installPrerequisites
+        if [ -z "${offline_install}" ]; then
+            installCommon_installPrerequisites
+        fi
         check_curlVersion
-        installCommon_addWazuhRepo
+        if [ -z "${offline_install}" ]; then
+            installCommon_addWazuhRepo
+        fi
     fi
 
 # -------------- Configuration creation case  -----------------------
@@ -387,7 +406,7 @@ function main() {
 
 # -------------------------------------------------------------------
 
-    if [ -z "${configurations}" ] && [ -z "${download}" ]; then
+    if [ -z "${configurations}" ] && [ -z "${download}" ] && [ -z "${offline_install}" ]; then
         installCommon_restoreWazuhrepo
     fi
 

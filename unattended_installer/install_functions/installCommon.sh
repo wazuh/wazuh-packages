@@ -97,6 +97,13 @@ function installCommon_aptInstall() {
     else
         installer=${package}
     fi
+
+    # Offline installation case: get package name and install it
+    if [ -n "${offline_install}" ]; then
+        package_name=$(ls ${offline_packages_path} | grep ${package})
+        installer="${offline_packages_path}/${package_name}"
+    fi
+
     command="DEBIAN_FRONTEND=noninteractive apt-get install ${installer} -y -q"
     common_checkAptLock
 
@@ -848,7 +855,15 @@ function installCommon_yumInstall() {
         installer="${package}"
     fi
 
-    command="yum install ${installer} -y"
+    # Offline installation case: get package name and install it
+    if [ -n "${offline_install}" ]; then
+        package_name=$(ls ${offline_packages_path} | grep ${package})
+        installer="${offline_packages_path}/${package_name}"
+        command="rpm -ivh ${installer}"
+        common_logger -d "Installing local package: ${installer}"
+    else
+        command="yum install ${installer} -y"
+    fi
     common_checkYumLock
 
     if [ "${attempt}" -ne "${max_attempts}" ]; then
