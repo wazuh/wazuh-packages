@@ -24,7 +24,6 @@ src=${11}
 legacy=${12}
 local_source_code=${13}
 future=${14}
-download_content=${15}
 wazuh_version=""
 rpmbuild="rpmbuild"
 
@@ -126,7 +125,6 @@ fi
 $linux $rpmbuild --define "_sysconfdir /etc" --define "_topdir ${rpm_build_dir}" \
         --define "_threads ${threads}" --define "_release ${package_release}" \
         --define "_localstatedir ${directory_base}" --define "_debugenabled ${debug}" \
-        --define "_download_content_enabled ${download_content}" \
         --target ${architecture_target} -ba ${rpm_build_dir}/SPECS/${package_name}.spec
 
 if [[ "${checksum}" == "yes" ]]; then
