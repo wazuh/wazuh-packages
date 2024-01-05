@@ -18,6 +18,7 @@ container_name="indexer_base_builder"
 architecture="x64"
 future="no"
 revision="1"
+filebeat_module_reference=""
 
 # -----------------------------------------------------------------------------
 
@@ -48,11 +49,11 @@ build_base() {
     # Build the RPM package with a Docker container
     if [ "${reference}" ];then
         docker run -t --rm -v ${outdir}/:/tmp/output:Z \
-            ${container_name} ${architecture} ${revision} ${future} ${reference} || return 1
+            ${container_name} ${architecture} ${revision} ${filebeat_module_reference} ${future} ${reference}  || return 1
     else
         docker run -t --rm -v ${outdir}/:/tmp/output:Z \
             -v ${current_path}/../../..:/root:Z \
-            ${container_name} ${architecture} ${revision} ${future} || return 1
+            ${container_name} ${architecture} ${revision} ${filebeat_module_reference} ${future} || return 1
     fi
 
     echo "Base file $(ls -Art ${outdir} | tail -n 1) added to ${outdir}."
@@ -66,11 +67,12 @@ help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -s, --store <path>         [Optional] Set the destination path of package. By default, an output folder will be created."
-    echo "    --reference <ref>     [Optional] wazuh-packages branch or tag"
-    echo "    --future              [Optional] Build test future package 99.99.0 Used for development purposes."
-    echo "    -r, --revision <rev>  [Optional] Package revision. By default ${revision}"
-    echo "    -h, --help            Show this help."
+    echo "    -s, --store <path>                [Optional] Set the destination path of package. By default, an output folder will be created."
+    echo "    --reference <ref>                 [Optional] wazuh-packages branch or tag."
+    echo "    -f, --filebeat-module-reference   [Optional] wazuh/wazuh Filebeat template branch or tag."
+    echo "    --future                          [Optional] Build test future package 99.99.0 Used for development purposes."
+    echo "    -r, --revision <rev>              [Optional] Package revision. By default ${revision}"
+    echo "    -h, --help                        Show this help."
     echo
     exit "${1}"
 }
@@ -100,6 +102,14 @@ main() {
                 help 1
             fi
             ;;
+        "-f"|"--filebeat-module-reference")
+            if [ -n "${2}" ]; then
+                filebeat_module_reference="${2}"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
         "--future")
             future="yes"
             shift 1
@@ -112,10 +122,15 @@ main() {
                 help 1
             fi
             ;;
+
         *)
             help 1
         esac
     done
+
+    if [ -z "${filebeat_module_reference}" ]; then
+        filebeat_module_reference=$(cat ${current_path}/../../../VERSION)
+    fi
 
     build_base || clean 1
 
