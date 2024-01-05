@@ -104,7 +104,7 @@ build_ova() {
     --product "Wazuh v${OVA_VERSION} OVA" \
     --producturl "https://packages.wazuh.com/vm/wazuh-${OVA_VERSION}.ova" \
     --vendor "Wazuh, inc <info@wazuh.com>" --vendorurl "https://wazuh.com" \
-    --version "$OVA_VERSION" --description "Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring." \
+    --version "$OVA_VERSION" --description "Wazuh enhances security visibility in your infrastructure by monitoring endpoints at the operating system and application levels. Its capabilities include log analysis, file integrity monitoring, intrusion detection, and compliance monitoring." \
     || clean 1
 
     vagrant destroy -f
