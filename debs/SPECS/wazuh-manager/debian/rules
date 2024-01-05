@@ -26,7 +26,6 @@ export JOBS="5"
 export DEBUG_ENABLED="no"
 export PATH="${PATH}"
 export LD_LIBRARY_PATH=""
-export DOWNLOAD_CONTENT_ENABLED="no"
 
 %:
 	dh $@
@@ -65,7 +64,7 @@ override_dh_install:
 	USER_GENERATE_AUTHD_CERT="y" \
 	USER_AUTO_START="n" \
 	USER_CREATE_SSL_CERT="n" \
-	DOWNLOAD_CONTENT="$(DOWNLOAD_CONTENT_ENABLED)" \
+	DOWNLOAD_CONTENT="yes" \
 	./install.sh
 
 	# Copying init.d script
