@@ -153,6 +153,7 @@ override_dh_fixperms:
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/jvm.options
 	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/modules/aggs-matrix-stats
 	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/opensearch.yml
+	chmod 660 $(TARGET_DIR)$(CONFIG_DIR)/wazuh-template.json
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/roles_mapping.yml
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/internal_users.yml
 	chmod 640 $(TARGET_DIR)$(CONFIG_DIR)/opensearch-security/roles.yml
@@ -167,6 +168,8 @@ override_dh_fixperms:
 	chmod 740 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/securityadmin.sh
 	chmod 740 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/wazuh-certs-tool.sh
 	chmod 740 $(TARGET_DIR)$(INSTALLATION_DIR)/plugins/opensearch-security/tools/wazuh-passwords-tool.sh
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-performance-analyzer/performance-analyzer-agent-cli
+	chmod 750 $(TARGET_DIR)$(INSTALLATION_DIR)/bin/opensearch-performance-analyzer/performance-analyzer-agent
 
 	find "$(TARGET_DIR)$(INSTALLATION_DIR)" -type d -exec chmod 750 {} \;
 	find "$(TARGET_DIR)$(INSTALLATION_DIR)" -type f -perm 644 -exec chmod 640 {} \;
