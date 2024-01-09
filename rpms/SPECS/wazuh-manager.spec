@@ -322,31 +322,6 @@ if [ $1 = 1 ]; then
   %{_localstatedir}/packages_files/manager_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
 fi
 
-  # We create this fix for the operating system that deprecated SySV. For now, this fix is for suse/openSUSE
-  sles=""
-  if [ -f /etc/SuSE-release ]; then
-    sles="suse"
-  elif [ -f /etc/os-release ]; then
-    if `grep -q "\"sles" /etc/os-release` ; then
-      sles="suse"
-    elif `grep -q -i "\"opensuse" /etc/os-release` ; then
-      sles="opensuse"
-    fi
-  fi
-
-  if [ -n "$sles" ] && [ $(ps --no-headers -o comm 1) == "systemd" ]; then
-    if [ -f /etc/init.d/wazuh-manager ]; then
-      rm -f /etc/init.d/wazuh-manager
-    fi
-  fi
-
-if [ -f /etc/os-release ]; then
-  source /etc/os-release
-  if [ "${NAME}" = "Red Hat Enterprise Linux" ] && [ "$((${VERSION_ID:0:1}))" -ge 9 ]; then
-    rm -f %{_initrddir}/wazuh-manager
-  fi
-fi
-
 if [[ -d /run/systemd/system ]]; then
   rm -f %{_initrddir}/wazuh-manager
 fi
