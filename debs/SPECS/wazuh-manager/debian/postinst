@@ -15,6 +15,7 @@ case "$1" in
     OSMYSHELL="/sbin/nologin"
     SCRIPTS_DIR="${WAZUH_GLOBAL_TMP_DIR}/manager_installation_scripts"
     SCA_BASE_DIR="${SCRIPTS_DIR}/sca"
+    VD_FILENAME='vd_1.0.0_vd_4.8.0.tar.xz'
 
     if [ -d /run/systemd/system ]; then
         rm -f /etc/init.d/wazuh-manager
@@ -69,6 +70,13 @@ case "$1" in
     if [ -f ${DIR}/queue/db/global.db ]; then
         chmod 640 ${DIR}/queue/db/global.db*
         chown ${USER}:${GROUP} ${DIR}/queue/db/global.db*
+    fi
+
+    if [ -f "${DIR}/${VD_FILENAME}" ]; then
+        tar -xf ${DIR}/${VD_FILENAME} -C ${DIR}
+        chown ${USER}:${GROUP} ${DIR}/queue/vd
+        chown ${USER}:${GROUP} ${DIR}/queue/vd_updater
+        rm -rf ${DIR}/${VD_FILENAME}
     fi
 
     # Delete uncompatible DBs versions
@@ -233,6 +241,11 @@ case "$1" in
         rm -rf ${SCA_BASE_DIR}
 
     fi
+
+    # Ensure that the 'Indexer' is configured
+    CONFIG_INDEXER_TEMPLATE="${SCRIPTS_DIR}/etc/templates/config/generic/wodle-indexer.manager.template"
+    . ${SCRIPTS_DIR}/src/init/update-indexer.sh
+    updateIndexerTemplate "${DIR}/etc/ossec.conf" $CONFIG_INDEXER_TEMPLATE
 
     # Restoring file permissions
     ${SCRIPTS_DIR}/restore-permissions.sh > /dev/null 2>&1 || true
