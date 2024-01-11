@@ -22,7 +22,7 @@ Conflicts:   ossec-hids ossec-hids-agent wazuh-agent wazuh-local
 Obsoletes: wazuh-api < 4.0.0
 AutoReqProv: no
 
-Requires: coreutils
+Requires: coreutils xz
 BuildRequires: coreutils glibc-devel automake autoconf libtool policycoreutils-python curl perl
 
 ExclusiveOS: linux
@@ -78,6 +78,7 @@ echo 'USER_CA_STORE="/path/to/my_cert.pem"' >> ./etc/preloaded-vars.conf
 echo 'USER_GENERATE_AUTHD_CERT="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_AUTO_START="n"' >> ./etc/preloaded-vars.conf
 echo 'USER_CREATE_SSL_CERT="n"' >> ./etc/preloaded-vars.conf
+echo 'DOWNLOAD_CONTENT="yes"' >> ./etc/preloaded-vars.conf
 ./install.sh
 
 # Create directories
@@ -94,9 +95,6 @@ install -m 0644 src/init/templates/wazuh-manager.service ${RPM_BUILD_ROOT}/usr/l
 
 # Clean the preinstalled configuration assesment files
 rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ruleset/sca/*
-
-# Install Vulnerability Detector files
-install -m 0440 src/wazuh_modules/vulnerability_detector/*.json ${RPM_BUILD_ROOT}%{_localstatedir}/queue/vulnerabilities/dictionaries
 
 # Add configuration scripts
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/
@@ -289,6 +287,8 @@ fi
 %post
 
 echo "VERSION=\"$(%{_localstatedir}/bin/wazuh-control info -v)\"" > /etc/ossec-init.conf
+
+# Upgrade install code block
 if [ $1 = 2 ]; then
   if [ -d %{_localstatedir}/logs/ossec ]; then
     rm -rf %{_localstatedir}/logs/wazuh
@@ -299,6 +299,19 @@ if [ $1 = 2 ]; then
     rm -rf %{_localstatedir}/queue/sockets
     cp -rp %{_localstatedir}/queue/ossec %{_localstatedir}/queue/sockets
   fi
+
+  # Ensure that the 'Indexer' is configured
+  CONFIG_INDEXER_TEMPLATE="%{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/generic/wodle-indexer.manager.template"
+  . %{_localstatedir}/packages_files/manager_installation_scripts/src/init/update-indexer.sh
+  updateIndexerTemplate "%{_localstatedir}/etc/ossec.conf" $CONFIG_INDEXER_TEMPLATE
+fi
+
+%define _vdfilename vd_1.0.0_vd_4.8.0.tar.xz
+if [ -f "%{_localstatedir}/%{_vdfilename}" ]; then
+    tar -xf %{_localstatedir}/%{_vdfilename} -C %{_localstatedir}
+    chown wazuh:wazuh %{_localstatedir}/queue/vd
+    chown wazuh:wazuh %{_localstatedir}/queue/vd_updater
+    rm -rf %{_localstatedir}/%{_vdfilename}
 fi
 
 # Fresh install code block
@@ -685,6 +698,11 @@ rm -fr %{buildroot}
 %attr(750, root, wazuh) %{_localstatedir}/lib/libstdc++.so.6
 %attr(750, root, wazuh) %{_localstatedir}/lib/libgcc_s.so.1
 %attr(750, root, wazuh) %{_localstatedir}/lib/libfimdb.so
+%attr(750, root, wazuh) %{_localstatedir}/lib/libcontent_manager.so
+%attr(750, root, wazuh) %{_localstatedir}/lib/libindexer_connector.so
+%attr(750, root, wazuh) %{_localstatedir}/lib/librocksdb.so.8
+%attr(750, root, wazuh) %{_localstatedir}/lib/librouter.so
+%attr(750, root, wazuh) %{_localstatedir}/lib/libvulnerability_scanner.so
 %{_localstatedir}/lib/libpython3.10.so.1.0
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/logs
 %attr(660, wazuh, wazuh)  %ghost %{_localstatedir}/logs/active-responses.log
@@ -692,6 +710,7 @@ rm -fr %{buildroot}
 %attr(640, wazuh, wazuh) %ghost %{_localstatedir}/logs/integrations.log
 %attr(660, wazuh, wazuh) %ghost %{_localstatedir}/logs/ossec.log
 %attr(660, wazuh, wazuh) %ghost %{_localstatedir}/logs/ossec.json
+%attr(0440, root, wazuh) %{_localstatedir}/queue/indexer/vd_states_template.json
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/logs/api
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/logs/archives
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/logs/alerts
@@ -715,6 +734,7 @@ rm -fr %{buildroot}
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/centos/*
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/rhel
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/rhel/*
+%attr(750, wazuh, wazuh) %{_localstatedir}/%{_vdfilename}
 %dir %attr(750, root, wazuh) %{_localstatedir}/queue
 %attr(600, root, wazuh) %ghost %{_localstatedir}/queue/agents-timestamp
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/agentless
@@ -731,11 +751,10 @@ rm -fr %{buildroot}
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/rids
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/tasks
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/sockets
-%dir %attr(660, root, wazuh) %{_localstatedir}/queue/vulnerabilities
-%dir %attr(440, root, wazuh) %{_localstatedir}/queue/vulnerabilities/dictionaries
+%dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/vd
+%dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/indexer
+%dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/router
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/logcollector
-%attr(0440, root, wazuh) %{_localstatedir}/queue/vulnerabilities/dictionaries/cpe_helper.json
-%attr(0440, root, wazuh) %ghost %{_localstatedir}/queue/vulnerabilities/dictionaries/msu.json.gz
 %dir %attr(750, root, wazuh) %{_localstatedir}/ruleset
 %dir %attr(750, root, wazuh) %{_localstatedir}/ruleset/sca
 %dir %attr(750, root, wazuh) %{_localstatedir}/ruleset/decoders
@@ -855,9 +874,9 @@ rm -fr %{buildroot}
 %changelog
 * Wed Mar 26 2024 support <info@wazuh.com> - 4.8.2
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-8-2.html
-* Tue Feb 13 2024 support <info@wazuh.com> - 4.8.1
+* Wed Feb 28 2024 support <info@wazuh.com> - 4.8.1
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-8-1.html
-* Wed Jan 31 2024 support <info@wazuh.com> - 4.8.0
+* Wed Feb 21 2024 support <info@wazuh.com> - 4.8.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-8-0.html
 * Tue Jan 09 2024 support <info@wazuh.com> - 4.7.2
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-7-2.html
