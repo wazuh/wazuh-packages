@@ -375,6 +375,10 @@ elif [ -r "/etc/centos-release" ]; then
 elif [ -r "/etc/fedora-release" ]; then
     DIST_NAME="fedora"
     DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.*[0-9]{0,2}.*/\1/p' /etc/fedora-release`
+# Oracle Linux
+elif [ -r "/etc/oracle-release" ]; then
+    DIST_NAME="ol"
+    DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.*[0-9]{0,2}.*/\1/p' /etc/oracle-release`
 # RedHat
 elif [ -r "/etc/redhat-release" ]; then
   if grep -q "AlmaLinux" /etc/redhat-release; then
