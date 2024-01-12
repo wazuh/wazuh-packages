@@ -1,0 +1,63 @@
+name: Offline installation test
+on:
+  pull_request:
+    paths:
+      - 'unattended_installer/install_functions/wazuh-offline-download.sh'
+  workflow_dispatch:
+
+jobs:
+  Build-wazuh-install-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel previous runs
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          cancel_others: 'true'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          skip_after_successful_duplicate: 'false'
+
+      - uses: actions/checkout@v2
+
+      - name: Build wazuh-install script and use staging packages
+        working-directory: ./unattended_installer
+        run: |
+          bash builder.sh -i -d staging
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: script
+          path: |
+            unattended_installer/wazuh-install.sh
+          if-no-files-found: error
+
+  Test-offline-installation-debian:
+    runs-on: ubuntu-latest
+    needs: Build-wazuh-install-script
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: script
+
+      - name: Move unattended script
+        run: cp $GITHUB_WORKSPACE/wazuh-install.sh $GITHUB_WORKSPACE/.github/actions/offline-installation/wazuh-install.sh
+
+      - name: Run script
+        run: sudo bash $GITHUB_WORKSPACE/.github/actions/offline-installation/offline-installation.sh
+
+  Test-offline-installation-rpm:
+    runs-on: ubuntu-latest
+    needs: Build-wazuh-install-script
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: script
+
+      - name: Move unattended script
+        run: cp $GITHUB_WORKSPACE/wazuh-install.sh $GITHUB_WORKSPACE/.github/actions/offline-installation/wazuh-install.sh
+
+      - name: Launch docker and run script
+        run: sudo docker run -v $GITHUB_WORKSPACE/.github/actions/offline-installation/:/tests centos:centos7 bash /tests/offline-installation.sh

@@ -36,7 +36,9 @@ The following table shows the references for the versions of each component.
 |-----------------|-----------------------|
 | 4.3.x           | 1.2.0                 |
 | 4.4.0           | 2.4.1                 |
-| 4.4.1 - 4.5.1   | 2.6.0                 |
+| 4.4.1 - 4.5.x   | 2.6.0                 |
+| 4.6.x - 4.7.x   | 2.8.0                 |
+| 4.8.x - current | 2.10.0                |
 
 ### Wazuh indexer
 
@@ -44,7 +46,9 @@ The following table shows the references for the versions of each component.
 |-----------------|-----------------------|
 | 4.3.x           | 1.2.4                 |
 | 4.4.0           | 2.4.1                 |
-| 4.4.1 - 4.5.1   | 2.6.0                 |
+| 4.4.1 - 4.5.x   | 2.6.0                 |
+| 4.6.x - 4.7.x   | 2.8.0                 |
+| 4.8.x - current | 2.10.0                |
 
 ## Contribute
 

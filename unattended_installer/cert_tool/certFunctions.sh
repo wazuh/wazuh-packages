@@ -8,7 +8,8 @@
 
 
 function cert_cleanFiles() {
-
+    
+    common_logger -d "Cleaning certificate files."
     eval "rm -f ${cert_tmp_path}/*.csr ${debug}"
     eval "rm -f ${cert_tmp_path}/*.srl ${debug}"
     eval "rm -f ${cert_tmp_path}/*.conf ${debug}"
@@ -18,6 +19,8 @@ function cert_cleanFiles() {
 
 function cert_checkOpenSSL() {
 
+    common_logger -d "Checking if OpenSSL is installed."
+
     if [ -z "$(command -v openssl)" ]; then
         common_logger -e "OpenSSL not installed."
         exit 1
@@ -26,6 +29,8 @@ function cert_checkOpenSSL() {
 }
 
 function cert_checkRootCA() {
+
+    common_logger -d "Checking if the root CA exists."
 
     if  [[ -n ${rootca} || -n ${rootcakey} ]]; then
         # Verify variables match keys
@@ -57,6 +62,7 @@ function cert_checkRootCA() {
 
 function cert_generateAdmincertificate() {
 
+    common_logger -d "Generating Admin certificates."
     eval "openssl genrsa -out ${cert_tmp_path}/admin-key-temp.pem 2048 ${debug}"
     eval "openssl pkcs8 -inform PEM -outform PEM -in ${cert_tmp_path}/admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out ${cert_tmp_path}/admin-key.pem ${debug}"
     eval "openssl req -new -key ${cert_tmp_path}/admin-key.pem -out ${cert_tmp_path}/admin.csr -batch -subj '/C=US/L=California/O=Wazuh/OU=Wazuh/CN=admin' ${debug}"
@@ -66,6 +72,7 @@ function cert_generateAdmincertificate() {
 
 function cert_generateCertificateconfiguration() {
 
+    common_logger -d "Generating certificate configuration."
     cat > "${cert_tmp_path}/${1}.conf" <<- EOF
         [ req ]
         prompt = no
@@ -99,7 +106,7 @@ function cert_generateCertificateconfiguration() {
         sed -i '/IP.1/d' "${cert_tmp_path}/${1}.conf"
         for (( i=2; i<=${#@}; i++ )); do
             isIP=$(echo "${!i}" | grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
-            isDNS=$(echo "${!i}" | grep -P "^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z-]{2,})+$" )
+            isDNS=$(echo "${!i}" | grep -P "^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$" )
             j=$((i-1))
             if [ "${isIP}" ]; then
                 printf '%s\n' "        IP.${j} = ${!i}" >> "${cert_tmp_path}/${1}.conf"
@@ -119,13 +126,14 @@ function cert_generateCertificateconfiguration() {
 
 function cert_generateIndexercertificates() {
 
+    common_logger -d "Generating Wazuh indexer certificates."
     if [ ${#indexer_node_names[@]} -gt 0 ]; then
         common_logger -d "Creating the Wazuh indexer certificates."
 
         for i in "${!indexer_node_names[@]}"; do
             indexer_node_name=${indexer_node_names[$i]}
             cert_generateCertificateconfiguration "${indexer_node_name}" "${indexer_node_ips[i]}"
-            eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${cert_tmp_path}/${indexer_node_name}-key.pem -out ${cert_tmp_path}/${indexer_node_name}.csr -config ${cert_tmp_path}/${indexer_node_name}.conf -days 3650 ${debug}"
+            eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${cert_tmp_path}/${indexer_node_name}-key.pem -out ${cert_tmp_path}/${indexer_node_name}.csr -config ${cert_tmp_path}/${indexer_node_name}.conf ${debug}"
             eval "openssl x509 -req -in ${cert_tmp_path}/${indexer_node_name}.csr -CA ${cert_tmp_path}/root-ca.pem -CAkey ${cert_tmp_path}/root-ca.key -CAcreateserial -out ${cert_tmp_path}/${indexer_node_name}.pem -extfile ${cert_tmp_path}/${indexer_node_name}.conf -extensions v3_req -days 3650 ${debug}"
         done
     else
@@ -136,6 +144,7 @@ function cert_generateIndexercertificates() {
 
 function cert_generateFilebeatcertificates() {
 
+    common_logger -d "Generating Filebeat certificates."
     if [ ${#server_node_names[@]} -gt 0 ]; then
         common_logger -d "Creating the Wazuh server certificates."
 
@@ -144,7 +153,7 @@ function cert_generateFilebeatcertificates() {
             j=$((i+1))
             declare -a server_ips=(server_node_ip_"$j"[@])
             cert_generateCertificateconfiguration "${server_name}" "${!server_ips}"
-            eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${cert_tmp_path}/${server_name}-key.pem -out ${cert_tmp_path}/${server_name}.csr  -config ${cert_tmp_path}/${server_name}.conf -days 3650 ${debug}"
+            eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${cert_tmp_path}/${server_name}-key.pem -out ${cert_tmp_path}/${server_name}.csr  -config ${cert_tmp_path}/${server_name}.conf ${debug}"
             eval "openssl x509 -req -in ${cert_tmp_path}/${server_name}.csr -CA ${cert_tmp_path}/root-ca.pem -CAkey ${cert_tmp_path}/root-ca.key -CAcreateserial -out ${cert_tmp_path}/${server_name}.pem -extfile ${cert_tmp_path}/${server_name}.conf -extensions v3_req -days 3650 ${debug}"
         done
     else
@@ -155,13 +164,14 @@ function cert_generateFilebeatcertificates() {
 
 function cert_generateDashboardcertificates() {
 
+    common_logger -d "Generating Wazuh dashboard certificates."
     if [ ${#dashboard_node_names[@]} -gt 0 ]; then
         common_logger -d "Creating the Wazuh dashboard certificates."
 
         for i in "${!dashboard_node_names[@]}"; do
             dashboard_node_name="${dashboard_node_names[i]}"
             cert_generateCertificateconfiguration "${dashboard_node_name}" "${dashboard_node_ips[i]}"
-            eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${cert_tmp_path}/${dashboard_node_name}-key.pem -out ${cert_tmp_path}/${dashboard_node_name}.csr -config ${cert_tmp_path}/${dashboard_node_name}.conf -days 3650 ${debug}"
+            eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${cert_tmp_path}/${dashboard_node_name}-key.pem -out ${cert_tmp_path}/${dashboard_node_name}.csr -config ${cert_tmp_path}/${dashboard_node_name}.conf ${debug}"
             eval "openssl x509 -req -in ${cert_tmp_path}/${dashboard_node_name}.csr -CA ${cert_tmp_path}/root-ca.pem -CAkey ${cert_tmp_path}/root-ca.key -CAcreateserial -out ${cert_tmp_path}/${dashboard_node_name}.pem -extfile ${cert_tmp_path}/${dashboard_node_name}.conf -extensions v3_req -days 3650 ${debug}"
         done
     else
@@ -293,8 +303,28 @@ function cert_parseYaml() {
 
 }
 
+function cert_checkPrivateIp() {
+    
+    local ip=$1
+    common_logger -d "Checking if ${ip} is private."
+
+    # Check private IPv4 ranges
+    if [[ $ip =~ ^10\.|^192\.168\.|^172\.(1[6-9]|2[0-9]|3[0-1])\.|^(127\.) ]]; then
+        return 0
+    fi
+
+    # Check private IPv6 ranges (fc00::/7 prefix)
+    if [[ $ip =~ ^fc ]]; then
+        return 0
+    fi
+
+    return 1
+
+}
 
 function cert_readConfig() {
+
+    common_logger -d "Reading configuration file."
 
     if [ -f "${config_file}" ]; then
         if [ ! -s "${config_file}" ]; then
@@ -311,10 +341,21 @@ function cert_readConfig() {
         eval "dashboard_node_ips=( $(cert_parseYaml "${config_file}"  | grep -E "nodes[_]+dashboard[_]+[0-9]+[_]+ip=" | cut -d = -f 2 ) )"
         eval "server_node_types=( $(cert_parseYaml "${config_file}"  | grep -E "nodes[_]+server[_]+[0-9]+[_]+node_type=" | cut -d = -f 2 ) )"
         eval "number_server_ips=( $(cert_parseYaml "${config_file}" | grep -o -E 'nodes[_]+server[_]+[0-9]+[_]+ip' | sort -u | wc -l) )"
+        all_ips=("${indexer_node_ips[@]}" "${server_node_ips[@]}" "${dashboard_node_ips[@]}")
+
+        for ip in "${all_ips[@]}"; do
+            isIP=$(echo "${ip}" | grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
+            if [[ -n "${isIP}" ]]; then
+                if ! cert_checkPrivateIp "$ip"; then
+                    common_logger -e "The IP ${ip} is public."
+                    exit 1
+                fi
+            fi
+        done
 
         for i in $(seq 1 "${number_server_ips}"); do
             nodes_server="nodes[_]+server[_]+${i}[_]+ip"
-            eval "server_node_ip_$i=( $( cert_parseYaml "${config_file}" | grep -E "${nodes_server}" | sed '/\./!d' | cut -d = -f 2 | sed -r 's/\s+//g') )"
+            eval "server_node_ip_$i=( $( cert_parseYaml "${config_file}" | grep -E "${nodes_server}" | cut -d = -f 2 | sed -r 's/\s+//g' | sed -E '/nodes_/d') )"
         done
 
         unique_names=($(echo "${indexer_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
@@ -397,9 +438,9 @@ function cert_setpermisions() {
 
 function cert_convertCRLFtoLF() {
     if [[ ! -d "/tmp/wazuh-install-files" ]]; then
-        mkdir "/tmp/wazuh-install-files"
+        eval "mkdir /tmp/wazuh-install-files ${debug}"
     fi
     eval "chmod -R 755 /tmp/wazuh-install-files ${debug}"
     eval "tr -d '\015' < $1 > /tmp/wazuh-install-files/new_config.yml"
-    eval "mv /tmp/wazuh-install-files/new_config.yml $1"
+    eval "mv /tmp/wazuh-install-files/new_config.yml $1 ${debug}"
 }

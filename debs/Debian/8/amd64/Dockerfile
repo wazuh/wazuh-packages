@@ -1,19 +1,20 @@
-FROM ppc64le/debian:stretch
+FROM debian:8
 
 ENV DEBIAN_FRONTEND noninteractive
 
 # Installing necessary packages
-RUN echo "deb http://archive.debian.org/debian stretch contrib main non-free" > /etc/apt/sources.list && \
-    echo "deb http://archive.debian.org/debian-security stretch/updates main" >> /etc/apt/sources.list && \
-    echo "deb-src http://archive.debian.org/debian stretch main" >> /etc/apt/sources.list && \
-    apt-get update && apt-get install -y --allow-change-held-packages apt-utils && \
-    apt-get install -y --allow-change-held-packages \
-    curl gcc make sudo expect gnupg perl-base perl wget \
-    libc-bin libc6 libc6-dev build-essential \
+RUN echo 'Acquire::Check-Valid-Until "false";' >> /etc/apt/apt.conf && \
+    echo "deb http://archive.debian.org/debian jessie contrib main non-free" > /etc/apt/sources.list && \
+    echo "deb http://archive.debian.org/debian-security jessie/updates main" >> /etc/apt/sources.list && \
+    apt-get update && apt-get install -y --force-yes apt-utils && \
+    apt-get install -y --force-yes \
+    curl g++ bzip2 debhelper gcc rename make sudo wget expect gnupg perl-base perl \
+    libc-bin libc6 libc6-dev build-essential dpkg-dev\
     cdbs devscripts equivs automake autoconf libtool libaudit-dev selinux-basics \
-    libdb5.3 libdb5.3 libssl1.0.2 gawk libsigsegv2
+    libdb5.3 libdb5.3-dev libssl1.0.0 libssl-dev procps gawk libsigsegv2
 
-RUN apt-get update && apt-get build-dep python3.5 -y --allow-change-held-packages
+RUN echo "deb-src http://archive.debian.org/debian jessie contrib main non-free" >> /etc/apt/sources.list && \
+    apt-get update && apt-get build-dep python3 -y --force-yes
 
 RUN curl -OL http://packages.wazuh.com/utils/gcc/gcc-9.4.0.tar.gz && \
     tar xzf gcc-9.4.0.tar.gz  && cd gcc-9.4.0/ && \

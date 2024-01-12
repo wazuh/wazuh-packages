@@ -19,20 +19,29 @@ TARGET=""
 JOBS="2"
 DEBUG="no"
 BUILD_DOCKER="yes"
+DOCKER_TAG="latest"
 USER_PATH="no"
 SRC="no"
-RPM_AARCH64_BUILDER="rpm_builder_aarch64"
-RPM_ARMV7HL_BUILDER="rpm_builder_armv7hl"
-RPM_X86_BUILDER="rpm_builder_x86"
-RPM_I386_BUILDER="rpm_builder_i386"
-RPM_PPC64LE_BUILDER="rpm_builder_ppc64le"
-RPM_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/6"
-RPM_AARCH64_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/7"
-RPM_ARMV7HL_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/7"
-RPM_PPC64LE_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/7"
+RPM_MANAGER_AARCH64_BUILDER="rpm_manager_builder_aarch64"
+RPM_MANAGER_X86_BUILDER="rpm_manager_builder_x86"
+RPM_MANAGER_PPC64LE_BUILDER="rpm_manager_builder_ppc64le"
+RPM_AGENT_AARCH64_BUILDER="rpm_agent_builder_aarch64"
+RPM_AGENT_ARMV7HL_BUILDER="rpm_agent_builder_armv7hl"
+RPM_AGENT_X86_BUILDER="rpm_agent_builder_x86"
+RPM_AGENT_I386_BUILDER="rpm_agent_builder_i386"
+RPM_AGENT_PPC64LE_BUILDER="rpm_agent_builder_ppc64le"
 LEGACY_RPM_X86_BUILDER="rpm_legacy_builder_x86"
 LEGACY_RPM_I386_BUILDER="rpm_legacy_builder_i386"
-LEGACY_RPM_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/5"
+RPM_AGENT_X86_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/6/x86_64"
+RPM_AGENT_I386_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/6/i386"
+RPM_MANAGER_X86_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/7/x86_64"
+RPM_AGENT_AARCH64_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/7/aarch64"
+RPM_MANAGER_AARCH64_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/7/aarch64"
+RPM_AGENT_ARMV7HL_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/7/armv7hl"
+RPM_AGENT_PPC64LE_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/7/ppc64le"
+RPM_MANAGER_PPC64LE_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/7/ppc64le"
+LEGACY_RPM_AGENT_I386_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/5/i386"
+LEGACY_RPM_AGENT_X86_BUILDER_DOCKERFILE="${CURRENT_PATH}/CentOS/5/x86_64"
 LEGACY_TAR_FILE="${LEGACY_RPM_BUILDER_DOCKERFILE}/i386/centos-5-i386.tar.gz"
 TAR_URL="https://packages-dev.wazuh.com/utils/centos-5-i386-build/centos-5-i386.tar.gz"
 INSTALLATION_PATH="/var/ossec"
@@ -46,11 +55,15 @@ FUTURE="no"
 
 trap ctrl_c INT
 
-if command -v curl > /dev/null 2>&1 ; then
-    DOWNLOAD_TAR="curl ${TAR_URL} -o ${LEGACY_TAR_FILE} -s"
-elif command -v wget > /dev/null 2>&1 ; then
-    DOWNLOAD_TAR="wget ${TAR_URL} -o ${LEGACY_TAR_FILE} -q"
-fi
+download_file() {
+    URL=$1
+    DESTDIR=$2
+    if command -v curl > /dev/null 2>&1 ; then
+        (cd ${DESTDIR} && curl -sO ${URL})
+    elif command -v wget > /dev/null 2>&1 ; then
+        wget ${URL} -P ${DESTDIR} -q
+    fi
+}
 
 clean() {
     exit_code=$1
@@ -74,8 +87,8 @@ build_rpm() {
 
 
     # Download the legacy tar file if it is needed
-    if [ "${CONTAINER_NAME}" = "${LEGACY_RPM_I386_BUILDER}" ] && [ ! -f "${LEGACY_TAR_FILE}" ]; then
-        ${DOWNLOAD_TAR}
+    if ([[ "${CONTAINER_NAME}" == "${LEGACY_RPM_I386_BUILDER}" ]] || [[ "${CONTAINER_NAME}" == "${LEGACY_RPM_X86_BUILDER}" ]] ) && [ ! -f "${LEGACY_TAR_FILE}" ]; then
+        download_file ${TAR_URL} ${DOCKERFILE_PATH}
     fi
 
     # Create an optional parameter to share the local source code as a volume
@@ -86,7 +99,7 @@ build_rpm() {
 
     # Build the Docker image
     if [[ ${BUILD_DOCKER} == "yes" ]]; then
-      docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || return 1
+      docker build -t ${CONTAINER_NAME}:${DOCKER_TAG} ${DOCKERFILE_PATH} || return 1
     fi
 
     # Build the RPM package with a Docker container
@@ -94,7 +107,7 @@ build_rpm() {
         -v ${CHECKSUMDIR}:/var/local/checksum:Z \
         -v ${LOCAL_SPECS}:/specs:Z \
         ${CUSTOM_CODE_VOL} \
-        ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
+        ${CONTAINER_NAME}:${DOCKER_TAG} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
         ${JOBS} ${REVISION} ${INSTALLATION_PATH} ${DEBUG} \
         ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} ${SRC} \
         ${LEGACY} ${USE_LOCAL_SOURCE_CODE} ${FUTURE}|| return 1
@@ -115,51 +128,67 @@ build() {
         ARCHITECTURE="armv7hl"
     fi
 
-    if [[ "${TARGET}" == "api" ]]; then
-        if [[ "${ARCHITECTURE}" = "ppc64le" ]]; then
-            build_rpm ${RPM_PPC64LE_BUILDER} ${RPM_PPC64LE_BUILDER_DOCKERFILE}/${ARCHITECTURE} || return 1
-        elif [[ "${ARCHITECTURE}" = "aarch64" ]]; then
-            build_rpm ${RPM_AARCH64_BUILDER} ${RPM_AARCH64_BUILDER_DOCKERFILE}/${ARCHITECTURE} || return 1
-        elif [[ "${ARCHITECTURE}" = "armv7hl" ]]; then
-            build_rpm ${RPM_ARMV7HL_BUILDER} ${RPM_ARMV7HL_BUILDER_DOCKERFILE}/${ARCHITECTURE} || return 1
-        else
-            build_rpm ${RPM_X86_BUILDER} ${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE} || return 1
-        fi
-
-    elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]]; then
+    if [[ "${TARGET}" == "manager" ]]; then
 
         BUILD_NAME=""
         FILE_PATH=""
-        if [[ "${LEGACY}" == "yes" ]] && [[ "${ARCHITECTURE}" == "x86_64" ]]; then
-            REVISION="${REVISION}.el5"
-            BUILD_NAME="${LEGACY_RPM_X86_BUILDER}"
-            FILE_PATH="${LEGACY_RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        elif [[ "${LEGACY}" == "yes" ]] && [[ "${ARCHITECTURE}" == "i386" ]]; then
-            REVISION="${REVISION}.el5"
-            BUILD_NAME="${LEGACY_RPM_I386_BUILDER}"
-            FILE_PATH="${LEGACY_RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "x86_64" ]]; then
-            BUILD_NAME="${RPM_X86_BUILDER}"
-            FILE_PATH="${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "i386" ]]; then
-            BUILD_NAME="${RPM_I386_BUILDER}"
-            FILE_PATH="${RPM_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "ppc64le" ]]; then
-            BUILD_NAME="${RPM_PPC64LE_BUILDER}"
-            FILE_PATH="${RPM_PPC64LE_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "aarch64" ]]; then
-            BUILD_NAME="${RPM_AARCH64_BUILDER}"
-            FILE_PATH="${RPM_AARCH64_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
-        elif [[ "${LEGACY}" == "no" ]] && [[ "${ARCHITECTURE}" == "armv7hl" ]]; then
-            BUILD_NAME="${RPM_ARMV7HL_BUILDER}"
-            FILE_PATH="${RPM_ARMV7HL_BUILDER_DOCKERFILE}/${ARCHITECTURE}"
+        if [[ "${LEGACY}" == "yes" ]]; then
+            echo "Legacy is only avaliable on 'agent' target."
+            return 1
+        elif [[ "${ARCHITECTURE}" == "x86_64" ]]; then
+            BUILD_NAME="${RPM_MANAGER_X86_BUILDER}"
+            FILE_PATH="${RPM_MANAGER_X86_BUILDER_DOCKERFILE}"
+        elif [[ "${ARCHITECTURE}" == "ppc64le" ]]; then
+            BUILD_NAME="${RPM_MANAGER_PPC64LE_BUILDER}"
+            FILE_PATH="${RPM_MANAGER_PPC64LE_BUILDER_DOCKERFILE}"
+        elif [[ "${ARCHITECTURE}" == "aarch64" ]]; then
+            BUILD_NAME="${RPM_MANAGER_AARCH64_BUILDER}"
+            FILE_PATH="${RPM_MANAGER_AARCH64_BUILDER_DOCKERFILE}"
         else
-            echo "Invalid architecture. Choose: x86_64 (amd64 is accepted too), ppc64le or i386"
+            echo "Invalid architecture '${ARCHITECTURE}' for '${TARGET}'. Choose one of amd64/arm64/ppc64le"
+            return 1
+        fi
+        build_rpm ${BUILD_NAME} ${FILE_PATH} || return 1
+
+    elif [[ "${TARGET}" == "agent" ]]; then
+
+        BUILD_NAME=""
+        FILE_PATH=""
+        if [[ "${LEGACY}" == "yes" ]]; then
+            if [[ "${ARCHITECTURE}" == "x86_64" ]]; then
+                REVISION="${REVISION}.el5"
+                BUILD_NAME="${LEGACY_RPM_X86_BUILDER}"
+                FILE_PATH="${LEGACY_RPM_AGENT_X86_BUILDER_DOCKERFILE}"
+            elif [[ "${ARCHITECTURE}" == "i386" ]]; then
+                REVISION="${REVISION}.el5"
+                BUILD_NAME="${LEGACY_RPM_I386_BUILDER}"
+                FILE_PATH="${LEGACY_RPM_AGENT_I386_BUILDER_DOCKERFILE}"
+            else
+                echo "Legacy is not available on '${ARCHITECTURE}'. Choose one of x86_64/i386"
+                return 1
+            fi
+        elif [[ "${ARCHITECTURE}" == "x86_64" ]]; then
+            BUILD_NAME="${RPM_AGENT_X86_BUILDER}"
+            FILE_PATH="${RPM_AGENT_X86_BUILDER_DOCKERFILE}"
+        elif [[ "${ARCHITECTURE}" == "i386" ]]; then
+            BUILD_NAME="${RPM_AGENT_I386_BUILDER}"
+            FILE_PATH="${RPM_AGENT_I386_BUILDER_DOCKERFILE}"
+        elif [[ "${ARCHITECTURE}" == "ppc64le" ]]; then
+            BUILD_NAME="${RPM_AGENT_PPC64LE_BUILDER}"
+            FILE_PATH="${RPM_AGENT_PPC64LE_BUILDER_DOCKERFILE}"
+        elif [[ "${ARCHITECTURE}" == "aarch64" ]]; then
+            BUILD_NAME="${RPM_AGENT_AARCH64_BUILDER}"
+            FILE_PATH="${RPM_AGENT_AARCH64_BUILDER_DOCKERFILE}"
+        elif [[ "${ARCHITECTURE}" == "armv7hl" ]]; then
+            BUILD_NAME="${RPM_AGENT_ARMV7HL_BUILDER}"
+            FILE_PATH="${RPM_AGENT_ARMV7HL_BUILDER_DOCKERFILE}"
+        else
+            echo "Invalid architecture '${ARCHITECTURE}' for '${TARGET}'. Choose one of x86_64/i386/ppc64le/aarch64/armv7hl."
             return 1
         fi
         build_rpm ${BUILD_NAME} ${FILE_PATH} || return 1
     else
-        echo "Invalid target. Choose: manager, agent or api."
+        echo "Invalid target. Choose: manager or agent."
         return 1
     fi
 
@@ -181,6 +210,7 @@ help() {
     echo "    -d, --debug                  [Optional] Build the binaries with debug symbols and create debuginfo packages. By default: no."
     echo "    -c, --checksum <path>        [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
     echo "    --dont-build-docker          [Optional] Locally built docker image will be used instead of generating a new one."
+    echo "    --tag                        [Optional] Tag to use with the docker image."
     echo "    --sources <path>             [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
     echo "    --packages-branch <branch>   [Optional] Select Git branch or tag from wazuh-packages repository. e.g ${PACKAGES_BRANCH}"
     echo "    --dev                        [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
@@ -260,6 +290,14 @@ main() {
         "--dont-build-docker")
             BUILD_DOCKER="no"
             shift 1
+            ;;
+        "--tag")
+            if [ -n "$2" ]; then
+                DOCKER_TAG="$2"
+                shift 2
+            else
+                help 1
+            fi
             ;;
         "-c"|"--checksum")
             if [ -n "$2" ]; then

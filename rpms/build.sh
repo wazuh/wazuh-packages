@@ -73,7 +73,7 @@ else
     specs_path="/specs"
 fi
 
-if [[ "${future}" == "yes" ]]; then    
+if [[ "${future}" == "yes" ]]; then
     # MODIFY VARIABLES
     base_version=$wazuh_version
     MAJOR=$(echo $base_version | cut -dv -f2 | cut -d. -f1)
@@ -88,7 +88,9 @@ if [[ "${future}" == "yes" ]]; then
     mv "${build_dir}/${old_package_name}" "${build_dir}/${package_name}"
     find "${build_dir}/${package_name}" "${specs_path}/" \( -name "*VERSION*" -o -name "*.spec" \) -exec sed -i "s/${base_version}/${wazuh_version}/g" {} \;
     sed -i "s/\$(VERSION)/${MAJOR}.${MINOR}/g" "${build_dir}/${package_name}/src/Makefile"
-
+    sed -i "s/${base_version}/${wazuh_version}/g" "${build_dir}/${package_name}/src/init/wazuh-server.sh"
+    sed -i "s/${base_version}/${wazuh_version}/g" "${build_dir}/${package_name}/src/init/wazuh-client.sh"
+    sed -i "s/${base_version}/${wazuh_version}/g" "${build_dir}/${package_name}/src/init/wazuh-local.sh"
 fi
 
 cp ${specs_path}/wazuh-${build_target}.spec ${rpm_build_dir}/SPECS/${package_name}.spec
@@ -103,11 +105,19 @@ fi
 if [ "${legacy}" = "no" ]; then
     echo "%_source_filedigest_algorithm 8" >> /root/.rpmmacros
     echo "%_binary_filedigest_algorithm 8" >> /root/.rpmmacros
-    echo " %rhel 6" >> /root/.rpmmacros
-    echo " %centos 6" >> /root/.rpmmacros
-    echo " %centos_ver 6" >> /root/.rpmmacros
-    echo " %dist .el6" >> /root/.rpmmacros
-    echo " %el6 1" >> /root/.rpmmacros
+    if [ "${build_target}" = "agent" ]; then
+        echo " %rhel 6" >> /root/.rpmmacros
+        echo " %centos 6" >> /root/.rpmmacros
+        echo " %centos_ver 6" >> /root/.rpmmacros
+        echo " %dist .el6" >> /root/.rpmmacros
+        echo " %el6 1" >> /root/.rpmmacros
+    elif [ "${build_target}" = "manager" ]; then
+        echo " %rhel 7" >> /root/.rpmmacros
+        echo " %centos 7" >> /root/.rpmmacros
+        echo " %centos_ver 7" >> /root/.rpmmacros
+        echo " %dist .el7" >> /root/.rpmmacros
+        echo " %el7 1" >> /root/.rpmmacros
+    fi
     rpmbuild="/usr/local/bin/rpmbuild"
 fi
 

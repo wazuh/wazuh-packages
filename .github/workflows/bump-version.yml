@@ -1,0 +1,63 @@
+
+name: Bump version - wazuh-packages
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to bump to'
+        required: true
+      revision:
+        description: 'Revision to bump to. Defalut: 1'
+        required: false
+      date:
+        description: 'Date to bump to. Default: today'
+        required: false
+    
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.head_ref }}
+      
+      # - uses: peterjgrainger/action-create-branch@v2.2.0
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     branch: bump-version-${{ event.inputs.version }}
+      #     sha: ${{ github.head_ref }}
+
+      # - uses: actions/checkout@v3
+      #   with:
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     ref: bump-version-${{ event.inputs.version }}
+          
+      # - name: Set execution parameters
+      #   run: |
+      #     EXEC_PARAMS=""
+      #     if [ -n "${{ github.event.inputs.version }}" ]; then
+      #       echo "EXEC_PARAMS=EXEC_PARAMS+\" -v ${{ github.event.inputs.version }}\""
+      #     fi
+      #     if [ -n "${{ github.event.inputs.revision }}" ]; then
+      #       echo "EXEC_PARAMS=EXEC_PARAMS+\" -r ${{ github.event.inputs.revision }}\""
+      #     fi
+      #     if [ -n "${{ github.event.inputs.date }}" ]; then
+      #       echo "EXEC_PARAMS=EXEC_PARAMS+\" -d ${{ github.event.inputs.date }}\""
+      #     fi
+      #     echo "EXEC_PARAMS" >> $GITHUB_ENV            
+      #   shell: bash
+
+      # - name: Bump version
+      #   run: |
+      #     python3 ./bump_version.py $EXEC_PARAMS
+      #   shell: bash
+      
+      # - name: "Commit changes and push"
+      #   run: |
+      #       git config --global user.name "wazuhci"
+      #       git config --global user.email "wazuhci@wazuh.com"
+      #       git add .
+      #       git commit -m "Bump version to ${{ github.event.inputs.version }}"
+      #   shell: bash

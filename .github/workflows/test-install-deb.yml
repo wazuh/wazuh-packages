@@ -1,0 +1,93 @@
+name: Test install Wazuh agent and manager - DEB
+on:
+  pull_request:
+    paths:
+      - 'debs/SPECS/**'
+      - 'debs/generate_debian_package.sh'
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+
+  Wait-for-package-building:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel previous runs
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          cancel_others: 'true'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          skip_after_successful_duplicate: 'false'
+
+      - name: Wait for the package to be built
+        uses: ArcticLampyrid/action-wait-for-workflow@v1.0.4
+        id: wait-for-build
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-deb-packages.yml
+          sha: ${{ github.event.pull_request.head.sha || github.sha }}
+          wait-interval: 60
+
+  Test-install-deb-systems:
+    needs: Wait-for-package-building
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        distro_name: ['ubuntu:xenial', 'ubuntu:bionic', 'ubuntu:focal', 'ubuntu:jammy', 'debian:stretch', 'debian:buster', 'debian:bullseye']
+        type: [agent, manager]
+        arch: [amd64, i386]
+        exclude:
+          - type: manager
+            arch: i386
+          - distro_name: 'ubuntu:jammy'
+            arch: i386
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get changed files
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            deb_images:
+              - 'debs/Debian/**'
+              - 'debs/build.sh'
+            deb_images_agent_i386:
+              - 'debs/Debian/7/i386/**'
+              - 'debs/build.sh'
+            deb_images_amd64:
+              - 'debs/Debian/7/amd64/**'
+              - 'debs/Debian/8/amd64/**'
+              - 'debs/build.sh'
+            deb_packages:
+              - 'debs/SPECS/**'
+              - 'debs/generate_debian_package.sh'
+
+      - name: Setup directories and variables
+        if: steps.changes.outputs.deb_packages == 'true' || (steps.changes.outputs.deb_images_agent_i386 == 'true' && matrix.ARCHITECTURE == 'i386') || (steps.changes.outputs.deb_images_amd64 == 'true' && matrix.ARCHITECTURE == 'amd64')
+        run: |
+          VERSION=$(cat $GITHUB_WORKSPACE/VERSION)
+          REVISION=$( echo ${{ github.head_ref }} | sed 's/-/./g; s/\//./g' )
+          echo "PACKAGE_NAME=wazuh-${{ matrix.type }}_${VERSION}-${REVISION}_${{ matrix.arch }}.deb" >> $GITHUB_ENV
+
+      - name: Download the Wazuh ${{ matrix.type }} package for ${{ matrix.system.NAME }}
+        if: steps.changes.outputs.deb_packages == 'true' || (steps.changes.outputs.deb_images_agent_i386 == 'true' && matrix.ARCHITECTURE == 'i386') || (steps.changes.outputs.deb_images_amd64 == 'true' && matrix.ARCHITECTURE == 'amd64')
+        id: download-artifact
+        continue-on-error: true
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: build-deb-packages.yml
+          workflow_conclusion: success
+          name: ${{env.PACKAGE_NAME}}
+          if_no_artifact_found: fail
+
+      - name: Move the Wazuh ${{ matrix.type }} package for ${{ matrix.distro_name }} to the packages directory
+        if: steps.changes.outputs.deb_packages == 'true' || (steps.changes.outputs.deb_images_agent_i386 == 'true' && matrix.ARCHITECTURE == 'i386') || (steps.changes.outputs.deb_images_amd64 == 'true' && matrix.ARCHITECTURE == 'amd64')
+        run: |
+          mkdir $GITHUB_WORKSPACE/packages
+          mv ${{env.PACKAGE_NAME}} $GITHUB_WORKSPACE/packages
+
+      - name: Launch docker
+        if: steps.changes.outputs.deb_packages == 'true' || (steps.changes.outputs.deb_images_agent_i386 == 'true' && matrix.ARCHITECTURE == 'i386') || (steps.changes.outputs.deb_images_amd64 == 'true' && matrix.ARCHITECTURE == 'amd64')
+        run: sudo docker run -v $GITHUB_WORKSPACE/.github/actions/test-install-components/:/tests -v $GITHUB_WORKSPACE/packages/:/packages ${{ matrix.arch }}/${{ matrix.distro_name }} bash /tests/install_component.sh $PACKAGE_NAME ${{ matrix.type }}

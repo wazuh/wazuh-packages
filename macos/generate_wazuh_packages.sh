@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 # Program to build and package OSX wazuh-agent
 # Wazuh package generator
 # Copyright (C) 2015, Wazuh Inc.
@@ -12,9 +13,9 @@ CURRENT_PATH="$( cd $(dirname ${0}) ; pwd -P )"
 SOURCES_DIRECTORY="${CURRENT_PATH}/repository"
 WAZUH_PATH="${SOURCES_DIRECTORY}/wazuh"
 WAZUH_SOURCE_REPOSITORY="https://github.com/wazuh/wazuh"
-AGENT_PKG_FILE="${CURRENT_PATH}/package_files/wazuh-agent.pkgproj"
 export CONFIG="${WAZUH_PATH}/etc/preloaded-vars.conf"
 ENTITLEMENTS_PATH="${CURRENT_PATH}/entitlements.plist"
+ARCH="intel64"
 INSTALLATION_PATH="/Library/Ossec"    # Installation path
 VERSION=""                            # Default VERSION (branch/tag)
 REVISION="1"                          # Package revision.
@@ -31,14 +32,16 @@ KC_PASS=""                            # Password of the keychain.
 NOTARIZE="no"                         # Notarize the package for macOS Catalina.
 DEVELOPER_ID=""                       # Apple Developer ID.
 ALTOOL_PASS=""                        # Temporary Application password for altool.
+TEAM_ID=""                            # Team ID of the Apple Developer ID.
 pkg_name=""
+notarization_path=""
 
 trap ctrl_c INT
 
 function clean_and_exit() {
     exit_code=$1
-    rm -f ${AGENT_PKG_FILE} ${CURRENT_PATH}/package_files/*.sh
     rm -rf "${SOURCES_DIRECTORY}"
+    rm "${CURRENT_PATH}"/specs/wazuh-agent.pkgproj-e
     ${CURRENT_PATH}/uninstall.sh
     exit ${exit_code}
 }
@@ -54,44 +57,20 @@ function notarize_pkg() {
     sleep_time="120"
     build_timestamp="$(date +"%m%d%Y%H%M%S")"
     if [ "${NOTARIZE}" = "yes" ]; then
-        if sudo xcrun altool --notarize-app --primary-bundle-id "com.wazuh.agent.${VERSION}.${REVISION}.${build_timestamp}" \
-            --username "${DEVELOPER_ID}" --password "${ALTOOL_PASS}" --file ${DESTINATION}/${pkg_name} > request_info.txt ; then
-            echo "The package ${DESTINATION}/${pkg_name} was successfully upload for notarization."
-            echo "Waiting ${sleep_time}s to get the results"
-            sleep ${sleep_time}
-
-            uuid="$(grep -i requestuuid request_info.txt | cut -d' ' -f 3)"
-
-            # Check notarization status
-            xcrun altool --notarization-info ${uuid} -u "${DEVELOPER_ID}" --password "${ALTOOL_PASS}" > request_result.txt
-            until ! grep -qi "in progress" request_result.txt ; do
-                echo "Package is not notarized yet. Waiting ${sleep_time}s"
-                sleep ${sleep_time}
-                xcrun altool --notarization-info ${uuid} -u "${DEVELOPER_ID}" --password "${ALTOOL_PASS}" > request_result.txt
-            done
-
-            echo "Notarization ticket:"
-            cat request_result.txt
-
-            if grep "Status: success" request_result.txt > /dev/null 2>&1 ; then
-                echo "Package is notarized and ready to go."
-                echo "Adding the ticket to the package."
-                if xcrun stapler staple -v ${DESTINATION}/${pkg_name} ; then
-                    echo "Ticket added. Ready to release the package."
-                    return 0
-                else
-                    echo "Something went wrong while adding the package."
-                    clean_and_exit 1
-                fi
+           
+        if sudo xcrun notarytool submit ${1} --apple-id "${DEVELOPER_ID}" --team-id "${TEAM_ID}" --password "${ALTOOL_PASS}" --wait ; then
+            echo "Package is notarized and ready to go."
+            echo "Adding the ticket to the package."
+            if xcrun stapler staple -v "${1}" ; then
+                echo "Ticket added. Ready to release the package."
+                mkdir -p "${DESTINATION}" && cp "${1}" "${DESTINATION}/"
+                return 0
             else
-
-                echo "The package couldn't be notarized."
-                echo "Check notarization ticket for more info."
+                echo "Something went wrong while adding the package."
                 clean_and_exit 1
             fi
-
         else
-            echo "Error while uploading the app to be notarized."
+            echo "Error notarizing the package."
             clean_and_exit 1
         fi
     fi
@@ -150,10 +129,9 @@ function build_package() {
 
     # create package
     if packagesbuild ${AGENT_PKG_FILE} --build-folder ${DESTINATION} ; then
-        echo "The wazuh agent package for MacOS X has been successfully built."
-        pkg_name="wazuh-agent-${VERSION}-${REVISION}.pkg"
+        echo "The wazuh agent package for macOS has been successfully built."
+        pkg_name="wazuh-agent-${VERSION}-${REVISION}.${ARCH}.pkg"
         sign_pkg
-        notarize_pkg
         if [[ "${CHECKSUM}" == "yes" ]]; then
             mkdir -p ${CHECKSUMDIR}
             cd ${DESTINATION} && shasum -a512 "${pkg_name}" > "${CHECKSUMDIR}/${pkg_name}.sha512"
@@ -170,6 +148,7 @@ function help() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "  Build options:"
+    echo "    -a, --architecture <arch>     [Optional] Target architecture of the package [intel64/arm64]. By Default: intel64."
     echo "    -b, --branch <branch>         [Required] Select Git branch or tag e.g. $BRANCH"
     echo "    -s, --store-path <path>       [Optional] Set the destination absolute path of package."
     echo "    -j, --jobs <number>           [Optional] Number of parallel jobs when compiling."
@@ -185,8 +164,10 @@ function help() {
     echo "    --keychain-password           [Optional] Password of the keychain."
     echo "    --application-certificate     [Optional] Apple Developer ID certificate name to sign Apps and binaries."
     echo "    --installer-certificate       [Optional] Apple Developer ID certificate name to sign pkg."
-    echo "    --notarize                    [Optional] Notarize the package for its distribution on macOS Catalina ."
+    echo "    --notarize                    [Optional] Notarize the package for its distribution on macOS."
+    echo "    --notarize-path <path>        [Optional] Path of the package to be notarized."
     echo "    --developer-id                [Optional] Your Apple Developer ID."
+    echo "    --team-id                     [Optional] Your Apple Team ID."
     echo "    --altool-password             [Optional] Temporary password to use altool from Xcode."
     echo
     exit "$1"
@@ -196,14 +177,14 @@ function get_pkgproj_specs() {
 
     VERSION=$(< "${WAZUH_PATH}/src/VERSION"  cut -d "-" -f1 | cut -c 2-)
 
-    pkg_file="specs/wazuh-agent.pkgproj"
+    pkg_file="specs/wazuh-agent-${ARCH}.pkgproj"
 
     if [ ! -f "${pkg_file}" ]; then
         echo "Warning: the file ${pkg_file} does not exists. Check the version selected."
         exit 1
     else
         echo "Modifiying ${pkg_file} to match revision."
-        sed -i -e "s:${VERSION}-.*<:${VERSION}-${REVISION}<:g" "${pkg_file}"
+        sed -i -e "s:${VERSION}-.*<:${VERSION}-${REVISION}.${ARCH}<:g" "${pkg_file}"
         cp "${pkg_file}" "${AGENT_PKG_FILE}"
     fi
 
@@ -236,6 +217,10 @@ function install_deps() {
         echo "Something went wrong installing packagesbuild."
     fi
 
+    if [ "$(uname -m)" = "arm64" ]; then
+        echo "Installing build dependencies for arm64 architecture"
+        brew install gcc binutils autoconf automake libtool cmake
+    fi
     exit 0
 }
 
@@ -262,6 +247,14 @@ function main() {
     while [ -n "$1" ]
     do
         case "$1" in
+        "-a"|"--architecture")
+            if [ -n "$2" ]; then
+                ARCH="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
         "-b"|"--branch")
             if [ -n "$2" ]; then
                 BRANCH_TAG="$2"
@@ -355,9 +348,25 @@ function main() {
             NOTARIZE="yes"
             shift 1
             ;;
+        "--notarize-path")
+            if [ -n "$2" ]; then
+                notarization_path="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
         "--developer-id")
             if [ -n "$2" ]; then
                 DEVELOPER_ID="$2"
+                shift 2
+            else
+                help 1
+            fi
+            ;;
+        "--team-id")
+            if [ -n "$2" ]; then
+                TEAM_ID="$2"
                 shift 2
             else
                 help 1
@@ -382,16 +391,35 @@ function main() {
 
     testdep
 
+    if [ "${ARCH}" != "intel64" ] && [ "${ARCH}" != "arm64" ]; then
+        echo "Error: architecture not supported."
+        echo "Supported architectures: intel64, arm64"
+        exit 1
+    fi
+
     if [ -z "${CHECKSUMDIR}" ]; then
         CHECKSUMDIR="${DESTINATION}"
     fi
 
-    if [[ "$BUILD" != "no" ]]; then
+    if [[ "${BUILD}" != "no" ]]; then
         check_root
+        AGENT_PKG_FILE="${CURRENT_PATH}/package_files/wazuh-agent-${ARCH}.pkgproj"
         build_package
         "${CURRENT_PATH}/uninstall.sh"
-    else
-        echo "The branch has not been specified. No package will be generated."
+    fi
+    if [ "${NOTARIZE}" = "yes" ]; then
+        if [ "${BUILD}" = "yes" ]; then
+            pkg_name="wazuh-agent-${VERSION}-${REVISION}.${ARCH}.pkg"
+            notarization_path="${DESTINATION}/${pkg_name}"
+        fi
+        if [ -z "${notarization_path}" ]; then
+            echo "The path of the package to be notarized has not been specified."
+            help 1
+        fi
+        notarize_pkg "${notarization_path}"
+    fi
+    if [ "${BUILD}" = "no" ] && [ "${NOTARIZE}" = "no" ]; then
+        echo "The branch has not been specified and notarization has not been selected."
         help 1
     fi
 

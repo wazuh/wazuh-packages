@@ -16,17 +16,24 @@ TARGET=""
 JOBS="2"
 DEBUG="no"
 BUILD_DOCKER="yes"
+DOCKER_TAG="latest"
 INSTALLATION_PATH="/var/ossec"
-DEB_AMD64_BUILDER="deb_builder_amd64"
-DEB_I386_BUILDER="deb_builder_i386"
-DEB_PPC64LE_BUILDER="deb_builder_ppc64le"
-DEB_ARM64_BUILDER="deb_builder_arm64"
-DEB_ARMHF_BUILDER="deb_builder_armhf"
-DEB_AMD64_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/amd64"
-DEB_I386_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/i386"
-DEB_PPC64LE_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/ppc64le"
-DEB_ARM64_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/arm64"
-DEB_ARMHF_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/armhf"
+DEB_MANAGER_AMD64_BUILDER="deb_manager_builder_amd64"
+DEB_MANAGER_ARM64_BUILDER="deb_manager_builder_arm64"
+DEB_MANAGER_PPC64LE_BUILDER="deb_manager_builder_ppc64le"
+DEB_AGENT_AMD64_BUILDER="deb_agent_builder_amd64"
+DEB_AGENT_I386_BUILDER="deb_agent_builder_i386"
+DEB_AGENT_PPC64LE_BUILDER="deb_agent_builder_ppc64le"
+DEB_AGENT_ARM64_BUILDER="deb_agent_builder_arm64"
+DEB_AGENT_ARMHF_BUILDER="deb_agent_builder_armhf"
+DEB_MANAGER_AMD64_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/8/amd64"
+DEB_AGENT_AMD64_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/7/amd64"
+DEB_MANAGER_ARM64_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/9/arm64"
+DEB_AGENT_ARM64_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/9/arm64"
+DEB_AGENT_I386_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/7/i386"
+DEB_AGENT_PPC64LE_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/9/ppc64le"
+DEB_MANAGER_PPC64LE_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/9/ppc64le"
+DEB_AGENT_ARMHF_BUILDER_DOCKERFILE="${CURRENT_PATH}/Debian/9/armhf"
 CHECKSUMDIR=""
 CHECKSUM="no"
 PACKAGES_BRANCH="master"
@@ -66,7 +73,7 @@ build_deb() {
 
     # Build the Docker image
     if [[ ${BUILD_DOCKER} == "yes" ]]; then
-        docker build -t ${CONTAINER_NAME} ${DOCKERFILE_PATH} || return 1
+        docker build -t ${CONTAINER_NAME}:${DOCKER_TAG} ${DOCKERFILE_PATH} || return 1
     fi
 
     # Build the Debian package with a Docker container
@@ -74,7 +81,7 @@ build_deb() {
         -v ${CHECKSUMDIR}:/var/local/checksum:Z \
         -v ${LOCAL_SPECS}:/specs:Z \
         ${CUSTOM_CODE_VOL} \
-        ${CONTAINER_NAME} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
+        ${CONTAINER_NAME}:${DOCKER_TAG} ${TARGET} ${BRANCH} ${ARCHITECTURE} \
         ${REVISION} ${JOBS} ${INSTALLATION_PATH} ${DEBUG} \
         ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} \
         ${USE_LOCAL_SOURCE_CODE} ${FUTURE}|| return 1
@@ -86,50 +93,54 @@ build_deb() {
 
 build() {
 
-    if [[ "${ARCHITECTURE}" = "x86_64" ]] || [[ "${ARCHITECTURE}" = "amd64" ]]; then
+    if [[ "${ARCHITECTURE}" == "x86_64" ]] || [[ "${ARCHITECTURE}" == "amd64" ]]; then
             ARCHITECTURE="amd64"
-    elif [[ "${ARCHITECTURE}" = "aarch64" ]] || [[ "${ARCHITECTURE}" = "arm64" ]]; then
+    elif [[ "${ARCHITECTURE}" == "aarch64" ]] || [[ "${ARCHITECTURE}" == "arm64" ]]; then
             ARCHITECTURE="arm64"
     elif [[ ${ARCHITECTURE} == "arm32" ]] || [[ ${ARCHITECTURE} == "armhf" ]] || [[ ${ARCHITECTURE} == "armv7hl" ]] ; then
         ARCHITECTURE="armhf"
     fi
 
-    if [[ "${TARGET}" == "api" ]]; then
-
-        if [[ "${ARCHITECTURE}" = "ppc64le" ]]; then
-            build_deb ${DEB_PPC64LE_BUILDER} ${DEB_PPC64LE_BUILDER_DOCKERFILE} || return 1
-        elif [[ "${ARCHITECTURE}" = "arm64" ]]; then
-            build_deb ${DEB_ARM64_BUILDER} ${DEB_ARM64_BUILDER_DOCKERFILE} || return 1
-        elif [[ "${ARCHITECTURE}" = "armhf" ]]; then
-            build_deb ${DEB_ARMHF_BUILDER} ${DEB_ARMHF_BUILDER_DOCKERFILE} || return 1
-        else
-            build_deb ${DEB_AMD64_BUILDER} ${DEB_AMD64_BUILDER_DOCKERFILE} || return 1
-        fi
-
-    elif [[ "${TARGET}" == "manager" ]] || [[ "${TARGET}" == "agent" ]] ; then
-
+    if [[ "${TARGET}" == "manager" ]]; then
         BUILD_NAME=""
         FILE_PATH=""
-        if [[ "${ARCHITECTURE}" = "amd64" ]]; then
-            BUILD_NAME="${DEB_AMD64_BUILDER}"
-            FILE_PATH="${DEB_AMD64_BUILDER_DOCKERFILE}"
-        elif [[ "${ARCHITECTURE}" = "i386" ]]; then
-            BUILD_NAME="${DEB_I386_BUILDER}"
-            FILE_PATH="${DEB_I386_BUILDER_DOCKERFILE}"
-        elif [[ "${ARCHITECTURE}" = "ppc64le" ]]; then
-            BUILD_NAME="${DEB_PPC64LE_BUILDER}"
-            FILE_PATH="${DEB_PPC64LE_BUILDER_DOCKERFILE}"
-        elif [[ "${ARCHITECTURE}" = "arm64" ]]; then
-            BUILD_NAME="${DEB_ARM64_BUILDER}"
-            FILE_PATH="${DEB_ARM64_BUILDER_DOCKERFILE}"
-        elif [[ "${ARCHITECTURE}" = "armhf" ]]; then
-            BUILD_NAME="${DEB_ARMHF_BUILDER}"
-            FILE_PATH="${DEB_ARMHF_BUILDER_DOCKERFILE}"
+        if [[ "${ARCHITECTURE}" == "amd64" ]]; then
+            BUILD_NAME="${DEB_MANAGER_AMD64_BUILDER}"
+            FILE_PATH="${DEB_MANAGER_AMD64_BUILDER_DOCKERFILE}"
+        elif [[ "${ARCHITECTURE}" == "arm64" ]]; then
+            BUILD_NAME="${DEB_MANAGER_ARM64_BUILDER}"
+            FILE_PATH="${DEB_MANAGER_ARM64_BUILDER_DOCKERFILE}"
+        elif [[ "${ARCHITECTURE}" == "ppc64le" ]]; then
+            BUILD_NAME="${DEB_MANAGER_PPC64LE_BUILDER}"
+            FILE_PATH="${DEB_MANAGER_PPC64LE_BUILDER_DOCKERFILE}"
         else
-            echo "Invalid architecture. Choose one of amd64/i386/ppc64le/arm64/arm32."
+            echo "Invalid architecture '${ARCHITECTURE}' for '${TARGET}'. Choose one of amd64/arm64/ppc64le."
             return 1
         fi
         build_deb ${BUILD_NAME} ${FILE_PATH} || return 1
+
+    elif [[ "${TARGET}" == "agent" ]] ; then
+        if [[ "${ARCHITECTURE}" == "amd64" ]]; then
+            BUILD_NAME="${DEB_AGENT_AMD64_BUILDER}"
+            FILE_PATH="${DEB_AGENT_AMD64_BUILDER_DOCKERFILE}"
+        elif [[ "${ARCHITECTURE}" == "i386" ]]; then
+            BUILD_NAME="${DEB_AGENT_I386_BUILDER}"
+            FILE_PATH="${DEB_AGENT_I386_BUILDER_DOCKERFILE}"
+        elif [[ "${ARCHITECTURE}" == "arm64" ]]; then
+            BUILD_NAME="${DEB_AGENT_ARM64_BUILDER}"
+            FILE_PATH="${DEB_AGENT_ARM64_BUILDER_DOCKERFILE}"
+        elif [[ "${ARCHITECTURE}" == "ppc64le" ]]; then
+            BUILD_NAME="${DEB_AGENT_PPC64LE_BUILDER}"
+            FILE_PATH="${DEB_AGENT_PPC64LE_BUILDER_DOCKERFILE}"
+        elif [[ "${ARCHITECTURE}" == "armhf" ]]; then
+            BUILD_NAME="${DEB_AGENT_ARMHF_BUILDER}"
+            FILE_PATH="${DEB_AGENT_ARMHF_BUILDER_DOCKERFILE}"
+        else
+            echo "Invalid architecture '${ARCHITECTURE}' for '${TARGET}'. Choose one of amd64/i386/ppc64le/arm64/arm32."
+            return 1
+        fi
+        build_deb ${BUILD_NAME} ${FILE_PATH} || return 1
+
     else
         echo "Invalid target. Choose: manager or agent."
         return 1
@@ -152,6 +163,7 @@ help() {
     echo "    -d, --debug                [Optional] Build the binaries with debug symbols. By default: no."
     echo "    -c, --checksum <path>      [Optional] Generate checksum on the desired path (by default, if no path is specified it will be generated on the same directory than the package)."
     echo "    --dont-build-docker        [Optional] Locally built docker image will be used instead of generating a new one."
+    echo "    --tag                      [Optional] Tag to use with the docker image."
     echo "    --sources <path>           [Optional] Absolute path containing wazuh source code. This option will use local source code instead of downloading it from GitHub."
     echo "    --packages-branch <branch> [Optional] Select Git branch or tag from wazuh-packages repository. e.g master."
     echo "    --dev                      [Optional] Use the SPECS files stored in the host instead of downloading them from GitHub."
@@ -236,6 +248,14 @@ main() {
         "--dont-build-docker")
             BUILD_DOCKER="no"
             shift 1
+            ;;
+        "--tag")
+            if [ -n "$2" ]; then
+                DOCKER_TAG="$2"
+                shift 2
+            else
+                help 1
+            fi
             ;;
         "-s"|"--store")
             if [ -n "$2" ]; then

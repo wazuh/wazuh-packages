@@ -1,0 +1,70 @@
+name: Upload package creation Docker images - RPM - x86 and i386
+on:
+  pull_request:
+    paths:
+      - 'rpms/CentOS/**'
+      - 'rpms/build.sh'
+    types:
+      - opened
+      - synchronize
+      - closed
+  workflow_dispatch:
+
+jobs:
+  Upload-rpm-package-building-images:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image: [ {CONTAINER_NAME: rpm_manager_builder_x86, DOCKERFILE_PATH: rpms/CentOS/7/x86_64}, {CONTAINER_NAME: rpm_agent_builder_x86, DOCKERFILE_PATH: rpms/CentOS/6/x86_64}, {CONTAINER_NAME: rpm_agent_builder_i386, DOCKERFILE_PATH: rpms/CentOS/6/i386}]
+      fail-fast: false
+    steps:
+      - name: Cancel previous runs
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          cancel_others: 'true'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          skip_after_successful_duplicate: 'false'
+
+      - uses: actions/checkout@v3
+
+      - name: Get changed files
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            i386:
+              - 'rpms/CentOS/6/i386/**'
+              - 'rpms/build.sh'
+            manager_x86_64:
+              - 'rpms/CentOS/7/x86_64/**'
+              - 'rpms/build.sh'
+            agent_x86_64:
+              - 'rpms/CentOS/6/x86_64/**'
+              - 'rpms/build.sh'
+            generation_script:
+              - 'rpms/generate_rpm_package.sh'
+
+      - name: Copy build.sh to Dockerfile path
+        run:
+          cp $GITHUB_WORKSPACE/rpms/build.sh $GITHUB_WORKSPACE/${{ matrix.image.DOCKERFILE_PATH }}
+
+      - name: Set tag as version
+        run: 
+          if [ "${{ github.event.pull_request.merged }}" == "false" ]; then echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV; else echo "TAG=$(sed 's/\([0-9]*\.[0-9]*\)\.[0-9]*/\1/' $GITHUB_WORKSPACE/VERSION)" >> $GITHUB_ENV; fi
+
+      - name: Build and push image ${{ matrix.image.CONTAINER_NAME }} with tag ${{ env.TAG }} to Github Container Registry
+        if: (steps.changes.outputs.generation_script == 'true' ) || ( steps.changes.outputs.i386 == 'true' && matrix.image.CONTAINER_NAME == 'rpm_agent_builder_i386' ) || ( steps.changes.outputs.manager_x86_64 == 'true' && matrix.image.CONTAINER_NAME == 'rpm_manager_builder_x86' ) || ( steps.changes.outputs.agent_x86_64 == 'true' && matrix.image.CONTAINER_NAME == 'rpm_agent_builder_x86' )
+        run:
+          bash $GITHUB_WORKSPACE/.github/actions/ghcr-pull-and-push/build_and_push_image_to_ghcr.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.actor}} ${{matrix.image.CONTAINER_NAME}} ${{ matrix.image.DOCKERFILE_PATH }} ${{ env.TAG }}
+
+  Build-packages-rpm:
+    needs: Upload-rpm-package-building-images
+    if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/build-rpm-packages.yml
+    secrets: inherit
+
+  Test-packages-rpm:
+    needs: Build-packages-rpm
+    if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/test-install-rpm.yml
+    secrets: inherit

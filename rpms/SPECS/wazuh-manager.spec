@@ -7,7 +7,7 @@
 
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-manager
-Version:     4.5.1
+Version:     4.8.1
 Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
@@ -22,7 +22,7 @@ Conflicts:   ossec-hids ossec-hids-agent wazuh-agent wazuh-local
 Obsoletes: wazuh-api < 4.0.0
 AutoReqProv: no
 
-Requires: coreutils
+Requires: coreutils xz
 BuildRequires: coreutils glibc-devel automake autoconf libtool policycoreutils-python curl perl
 
 ExclusiveOS: linux
@@ -78,6 +78,7 @@ echo 'USER_CA_STORE="/path/to/my_cert.pem"' >> ./etc/preloaded-vars.conf
 echo 'USER_GENERATE_AUTHD_CERT="y"' >> ./etc/preloaded-vars.conf
 echo 'USER_AUTO_START="n"' >> ./etc/preloaded-vars.conf
 echo 'USER_CREATE_SSL_CERT="n"' >> ./etc/preloaded-vars.conf
+echo 'DOWNLOAD_CONTENT="yes"' >> ./etc/preloaded-vars.conf
 ./install.sh
 
 # Create directories
@@ -86,17 +87,14 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/.ssh
 
 # Copy the installed files into RPM_BUILD_ROOT directory
 cp -pr %{_localstatedir}/* ${RPM_BUILD_ROOT}%{_localstatedir}/
-mkdir -p ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
 sed -i "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/ossec-hids-rh.init
 install -m 0755 src/init/templates/ossec-hids-rh.init ${RPM_BUILD_ROOT}%{_initrddir}/wazuh-manager
+mkdir -p ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
 sed -i "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/wazuh-manager.service
 install -m 0644 src/init/templates/wazuh-manager.service ${RPM_BUILD_ROOT}/usr/lib/systemd/system/
 
 # Clean the preinstalled configuration assesment files
 rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ruleset/sca/*
-
-# Install Vulnerability Detector files
-install -m 0440 src/wazuh_modules/vulnerability_detector/*.json ${RPM_BUILD_ROOT}%{_localstatedir}/queue/vulnerabilities/dictionaries
 
 # Add configuration scripts
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/
@@ -113,10 +111,10 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_
 
 # Install configuration assesment files and files templates
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/{applications,generic}
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/{1,2}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/{1,2,2023}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/{8,7,6,5}
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/{15,16,17,18,19,20,21,22}
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/{7,8,9,10,11}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/{15,16,17,18,19,20,21,22,23}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/{7,8,9,10,11,12}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu/{12,14,16,18,20,22}/04
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/{9,8,7,6,5}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/{11,12,15}
@@ -125,13 +123,15 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/su
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/windows
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/{29,30,31,32,33,34}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/almalinux/{8,9}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rocky/{8,9}
 
-cp -r ruleset/sca/{applications,generic,mongodb,nginx,oracledb,centos,darwin,debian,rhel,sles,sunos,windows,amazon,ubuntu,almalinux} ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp
+cp -r ruleset/sca/{applications,generic,mongodb,nginx,oracledb,centos,darwin,debian,rhel,sles,sunos,windows,amazon,ubuntu,almalinux,rocky} ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp
 
 cp etc/templates/config/generic/{sca.files,sca.manager.files} ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/generic
 
 cp etc/templates/config/amzn/1/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/1
 cp etc/templates/config/amzn/2/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/2
+cp etc/templates/config/amzn/2023/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/2023
 
 cp etc/templates/config/centos/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos
 cp etc/templates/config/centos/8/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/8
@@ -164,6 +164,8 @@ cp etc/templates/config/fedora/33/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/t
 cp etc/templates/config/fedora/34/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/34
 
 cp etc/templates/config/almalinux/9/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/almalinux/9
+
+cp etc/templates/config/rocky/8/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rocky/8
 
 # Add SUSE initscript
 sed -i "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/ossec-hids-suse.init
@@ -288,6 +290,8 @@ fi
 %post
 
 echo "VERSION=\"$(%{_localstatedir}/bin/wazuh-control info -v)\"" > /etc/ossec-init.conf
+
+# Upgrade install code block
 if [ $1 = 2 ]; then
   if [ -d %{_localstatedir}/logs/ossec ]; then
     rm -rf %{_localstatedir}/logs/wazuh
@@ -298,6 +302,19 @@ if [ $1 = 2 ]; then
     rm -rf %{_localstatedir}/queue/sockets
     cp -rp %{_localstatedir}/queue/ossec %{_localstatedir}/queue/sockets
   fi
+
+  # Ensure that the 'Indexer' is configured
+  CONFIG_INDEXER_TEMPLATE="%{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/generic/wodle-indexer.manager.template"
+  . %{_localstatedir}/packages_files/manager_installation_scripts/src/init/update-indexer.sh
+  updateIndexerTemplate "%{_localstatedir}/etc/ossec.conf" $CONFIG_INDEXER_TEMPLATE
+fi
+
+%define _vdfilename vd_1.0.0_vd_4.8.0.tar.xz
+if [ -f "%{_localstatedir}/%{_vdfilename}" ]; then
+    tar -xf %{_localstatedir}/%{_vdfilename} -C %{_localstatedir}
+    chown wazuh:wazuh %{_localstatedir}/queue/vd
+    chown wazuh:wazuh %{_localstatedir}/queue/vd_updater
+    rm -rf %{_localstatedir}/%{_vdfilename}
 fi
 
 # Fresh install code block
@@ -319,40 +336,22 @@ if [ $1 = 1 ]; then
   %{_localstatedir}/packages_files/manager_installation_scripts/add_localfiles.sh %{_localstatedir} >> %{_localstatedir}/etc/ossec.conf
 fi
 
-  # We create this fix for the operating system that deprecated SySV. For now, this fix is for suse/openSUSE
-  sles=""
-  if [ -f /etc/SuSE-release ]; then
-    sles="suse"
-  elif [ -f /etc/os-release ]; then
-    if `grep -q "\"sles" /etc/os-release` ; then
-      sles="suse"
-    elif `grep -q -i "\"opensuse" /etc/os-release` ; then
-      sles="opensuse"
-    fi
-  fi
-
-  if [ -n "$sles" ] && [ $(ps --no-headers -o comm 1) == "systemd" ]; then
-    if [ -f /etc/init.d/wazuh-manager ]; then
-      rm -f /etc/init.d/wazuh-manager
-    fi
-  fi
-
-if [ -f /etc/os-release ]; then
-  source /etc/os-release
-  if [ "${NAME}" = "Red Hat Enterprise Linux" ] && [ "$((${VERSION_ID:0:1}))" -ge 9 ]; then
-    rm -f %{_initrddir}/wazuh-manager
-  fi
+if [[ -d /run/systemd/system ]]; then
+  rm -f %{_initrddir}/wazuh-manager
 fi
 
 # Generation auto-signed certificate if not exists
-if type openssl >/dev/null 2>&1 && [ ! -f "%{_localstatedir}/etc/sslmanager.key" ] && [ ! -f "%{_localstatedir}/etc/sslmanager.cert" ]; then
-  openssl req -x509 -batch -nodes -days 365 -newkey rsa:2048 -subj "/C=US/ST=California/CN=Wazuh/" -keyout %{_localstatedir}/etc/sslmanager.key -out %{_localstatedir}/etc/sslmanager.cert 2>/dev/null
+if [ ! -f "%{_localstatedir}/etc/sslmanager.key" ] && [ ! -f "%{_localstatedir}/etc/sslmanager.cert" ]; then
+  %{_localstatedir}/bin/wazuh-authd -C 365 -B 2048 -S "/C=US/ST=California/CN=Wazuh/" -K %{_localstatedir}/etc/sslmanager.key -X %{_localstatedir}/etc/sslmanager.cert 2>/dev/null
   chmod 640 %{_localstatedir}/etc/sslmanager.key
   chmod 640 %{_localstatedir}/etc/sslmanager.cert
 fi
 
 rm -f %{_localstatedir}/etc/shared/ar.conf  >/dev/null 2>&1
 rm -f %{_localstatedir}/etc/shared/merged.mg  >/dev/null 2>&1
+
+# Set merged.mg permissions to new ones
+find %{_localstatedir}/etc/shared/ -type f -name 'merged.mg' -exec chmod 644 {} \;
 
 #AlmaLinux
 if [ -r "/etc/almalinux-release" ]; then
@@ -404,7 +403,7 @@ elif [ -r "/etc/os-release" ]; then
   if [ "X$DIST_VER" = "X" ]; then
       DIST_VER="0"
   fi
-  if [ "$DIST_NAME" = "amzn" ] && [ "$DIST_VER" != "2" ]; then
+  if [ "$DIST_NAME" = "amzn" ] && [ "$DIST_VER" != "2" ] && [ "$DIST_VER" != "2023" ]; then
       DIST_VER="1"
   fi
   DIST_SUBVER=$(echo $VERSION_ID | sed -rn 's/[^0-9]*[0-9]+\.([0-9]+).*/\1/p')
@@ -476,17 +475,17 @@ rm -f %{_localstatedir}/etc/shared/default/*.rpmnew
 # Remove old ossec user and group if exists and change ownwership of files
 
 if getent group ossec > /dev/null 2>&1; then
-  find %{_localstatedir}/ -group ossec -user root -exec chown root:wazuh {} \; > /dev/null 2>&1 || true
+  find %{_localstatedir}/ -group ossec -user root -print0 | xargs -0 chown root:wazuh > /dev/null 2>&1 || true
   if getent passwd ossec > /dev/null 2>&1; then
-    find %{_localstatedir}/ -group ossec -user ossec -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
+    find %{_localstatedir}/ -group ossec -user ossec -print0 | xargs -0 chown wazuh:wazuh > /dev/null 2>&1 || true
     userdel ossec > /dev/null 2>&1
   fi
   if getent passwd ossecm > /dev/null 2>&1; then
-    find %{_localstatedir}/ -group ossec -user ossecm -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
+    find %{_localstatedir}/ -group ossec -user ossecm -print0 | xargs -0 chown wazuh:wazuh > /dev/null 2>&1 || true
     userdel ossecm > /dev/null 2>&1
   fi
   if getent passwd ossecr > /dev/null 2>&1; then
-    find %{_localstatedir}/ -group ossec -user ossecr -exec chown wazuh:wazuh {} \; > /dev/null 2>&1 || true
+    find %{_localstatedir}/ -group ossec -user ossecr -print0 | xargs -0 chown wazuh:wazuh > /dev/null 2>&1 || true
     userdel ossecr > /dev/null 2>&1
   fi
   if getent group ossec > /dev/null 2>&1; then
@@ -655,6 +654,7 @@ rm -fr %{buildroot}
 %attr(750, root, wazuh) %{_localstatedir}/bin/wazuh-clusterd
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-db
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-modulesd
+%attr(750, root, wazuh) %{_localstatedir}/bin/rbac_control
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/etc
 %attr(660, root, wazuh) %config(noreplace) %{_localstatedir}/etc/ossec.conf
 %attr(640, root, wazuh) %config(noreplace) %{_localstatedir}/etc/client.keys
@@ -700,13 +700,20 @@ rm -fr %{buildroot}
 %attr(750, root, wazuh) %{_localstatedir}/lib/libjemalloc.so.2
 %attr(750, root, wazuh) %{_localstatedir}/lib/libstdc++.so.6
 %attr(750, root, wazuh) %{_localstatedir}/lib/libgcc_s.so.1
-%{_localstatedir}/lib/libpython3.9.so.1.0
+%attr(750, root, wazuh) %{_localstatedir}/lib/libfimdb.so
+%attr(750, root, wazuh) %{_localstatedir}/lib/libcontent_manager.so
+%attr(750, root, wazuh) %{_localstatedir}/lib/libindexer_connector.so
+%attr(750, root, wazuh) %{_localstatedir}/lib/librocksdb.so.8
+%attr(750, root, wazuh) %{_localstatedir}/lib/librouter.so
+%attr(750, root, wazuh) %{_localstatedir}/lib/libvulnerability_scanner.so
+%{_localstatedir}/lib/libpython3.10.so.1.0
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/logs
 %attr(660, wazuh, wazuh)  %ghost %{_localstatedir}/logs/active-responses.log
 %attr(660, wazuh, wazuh) %ghost %{_localstatedir}/logs/api.log
 %attr(640, wazuh, wazuh) %ghost %{_localstatedir}/logs/integrations.log
 %attr(660, wazuh, wazuh) %ghost %{_localstatedir}/logs/ossec.log
 %attr(660, wazuh, wazuh) %ghost %{_localstatedir}/logs/ossec.json
+%attr(0440, root, wazuh) %{_localstatedir}/queue/indexer/vd_states_template.json
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/logs/api
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/logs/archives
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/logs/alerts
@@ -730,6 +737,7 @@ rm -fr %{buildroot}
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/centos/*
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/rhel
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/rhel/*
+%attr(750, wazuh, wazuh) %{_localstatedir}/%{_vdfilename}
 %dir %attr(750, root, wazuh) %{_localstatedir}/queue
 %attr(600, root, wazuh) %ghost %{_localstatedir}/queue/agents-timestamp
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/agentless
@@ -746,11 +754,10 @@ rm -fr %{buildroot}
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/rids
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/tasks
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/sockets
-%dir %attr(660, root, wazuh) %{_localstatedir}/queue/vulnerabilities
-%dir %attr(440, root, wazuh) %{_localstatedir}/queue/vulnerabilities/dictionaries
+%dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/vd
+%dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/indexer
+%dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/router
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/logcollector
-%attr(0440, root, wazuh) %{_localstatedir}/queue/vulnerabilities/dictionaries/cpe_helper.json
-%attr(0440, root, wazuh) %ghost %{_localstatedir}/queue/vulnerabilities/dictionaries/msu.json.gz
 %dir %attr(750, root, wazuh) %{_localstatedir}/ruleset
 %dir %attr(750, root, wazuh) %{_localstatedir}/ruleset/sca
 %dir %attr(750, root, wazuh) %{_localstatedir}/ruleset/decoders
@@ -776,6 +783,8 @@ rm -fr %{buildroot}
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/1/*
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/2
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/2/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/2023
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/2023/*
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/sca.files
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/5
@@ -803,6 +812,8 @@ rm -fr %{buildroot}
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/21/*
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/22
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/22/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/23
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/23/*
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/*
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel
@@ -842,6 +853,8 @@ rm -fr %{buildroot}
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/windows/*
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/almalinux
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/almalinux/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rocky
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rocky/*
 %dir %attr(750, root, wazuh) %{_localstatedir}/var
 %dir %attr(770, root, wazuh) %{_localstatedir}/var/db
 %attr(660, root, wazuh) %{_localstatedir}/var/db/mitre.db
@@ -864,10 +877,30 @@ rm -fr %{buildroot}
 %attr(750, root, wazuh) %{_localstatedir}/wodles/gcloud/*
 
 %changelog
-* Tue Aug 01 2023 support <info@wazuh.com> - 4.5.1
+* Wed Feb 28 2024 support <info@wazuh.com> - 4.8.1
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-8-1.html
+* Wed Feb 21 2024 support <info@wazuh.com> - 4.8.0
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-8-0.html
+* Tue Jan 09 2024 support <info@wazuh.com> - 4.7.2
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-7-2.html
+* Wed Dec 13 2023 support <info@wazuh.com> - 4.7.1
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-7-1.html
+* Tue Nov 21 2023 support <info@wazuh.com> - 4.7.0
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-7-0.html
+* Tue Oct 31 2023 support <info@wazuh.com> - 4.6.0
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-6-0.html
+* Tue Oct 24 2023 support <info@wazuh.com> - 4.5.4
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-5-4.html
+* Tue Oct 10 2023 support <info@wazuh.com> - 4.5.3
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-5-3.html
+* Thu Aug 31 2023 support <info@wazuh.com> - 4.5.2
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-5-2.html
+* Thu Aug 24 2023 support <info@wazuh.com> - 4.5.1
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-5.1.html
-* Wed Jul 19 2023 support <info@wazuh.com> - 4.5.0
+* Thu Aug 10 2023 support <info@wazuh.com> - 4.5.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-5-0.html
+* Mon Jul 10 2023 support <info@wazuh.com> - 4.4.5
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-4-5.html
 * Tue Jun 13 2023 support <info@wazuh.com> - 4.4.4
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-4-4.html
 * Thu May 25 2023 support <info@wazuh.com> - 4.4.3
