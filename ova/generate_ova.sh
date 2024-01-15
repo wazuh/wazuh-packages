@@ -41,7 +41,7 @@ help () {
     echo -e "DESCRIPTION"
     echo -e "        -r,  --repository"
     echo -e "                Use development or production repository."
-    echo -e "                Values: [prod|dev]. By default: ${PACKAGES_REPOSITORY}."
+    echo -e "                Values: [prod|dev|staging]. By default: ${PACKAGES_REPOSITORY}."
     echo -e ""
     echo -e "        -s,  --store"
     echo -e "                Set the destination absolute path where the OVA file will be stored."
@@ -104,7 +104,7 @@ build_ova() {
     --product "Wazuh v${OVA_VERSION} OVA" \
     --producturl "https://packages.wazuh.com/vm/wazuh-${OVA_VERSION}.ova" \
     --vendor "Wazuh, inc <info@wazuh.com>" --vendorurl "https://wazuh.com" \
-    --version "$OVA_VERSION" --description "Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring." \
+    --version "$OVA_VERSION" --description "Wazuh enhances security visibility in your infrastructure by monitoring endpoints at the operating system and application levels. Its capabilities include log analysis, file integrity monitoring, intrusion detection, and compliance monitoring." \
     || clean 1
 
     vagrant destroy -f
@@ -141,14 +141,14 @@ main() {
 
         "-r" | "--repository")
             if [ -n "$2" ]; then
-                if [ "$2" != "prod" ] && [ "$2" != "dev" ]; then
-                    echo "ERROR: Repository must be: [prod/dev]"
+                if [ "$2" != "prod" ] && [ "$2" != "dev" ] && [ "$2" != "staging" ]; then
+                    echo "ERROR: Repository must be: [prod/dev/staging]"
                     help 1
                 fi
                 PACKAGES_REPOSITORY="$2"
                 shift 2
             else
-                echo "ERROR: Value must be: [prod/dev]"
+                echo "ERROR: Value must be: [prod/dev/staging]"
                 help 1
             fi
         ;;
@@ -231,4 +231,3 @@ main() {
 }
 
 main "$@"
-

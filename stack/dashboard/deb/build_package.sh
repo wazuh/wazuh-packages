@@ -17,8 +17,14 @@ deb_amd64_builder="deb_dashboard_builder_amd64"
 deb_builder_dockerfile="${current_path}/docker"
 future="no"
 base_cmd=""
-url=""
+plugin_main=""
+plugin_updates=""
+plugin_core=""
 build_base="yes"
+have_main=false
+have_updates=false
+have_core=false
+version=""
 
 trap ctrl_c INT
 
@@ -35,12 +41,26 @@ ctrl_c() {
     clean 1
 }
 
+set_version() {
+    if [ "${reference}" ];then
+        version=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${reference}/VERSION | cat)
+    else
+        version=$(cat ${current_path}/../../../VERSION)
+    fi
+}
+
 build_deb() {
     container_name="$1"
     dockerfile_path="$2"
 
-    if [ "${repository}" ];then
-        url="${repository}"
+    if [ "${plugin_main_reference}" ];then
+        plugin_main="${plugin_main_reference}"
+    fi
+    if [ "${plugin_updates_reference}" ];then
+        plugin_updates="${plugin_updates_reference}"
+    fi
+    if [ "${plugin_core_reference}" ];then
+        plugin_core="${plugin_core_reference}"
     fi
 
     # Copy the necessary files
@@ -54,10 +74,16 @@ build_deb() {
         if [ "${reference}" ];then
             base_cmd+="--reference ${reference}"
         fi
-        if [ "${url}" ];then
-            base_cmd+="--app-url ${url}"
+        if [ "${plugin_main_reference}" ];then
+            base_cmd+="--app-url ${plugin_main_reference}"
         fi
         ../base/generate_base.sh -s ${outdir} -r ${revision} ${base_cmd}
+    else
+        basefile="${outdir}/wazuh-dashboard-base-${version}-${revision}-linux-x64.tar.xz"
+        if ! test -f "${basefile}"; then
+            echo "Did not find expected Wazuh dashboard base file: ${basefile} in output path. Exiting..."
+            exit 1
+        fi
     fi
 
     # Build the Docker image
@@ -70,12 +96,12 @@ build_deb() {
     if [ "${reference}" ];then
         docker run -t --rm ${volumes} \
             ${container_name} ${architecture} ${revision} \
-            ${future} ${url} ${reference} || return 1
+            ${future} ${plugin_main} ${plugin_updates} ${plugin_core} ${reference} || return 1
     else
         docker run -t --rm ${volumes} \
             -v ${current_path}/../../..:/root:Z \
             ${container_name} ${architecture} ${revision} \
-            ${future} ${url}  || return 1
+            ${future} ${plugin_main} ${plugin_updates} ${plugin_core}  || return 1
     fi
 
     echo "Package $(ls -Art ${outdir} | tail -n 1) added to ${outdir}."
@@ -100,19 +126,47 @@ build() {
 }
 
 help() {
-    echo
-    echo "Usage: $0 [OPTIONS]"
-    echo
-    echo "    -a, --architecture <arch>  [Optional] Target architecture of the package [amd64]."
-    echo "    --app-url <url>            [Optional] Set the repository from where the Wazuh plugin should be downloaded. By default, will be used pre-release."
-    echo "    -b, --build-base <yes/no>  [Optional] Build a new base or use a existing one. By default, yes."
-    echo "    -r, --revision <rev>       [Optional] Package revision. By default: 1."
-    echo "    -s, --store <path>         [Optional] Set the destination path of package. By default, an output folder will be created."
-    echo "    --reference <ref>          [Optional] wazuh-packages branch to download SPECs, not used by default."
-    echo "    --dont-build-docker        [Optional] Locally built docker image will be used instead of generating a new one."
-    echo "    --future                   [Optional] Build test future package 99.99.0 Used for development purposes."
-    echo "    -h, --help                 Show this help."
-    echo
+    echo -e ""
+    echo -e "NAME"
+    echo -e "        $(basename "$0") - Build Wazuh dashboard base file."
+    echo -e ""
+    echo -e "SYNOPSIS"
+    echo -e "        $(basename "$0") -a | -m | -u | -c | -s | -b | -f | -r | -h"
+    echo -e ""
+    echo -e "DESCRIPTION"
+    echo -e "        -a, --architecture <arch>"
+    echo -e "                [Optional] Target architecture of the package [amd64]."
+    echo -e ""
+    echo -e "        -m, --main-app <URL>"
+    echo -e "                [Optional] Wazuh main plugin URL."
+    echo -e ""
+    echo -e "        -u, --updates-app <URL>"
+    echo -e "                [Optional] Wazuh Check Updates plugin URL."
+    echo -e ""
+    echo -e "        -c, --core-app <URL>"
+    echo -e "                [Optional] Wazuh Core plugin URL."
+    echo -e ""
+    echo -e "        -b, --build-base <yes/no>"
+    echo -e "                [Optional] Build a new base or use a existing one. By default, yes."
+    echo -e ""
+    echo -e "        -r, --revision <rev>"
+    echo -e "                [Optional] Package revision. By default: 1."
+    echo -e ""
+    echo -e "        -s, --store <path>"
+    echo -e "                [Optional] Set the destination path of package. By default, an output folder will be created."
+    echo -e ""
+    echo -e "        --reference <ref>"
+    echo -e "                [Optional] wazuh-packages branch to download SPECs, not used by default."
+    echo -e ""
+    echo -e "        --dont-build-docker"
+    echo -e "                [Optional] Locally built docker image will be used instead of generating a new one."
+    echo -e ""
+    echo -e "        --future"
+    echo -e "                [Optional] Build test future package 99.99.0 Used for development purposes."
+    echo -e ""
+    echo -e "        -h, --help"
+    echo -e "                Show this help."
+    echo -e ""
     exit $1
 }
 
@@ -132,9 +186,28 @@ main() {
                 help 1
             fi
             ;;
-        "--app-url")
+        "-m"|"--main-app-url")
             if [ -n "$2" ]; then
-                repository="$2"
+                plugin_main_reference="$2"
+                have_main=true
+                shift 2
+            else
+                help 1
+            fi
+            ;;
+        "-u"|"--updates-app-url")
+            if [ -n "$2" ]; then
+                plugin_updates_reference="$2"
+                have_updates=true
+                shift 2
+            else
+                help 1
+            fi
+            ;;
+        "-c"|"--core-app-url")
+            if [ -n "$2" ]; then
+                plugin_core_reference="$2"
+                have_core=true
                 shift 2
             else
                 help 1
@@ -184,6 +257,15 @@ main() {
             help 1
         esac
     done
+
+    set_version
+
+    if [ ! "${plugin_main_reference}" ] && [ ! "${plugin_updates_reference}" ] && [ ! "${plugin_core_reference}" ]; then
+        echo "No Wazuh plugins have been defined, ${version} pre-release development packages with revision ${revision} will be used."
+    elif [[ ${have_main} != ${have_updates} ]] || [[ ${have_updates} != ${have_core} ]]; then
+        echo "The -m, -u, and -c options must be used together."
+        exit 1
+    fi
 
     build || clean 1
 

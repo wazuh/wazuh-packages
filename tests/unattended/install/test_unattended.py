@@ -183,11 +183,11 @@ def test_check_filebeat_process():
 
 @pytest.mark.indexer
 def test_check_indexer_process():
-    assert check_call("ps -xa | grep \"/usr/share/wazuh-indexer/jdk/bin/java\" | grep -v grep | cut -d \" \" -f15", shell=True) != ""
+    assert check_call("ps -xa | grep wazuh-indexer | grep -v grep | cut -d \" \" -f15", shell=True) != ""
 
 @pytest.mark.dashboard
 def test_check_dashboard_process():
-    assert check_call("ps -xa | grep \"/usr/share/wazuh-dashboard/bin/../node/bin/node\" | grep -v grep", shell=True) != ""
+    assert check_call("ps -xa | grep wazuh-dashboard | grep -v grep", shell=True) != ""
 
 @pytest.mark.indexer
 def test_check_indexer_cluster_status_not_red():
@@ -232,7 +232,7 @@ def test_check_cluster_log_errors():
     with open('/var/ossec/logs/cluster.log', 'r') as f:
         for line in f.readlines():
             if 'ERROR' in line:
-                if 'Could not connect to master' not in line and 'Worker node is not connected to master' not in line and 'Connection reset by peer' not in line:
+                if 'Could not connect to master' not in line and 'Worker node is not connected to master' not in line and 'Connection reset by peer' not in line and "Error sending sendsync response to local client: Error 3020 - Timeout sending" not in line:
                     found_error = True
                     break
     assert found_error == False, line

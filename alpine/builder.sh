@@ -41,7 +41,12 @@ fi
 export version="$(cat wazuh*/src/VERSION | cut -d 'v' -f 2)"
 
 if [ "${future}" = "yes" ]; then
-    export version="99.99.0"
+    old_version=$version
+    MAJOR=$(echo $version | cut -dv -f2 | cut -d. -f1)
+    export version="${MAJOR}.30.0"
+    sed -i "s/${old_version}/${version}/g" "/wazuh"*"/src/init/wazuh-server.sh"
+    sed -i "s/${old_version}/${version}/g" "/wazuh"*"/src/init/wazuh-client.sh"
+    sed -i "s/${old_version}/${version}/g" "/wazuh"*"/src/init/wazuh-local.sh"
 fi
 
 

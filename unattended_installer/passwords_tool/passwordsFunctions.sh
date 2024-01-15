@@ -10,8 +10,8 @@ function passwords_changePassword() {
 
     if [ -n "${changeall}" ]; then
         if [ -n "${indexer_installed}" ] && [ -z ${no_indexer_backup} ]; then
-            eval "mkdir /etc/wazuh-indexer/backup/ 2>/dev/null"
-            eval "cp /etc/wazuh-indexer/opensearch-security/* /etc/wazuh-indexer/backup/ 2>/dev/null"
+            eval "mkdir /etc/wazuh-indexer/backup/ ${debug}"
+            eval "cp /etc/wazuh-indexer/opensearch-security/* /etc/wazuh-indexer/backup/ ${debug}"
             passwords_createBackUp
         fi
         for i in "${!passwords[@]}"
@@ -29,12 +29,12 @@ function passwords_changePassword() {
         done
     else
         if [ -z "${api}" ] && [ -n "${indexer_installed}" ]; then
-            eval "mkdir /etc/wazuh-indexer/backup/ 2>/dev/null"
-            eval "cp /etc/wazuh-indexer/opensearch-security/* /etc/wazuh-indexer/backup/ 2>/dev/null"
+            eval "mkdir /etc/wazuh-indexer/backup/ ${debug}"
+            eval "cp /etc/wazuh-indexer/opensearch-security/* /etc/wazuh-indexer/backup/ ${debug}"
             passwords_createBackUp
         fi
         if [ -n "${indexer_installed}" ] && [ -f "/etc/wazuh-indexer/backup/internal_users.yml" ]; then
-            awk -v new="${hash}" 'prev=="'${nuser}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /etc/wazuh-indexer/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /etc/wazuh-indexer/backup/internal_users.yml
+            awk -v new='"'"${hash}"'"' 'prev=="'${nuser}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /etc/wazuh-indexer/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /etc/wazuh-indexer/backup/internal_users.yml
         fi
 
         if [ "${nuser}" == "admin" ]; then
@@ -48,7 +48,7 @@ function passwords_changePassword() {
     if [ "${nuser}" == "admin" ] || [ -n "${changeall}" ]; then
         if [ -n "${filebeat_installed}" ]; then
             if filebeat keystore list | grep -q password ; then
-                eval "echo ${adminpass} | filebeat keystore add password --force --stdin ${debug}"
+                eval "(echo ${adminpass} | filebeat keystore add password --force --stdin)" "${debug}"
             else
                 wazuhold=$(grep "password:" /etc/filebeat/filebeat.yml )
                 ra="  password: "
@@ -63,7 +63,7 @@ function passwords_changePassword() {
     if [ "$nuser" == "kibanaserver" ] || [ -n "$changeall" ]; then
         if [ -n "${dashboard_installed}" ] && [ -n "${dashpass}" ]; then
             if /usr/share/wazuh-dashboard/bin/opensearch-dashboards-keystore --allow-root list | grep -q opensearch.password; then
-                eval "echo ${dashpass} | /usr/share/wazuh-dashboard/bin/opensearch-dashboards-keystore --allow-root add -f --stdin opensearch.password ${debug_pass}"
+                eval "echo ${dashpass} | /usr/share/wazuh-dashboard/bin/opensearch-dashboards-keystore --allow-root add -f --stdin opensearch.password ${debug_pass} > /dev/null 2>&1"
             else
                 wazuhdashold=$(grep "password:" /etc/wazuh-dashboard/opensearch_dashboards.yml )
                 rk="opensearch.password: "
@@ -83,8 +83,8 @@ function passwords_changePasswordApi() {
         for i in "${!api_passwords[@]}"; do
             if [ -n "${wazuh_installed}" ]; then
                 passwords_getApiUserId "${api_users[i]}"
-                WAZUH_PASS_API='{"password":"'"${api_passwords[i]}"'"}'
-                eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null'
+                WAZUH_PASS_API='{\"password\":\"'"${api_passwords[i]}"'\"}'
+                eval 'common_curl -s -k -X PUT -H \"Authorization: Bearer $TOKEN_API\" -H \"Content-Type: application/json\" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null --max-time 300 --retry 5 --retry-delay 5 --fail'
                 if [ "${api_users[i]}" == "${adminUser}" ]; then
                     sleep 1
                     adminPassword="${api_passwords[i]}"
@@ -101,8 +101,8 @@ function passwords_changePasswordApi() {
     else
         if [ -n "${wazuh_installed}" ]; then
             passwords_getApiUserId "${nuser}"
-            WAZUH_PASS_API='{"password":"'"${password}"'"}'
-            eval 'curl -s -k -X PUT -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null'
+            WAZUH_PASS_API='{\"password\":\"'"${password}"'\"}'
+            eval 'common_curl -s -k -X PUT -H \"Authorization: Bearer $TOKEN_API\" -H \"Content-Type: application/json\" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null --max-time 300 --retry 5 --retry-delay 5 --fail'
             if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_indexer_cluster}" ]; then
                 common_logger -nl $"The password for Wazuh API user ${nuser} is ${password}"
             fi
@@ -118,7 +118,7 @@ function passwords_changeDashboardApiPassword() {
     j=0
     until [ -n "${file_exists}" ] || [ "${j}" -eq "12" ]; do
         if [ -f "/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml" ]; then
-            eval "sed -i 's|password: .*|password: \"${1}\"|g' /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml"
+            eval "sed -i 's|password: .*|password: \"${1}\"|g' /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml ${debug}"
             if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_indexer_cluster}" ]; then
                 common_logger "Updated wazuh-wui user password in wazuh dashboard. Remember to restart the service."
             fi
@@ -175,14 +175,13 @@ function passwords_createBackUp() {
             capem=$(grep "plugins.security.ssl.transport.pemtrustedcas_filepath: " /etc/wazuh-indexer/opensearch.yml )
             rcapem="plugins.security.ssl.transport.pemtrustedcas_filepath: "
             capem="${capem//$rcapem}"
-            if [[ -z "${adminpem}" ]] || [[ -z "${adminkey}" ]]; then
-                passwords_readAdmincerts
-            fi
         fi
     fi
 
     common_logger -d "Creating password backup."
-    eval "mkdir /etc/wazuh-indexer/backup ${debug}"
+    if [ ! -d "/etc/wazuh-indexer/backup" ]; then
+        eval "mkdir /etc/wazuh-indexer/backup ${debug}"
+    fi
     eval "JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_CONF_DIR=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -backup /etc/wazuh-indexer/backup -icl -p 9200 -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -h ${IP} ${debug}"
     if [ "${PIPESTATUS[0]}" != 0 ]; then
         common_logger -e "The backup could not be created"
@@ -263,6 +262,7 @@ function passwords_generatePassword() {
 
 function passwords_generatePasswordFile() {
 
+    common_logger -d "Generating password file."
     users=( admin kibanaserver kibanaro logstash readall snapshotrestore )
     api_users=( wazuh wazuh-wui )
     user_description=(
@@ -284,25 +284,24 @@ function passwords_generatePasswordFile() {
     for i in "${!users[@]}"; do
         {
         echo "# ${user_description[${i}]}"
-        echo "  indexer_username: '${users[${i}]}'" 
-        echo "  indexer_password: '${passwords[${i}]}'" 
-        echo ""	
+        echo "  indexer_username: '${users[${i}]}'"
+        echo "  indexer_password: '${passwords[${i}]}'"
+        echo ""
         } >> "${gen_file}"
     done
 
     for i in "${!api_users[@]}"; do
         {
-        echo "# ${api_user_description[${i}]}" 
-        echo "  api_username: '${api_users[${i}]}'" 
+        echo "# ${api_user_description[${i}]}"
+        echo "  api_username: '${api_users[${i}]}'"
         echo "  api_password: '${api_passwords[${i}]}'"
-        echo ""	
+        echo ""
         } >> "${gen_file}"
     done
 
 }
 
 function passwords_getApiToken() {
-
     retries=0
     max_internal_error_retries=20
 
@@ -332,13 +331,13 @@ function passwords_getApiToken() {
 
 function passwords_getApiUsers() {
 
-    mapfile -t api_users < <(curl -s -k -X GET -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json"  "https://localhost:55000/security/users?pretty=true" | grep username | awk -F': ' '{print $2}' | sed -e "s/[\'\",]//g")
+    mapfile -t api_users < <(common_curl -s -k -X GET -H \"Authorization: Bearer $TOKEN_API\" -H \"Content-Type: application/json\"  \"https://localhost:55000/security/users?pretty=true\" --max-time 300 --retry 5 --retry-delay 5 | grep username | awk -F': ' '{print $2}' | sed -e "s/[\'\",]//g")
 
 }
 
 function passwords_getApiIds() {
 
-    mapfile -t api_ids < <(curl -s -k -X GET -H "Authorization: Bearer $TOKEN_API" -H "Content-Type: application/json"  "https://localhost:55000/security/users?pretty=true" | grep id | awk -F': ' '{print $2}' | sed -e "s/[\'\",]//g")
+    mapfile -t api_ids < <(common_curl -s -k -X GET -H \"Authorization: Bearer $TOKEN_API\" -H \"Content-Type: application/json\"  \"https://localhost:55000/security/users?pretty=true\" --max-time 300 --retry 5 --retry-delay 5 | grep id | awk -F': ' '{print $2}' | sed -e "s/[\'\",]//g")
 
 }
 
@@ -364,9 +363,12 @@ function passwords_getApiUserId() {
 
 function passwords_getNetworkHost() {
 
-    IP=$(grep -hr "network.host:" /etc/wazuh-indexer/opensearch.yml)
+    IP=$(grep -hr "^network.host:" /etc/wazuh-indexer/opensearch.yml)
     NH="network.host: "
     IP="${IP//$NH}"
+    
+    # Remove surrounding double quotes if present
+    IP="${IP//\"}"
 
     #allow to find ip with an interface
     if [[ ${IP} =~ _.*_ ]]; then
@@ -377,26 +379,6 @@ function passwords_getNetworkHost() {
     if [ "${IP}" == "0.0.0.0" ]; then
         IP="localhost"
     fi
-}
-
-function passwords_readAdmincerts() {
-
-    if [[ -f /etc/wazuh-indexer/certs/admin.pem ]]; then
-        adminpem="/etc/wazuh-indexer/certs/admin.pem"
-    else
-        common_logger -e "No admin certificate indicated. Please run the script with the option -c <path-to-certificate>."
-        exit 1;
-    fi
-
-    if [[ -f /etc/wazuh-indexer/certs/admin-key.pem ]]; then
-        adminkey="/etc/wazuh-indexer/certs/admin-key.pem"
-    elif [[ -f /etc/wazuh-indexer/certs/admin.key ]]; then
-        adminkey="/etc/wazuh-indexer/certs/admin.key"
-    else
-        common_logger -e "No admin certificate key indicated. Please run the script with the option -k <path-to-key-certificate>."
-        exit 1;
-    fi
-
 }
 
 function passwords_readFileUsers() {
@@ -508,7 +490,7 @@ For Wazuh API users, the file must have this format:
         mapfile -t passwords < <(printf "%s\n" "${finalpasswords[@]}")
         mapfile -t api_users < <(printf "%s\n" "${finalapiusers[@]}")
         mapfile -t api_passwords < <(printf "%s\n" "${finalapipasswords[@]}")
-        
+
         changeall=1
     fi
 
@@ -516,6 +498,7 @@ For Wazuh API users, the file must have this format:
 
 function passwords_readUsers() {
 
+    passwords_updateInternalUsers
     susers=$(grep -B 1 hash: /etc/wazuh-indexer/opensearch-security/internal_users.yml | grep -v hash: | grep -v "-" | awk '{ print substr( $0, 1, length($0)-1 ) }')
     mapfile -t users <<< "${susers[@]}"
 
@@ -523,12 +506,13 @@ function passwords_readUsers() {
 
 function passwords_restartService() {
 
+    common_logger -d "Restarting ${1} service..."
     if [ "$#" -ne 1 ]; then
         common_logger -e "passwords_restartService must be called with 1 argument."
         exit 1
     fi
 
-    if ps -e | grep -E -q "^\ *1\ .*systemd$"; then
+    if [[ -d /run/systemd/system ]]; then
         eval "systemctl daemon-reload ${debug}"
         eval "systemctl restart ${1}.service ${debug}"
         if [  "${PIPESTATUS[0]}" != 0  ]; then
@@ -543,7 +527,7 @@ function passwords_restartService() {
         else
             common_logger -d "${1} started."
         fi
-    elif ps -e | grep -E -q "^\ *1\ .*init$"; then
+    elif ps -p 1 -o comm= | grep "init"; then
         eval "/etc/init.d/${1} restart ${debug}"
         if [  "${PIPESTATUS[0]}" != 0  ]; then
             common_logger -e "${1} could not be started."
@@ -583,6 +567,7 @@ function passwords_restartService() {
 
 function passwords_runSecurityAdmin() {
 
+    common_logger -d "Running security admin tool."
     if [ -z "${indexer_installed}" ] && [ -z "${dashboard_installed}" ] && [ -z "${filebeat_installed}" ]; then
         common_logger -e "Cannot find Wazuh indexer, Wazuh dashboard or Filebeat on the system."
         exit 1;
@@ -591,9 +576,6 @@ function passwords_runSecurityAdmin() {
             capem=$(grep "plugins.security.ssl.transport.pemtrustedcas_filepath: " /etc/wazuh-indexer/opensearch.yml )
             rcapem="plugins.security.ssl.transport.pemtrustedcas_filepath: "
             capem="${capem//$rcapem}"
-            if [[ -z "${adminpem}" ]] || [[ -z "${adminkey}" ]]; then
-                passwords_readAdmincerts
-            fi
         fi
     fi
 
@@ -603,6 +585,7 @@ function passwords_runSecurityAdmin() {
         common_logger -e "Could not load the changes."
         exit 1;
     fi
+    eval "cp /etc/wazuh-indexer/backup/internal_users.yml /etc/wazuh-indexer/opensearch-security/internal_users.yml"
     eval "rm -rf /etc/wazuh-indexer/backup/ ${debug}"
 
     if [[ -n "${nuser}" ]] && [[ -n ${autopass} ]]; then
@@ -624,5 +607,26 @@ function passwords_runSecurityAdmin() {
             common_logger -d "Passwords changed."
         fi
     fi
+
+}
+
+function passwords_updateInternalUsers() {
+    
+    common_logger "Updating the internal users."
+    backup_datetime=$(date +"%Y%m%d_%H%M%S")
+    internal_users_backup_path="/etc/wazuh-indexer/internalusers-backup"
+    passwords_getNetworkHost
+    passwords_createBackUp
+
+    eval "mkdir -p ${internal_users_backup_path} ${debug}"
+    eval "cp /etc/wazuh-indexer/backup/internal_users.yml ${internal_users_backup_path}/internal_users_${backup_datetime}.yml.bkp ${debug}"
+    eval "chmod 750 ${internal_users_backup_path} ${debug}"
+    eval "chmod 640 ${internal_users_backup_path}/internal_users_${backup_datetime}.yml.bkp"
+    eval "chown -R wazuh-indexer:wazuh-indexer ${internal_users_backup_path} ${debug}"
+    common_logger "A backup of the internal users has been saved in the /etc/wazuh-indexer/internalusers-backup folder."
+
+    eval "cp /etc/wazuh-indexer/backup/internal_users.yml /etc/wazuh-indexer/opensearch-security/internal_users.yml ${debug}"
+    eval "rm -rf /etc/wazuh-indexer/backup/ ${debug}"
+    common_logger -d "The internal users have been updated before changing the passwords."
 
 }

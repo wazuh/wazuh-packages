@@ -1,10 +1,10 @@
 nodes:
   indexer:
     - name: wazuh-indexer
-      ip: 127.0.0.1
+      ip: localhost
   server:
     - name: wazuh-server
-      ip: 127.0.0.1
+      ip: localhost
   dashboard:
     - name: wazuh-dashboard
-      ip: 127.0.0.1
+      ip: localhost

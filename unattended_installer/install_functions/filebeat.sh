@@ -8,20 +8,23 @@
 
 function filebeat_configure(){
 
-    eval "curl -so /etc/filebeat/wazuh-template.json ${filebeat_wazuh_template} --max-time 300 ${debug}"
+    common_logger -d "Configuring Filebeat."
+    eval "common_curl -sSo /etc/filebeat/wazuh-template.json ${filebeat_wazuh_template} --max-time 300 --retry 5 --retry-delay 5 --fail"
     if [ ! -f "/etc/filebeat/wazuh-template.json" ]; then
         common_logger -e "Error downloading wazuh-template.json file."
         installCommon_rollBack
         exit 1
     fi
-    
+    common_logger -d "Filebeat template was download successfully."
+
     eval "chmod go+r /etc/filebeat/wazuh-template.json ${debug}"
-    eval "curl -s ${filebeat_wazuh_module} --max-time 300 | tar -xvz -C /usr/share/filebeat/module ${debug}"
+    eval "(common_curl -sS ${filebeat_wazuh_module} --max-time 300 --retry 5 --retry-delay 5 --fail | tar -xvz -C /usr/share/filebeat/module) ${debug}"
     if [ ! -d "/usr/share/filebeat/module" ]; then
         common_logger -e "Error downloading wazuh filebeat module."
         installCommon_rollBack
         exit 1
     fi
+    common_logger -d "Filebeat module was downloaded successfully."
 
     if [ -n "${AIO}" ]; then
         eval "installCommon_getConfig filebeat/filebeat_unattended.yml /etc/filebeat/filebeat.yml ${debug}"
@@ -42,20 +45,21 @@ function filebeat_configure(){
     filebeat_copyCertificates
 
     eval "filebeat keystore create ${debug}"
-    eval "echo admin | filebeat keystore add username --force --stdin ${debug}"
-    eval "echo admin | filebeat keystore add password --force --stdin ${debug}"
+    eval "(echo admin | filebeat keystore add username --force --stdin)" "${debug}"
+    eval "(echo admin | filebeat keystore add password --force --stdin)" "${debug}"
 
     common_logger "Filebeat post-install configuration finished."
 }
 
 function filebeat_copyCertificates() {
 
+    common_logger -d "Copying Filebeat certificates."
     if [ -f "${tar_file}" ]; then
         if [ -n "${AIO}" ]; then
             if ! tar -tvf "${tar_file}" | grep -q "${server_node_names[0]}" ; then
                 common_logger -e "Tar file does not contain certificate for the node ${server_node_names[0]}."
                 installCommon_rollBack
-                exit 1;
+                exit 1
             fi
             eval "sed -i s/filebeat.pem/${server_node_names[0]}.pem/ /etc/filebeat/filebeat.yml ${debug}"
             eval "sed -i s/filebeat-key.pem/${server_node_names[0]}-key.pem/ /etc/filebeat/filebeat.yml ${debug}"
@@ -67,7 +71,7 @@ function filebeat_copyCertificates() {
             if ! tar -tvf "${tar_file}" | grep -q "${winame}" ; then
                 common_logger -e "Tar file does not contain certificate for the node ${winame}."
                 installCommon_rollBack
-                exit 1;
+                exit 1
             fi
             eval "sed -i s/filebeat.pem/${winame}.pem/ /etc/filebeat/filebeat.yml ${debug}"
             eval "sed -i s/filebeat-key.pem/${winame}-key.pem/ /etc/filebeat/filebeat.yml ${debug}"
@@ -81,7 +85,7 @@ function filebeat_copyCertificates() {
         eval "chown root:root ${filebeat_cert_path}/* ${debug}"
     else
         common_logger -e "No certificates found. Could not initialize Filebeat"
-        exit 1;
+        exit 1
     fi
 
 }

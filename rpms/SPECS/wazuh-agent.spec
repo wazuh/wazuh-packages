@@ -7,7 +7,7 @@
 
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-agent
-Version:     4.5.1
+Version:     4.8.1
 Release:     %{_release}
 License:     GPL
 Group:       System Environment/Daemons
@@ -103,7 +103,7 @@ rm -f ${RPM_BUILD_ROOT}%{_localstatedir}/ruleset/sca/*
 
 # Install configuration assesment files and files templates
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/{generic}
-mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/{1,2}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/{1,2,2023}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/{8,7,6,5}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/{9,8,7,6,5}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/{11,12,15}
@@ -112,10 +112,12 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fe
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rocky/{8,9}
 
 cp -r ruleset/sca/{generic,centos,rhel,sles,amazon,rocky} ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp
+
 cp etc/templates/config/generic/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/generic
 
 cp etc/templates/config/amzn/1/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/1
 cp etc/templates/config/amzn/2/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/2
+cp etc/templates/config/amzn/2023/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/2023
 
 cp etc/templates/config/centos/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos
 cp etc/templates/config/centos/8/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/8
@@ -147,6 +149,7 @@ cp etc/templates/config/fedora/32/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/t
 cp etc/templates/config/fedora/33/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/33
 cp etc/templates/config/fedora/34/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/34
 
+cp etc/templates/config/rocky/8/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rocky/8
 cp etc/templates/config/rocky/9/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rocky/9
 
 # Add configuration scripts
@@ -245,30 +248,9 @@ if [ $1 = 1 ]; then
   %{_localstatedir}/packages_files/agent_installation_scripts/src/init/register_configure_agent.sh %{_localstatedir} > /dev/null || :
 fi
 
-if [ -f /etc/os-release ]; then
-  source /etc/os-release
-  if [ "${NAME}" = "Red Hat Enterprise Linux" ] && [ "$((${VERSION_ID:0:1}))" -ge 9 ]; then
-    rm -f %{_initrddir}/wazuh-agent
-  fi
+if [[ -d /run/systemd/system ]]; then
+  rm -f %{_initrddir}/wazuh-agent
 fi
-
-  # We create this fix for the operating system that deprecated the SySV. For now, this fix is for suse/openSUSE
-  sles=""
-  if [ -f /etc/SuSE-release ]; then
-    sles="suse"
-  elif [ -f /etc/os-release ]; then
-    if `grep -q "\"sles" /etc/os-release` ; then
-      sles="suse"
-    elif `grep -q -i "\"opensuse" /etc/os-release` ; then
-      sles="opensuse"
-    fi
-  fi
-
-  if [ -n "$sles" ] && [ $(ps --no-headers -o comm 1) == "systemd" ]; then
-    if [ -f /etc/init.d/wazuh-agent ]; then
-      rm -f /etc/init.d/wazuh-agent
-    fi
-  fi
 
 # Delete the installation files used to configure the agent
 rm -rf %{_localstatedir}/packages_files
@@ -326,7 +308,7 @@ elif [ -r "/etc/os-release" ]; then
   if [ "X$DIST_VER" = "X" ]; then
       DIST_VER="0"
   fi
-  if [ "$DIST_NAME" = "amzn" ] && [ "$DIST_VER" != "2" ]; then
+  if [ "$DIST_NAME" = "amzn" ] && [ "$DIST_VER" != "2" ] && [ "$DIST_VER" != "2023" ]; then
       DIST_VER="1"
   fi
   DIST_SUBVER=$(echo $VERSION_ID | sed -rn 's/[^0-9]*[0-9]+\.([0-9]+).*/\1/p')
@@ -571,6 +553,7 @@ rm -fr %{buildroot}
 %attr(750, root, wazuh) %{_localstatedir}/lib/libsysinfo.so
 %attr(750, root, wazuh) %{_localstatedir}/lib/libstdc++.so.6
 %attr(750, root, wazuh) %{_localstatedir}/lib/libgcc_s.so.1
+%attr(750, root, wazuh) %{_localstatedir}/lib/libfimdb.so
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/generic
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/generic/*
@@ -579,6 +562,8 @@ rm -fr %{buildroot}
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/1/*
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/2
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/2/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/2023
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/amzn/2023/*
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/sca.files
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/5
@@ -640,10 +625,30 @@ rm -fr %{buildroot}
 %attr(750, root, wazuh) %{_localstatedir}/wodles/gcloud/*
 
 %changelog
-* Tue Aug 01 2023 support <info@wazuh.com> - 4.5.1
+* Wed Feb 28 2024 support <info@wazuh.com> - 4.8.1
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-8-1.html
+* Wed Feb 21 2024 support <info@wazuh.com> - 4.8.0
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-8-0.html
+* Tue Jan 09 2024 support <info@wazuh.com> - 4.7.2
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-7-2.html
+* Wed Dec 13 2023 support <info@wazuh.com> - 4.7.1
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-7-1.html
+* Tue Nov 21 2023 support <info@wazuh.com> - 4.7.0
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-7-0.html
+* Tue Oct 31 2023 support <info@wazuh.com> - 4.6.0
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-6-0.html
+* Tue Oct 24 2023 support <info@wazuh.com> - 4.5.4
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-5-4.html
+* Tue Oct 10 2023 support <info@wazuh.com> - 4.5.3
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-5-3.html
+* Thu Aug 31 2023 support <info@wazuh.com> - 4.5.2
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-5-2.html
+* Thu Aug 24 2023 support <info@wazuh.com> - 4.5.1
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-5.1.html
-* Wed Jul 19 2023 support <info@wazuh.com> - 4.5.0
+* Thu Aug 10 2023 support <info@wazuh.com> - 4.5.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-5-0.html
+* Mon Jul 10 2023 support <info@wazuh.com> - 4.4.5
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-4-5.html
 * Tue Jun 13 2023 support <info@wazuh.com> - 4.4.4
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-4-4.html
 * Thu May 25 2023 support <info@wazuh.com> - 4.4.3

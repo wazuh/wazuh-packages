@@ -1,6 +1,6 @@
 # Spec file for AIX systems
 Name:        wazuh-agent
-Version:     4.5.1
+Version:     4.8.1
 Release:     1
 License:     GPL
 URL:         https://www.wazuh.com/
@@ -290,10 +290,30 @@ rm -fr %{buildroot}
 %attr(750, root, wazuh) %{_localstatedir}/wodles/*
 
 %changelog
-* Tue Aug 01 2023 support <info@wazuh.com> - 4.5.1
+* Wed Feb 28 2024 support <info@wazuh.com> - 4.8.1
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-8-1.html
+* Wed Feb 21 2024 support <info@wazuh.com> - 4.8.0
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-8-0.html
+* Tue Jan 09 2024 support <info@wazuh.com> - 4.7.2
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-7-2.html
+* Wed Dec 13 2023 support <info@wazuh.com> - 4.7.1
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-7-1.html
+* Tue Nov 21 2023 support <info@wazuh.com> - 4.7.0
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-7-0.html
+* Tue Oct 31 2023 support <info@wazuh.com> - 4.6.0
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-6-0.html
+* Tue Oct 24 2023 support <info@wazuh.com> - 4.5.4
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-5-4.html
+* Tue Oct 10 2023 support <info@wazuh.com> - 4.5.3
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-5-3.html
+* Thu Aug 31 2023 support <info@wazuh.com> - 4.5.2
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-5-2.html
+* Thu Aug 24 2023 support <info@wazuh.com> - 4.5.1
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-5.1.html
-* Wed Jul 19 2023 support <info@wazuh.com> - 4.5.0
+* Thu Aug 10 2023 support <info@wazuh.com> - 4.5.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-5-0.html
+* Mon Jul 10 2023 support <info@wazuh.com> - 4.4.5
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-4-5.html
 * Tue Jun 13 2023 support <info@wazuh.com> - 4.4.4
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-4-4.html
 * Thu May 25 2023 support <info@wazuh.com> - 4.4.3

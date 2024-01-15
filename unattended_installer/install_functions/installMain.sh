@@ -23,7 +23,7 @@ function getHelp() {
     echo -e "                Path to the configuration file used to generate wazuh-install-files.tar file containing the files that will be needed for installation. By default, the Wazuh installation assistant will search for a file named config.yml in the same path as the script."
     echo -e ""
     echo -e "        -dw,  --download-wazuh <deb|rpm>"
-    echo -e "                Download all the packages necessary for offline installation."
+    echo -e "                Download all the packages necessary for offline installation. Type of packages to download for offline installation (rpm, deb)"
     echo -e ""
     echo -e "        -fd,  --force-install-dashboard"
     echo -e "                Force Wazuh dashboard installation to continue even when it is not capable of connecting to the Wazuh indexer."
@@ -39,6 +39,9 @@ function getHelp() {
     echo -e ""
     echo -e "        -o,  --overwrite"
     echo -e "                Overwrites previously installed components. This will erase all the existing configuration and data."
+    echo -e ""
+    echo -e "        -p,  --port"
+    echo -e "                Specifies the Wazuh web user interface port. By default is the 443 TCP port. Recommended ports are: 8443, 8444, 8080, 8888, 9000."
     echo -e ""
     echo -e "        -s,  --start-cluster"
     echo -e "                Initialize Wazuh indexer cluster security settings."
@@ -110,6 +113,16 @@ function main() {
             "-o"|"--overwrite")
                 overwrite=1
                 shift 1
+                ;;
+            "-p"|"--port")
+                if [ -z "${2}" ]; then
+                    common_logger -e "Error on arguments. Probably missing <port> after -p|--port"
+                    getHelp
+                    exit 1
+                fi
+                port_specified=1
+                port_number="${2}"
+                shift 2
                 ;;
             "-s"|"--start-cluster")
                 start_indexer_cluster=1
@@ -203,7 +216,7 @@ function main() {
 # -------------- Uninstall case  ------------------------------------
 
     common_checkSystem
-    
+
     if [ -z "${download}" ]; then
         check_dist
     fi
@@ -215,7 +228,7 @@ function main() {
         exit 0
     fi
 
-# -------------- Preliminary checks  --------------------------------
+# -------------- Preliminary checks and Prerequisites --------------------------------
 
     if [ -z "${uninstall}" ]; then
         installCommon_installCheckDependencies
@@ -230,28 +243,41 @@ function main() {
     else
         checks_health
     fi
-    if [ -n "${AIO}" ] ; then
+
+    if [ -n "${port_specified}" ]; then
+        checks_available_port "${port_number}" "${wazuh_aio_ports[@]}"
+        dashboard_changePort "${port_number}"
+    elif [ -n "${AIO}" ] || [ -n "${dashboard}" ]; then
+        dashboard_changePort "${http_port}"
+    fi
+
+    if [ -n "${AIO}" ]; then
         rm -f "${tar_file}"
         checks_ports "${wazuh_aio_ports[@]}"
+        installCommon_installPrerequisites "AIO"
     fi
 
     if [ -n "${indexer}" ]; then
         checks_ports "${wazuh_indexer_ports[@]}"
+        installCommon_installPrerequisites "indexer"
     fi
 
     if [ -n "${wazuh}" ]; then
         checks_ports "${wazuh_manager_ports[@]}"
+        installCommon_installPrerequisites "wazuh"
     fi
 
     if [ -n "${dashboard}" ]; then
-        checks_ports "${wazuh_dashboard_ports[@]}"
+        checks_ports "${wazuh_dashboard_port}"
+        installCommon_installPrerequisites "dashboard"
     fi
 
 
-# -------------- Prerequisites and Wazuh repo  ----------------------
+# --------------  Wazuh repo  ----------------------
 
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
         installCommon_installPrerequisites
+        check_curlVersion
         installCommon_addWazuhRepo
     fi
 
@@ -274,6 +300,10 @@ function main() {
         checks_names
     fi
 
+    if [ -n "${configurations}" ]; then
+        installCommon_removeWIADependencies
+    fi
+
 # -------------- Wazuh indexer case -------------------------------
 
     if [ -n "${indexer}" ]; then
@@ -282,6 +312,7 @@ function main() {
         indexer_configure
         installCommon_startService "wazuh-indexer"
         indexer_initialize
+        installCommon_removeWIADependencies
     fi
 
 # -------------- Start Wazuh indexer cluster case  ------------------
@@ -289,6 +320,7 @@ function main() {
     if [ -n "${start_indexer_cluster}" ]; then
         indexer_startCluster
         installCommon_changePasswords
+        installCommon_removeWIADependencies
     fi
 
 # -------------- Wazuh dashboard case  ------------------------------
@@ -300,6 +332,7 @@ function main() {
         installCommon_startService "wazuh-dashboard"
         installCommon_changePasswords
         dashboard_initialize
+        installCommon_removeWIADependencies
 
     fi
 
@@ -316,6 +349,7 @@ function main() {
         filebeat_configure
         installCommon_changePasswords
         installCommon_startService "filebeat"
+        installCommon_removeWIADependencies
     fi
 
 # -------------- AIO case  ------------------------------------------
@@ -339,6 +373,7 @@ function main() {
         installCommon_startService "wazuh-dashboard"
         installCommon_changePasswords
         dashboard_initializeAIO
+        installCommon_removeWIADependencies
 
     fi
 

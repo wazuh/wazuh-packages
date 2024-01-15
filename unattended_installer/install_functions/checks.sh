@@ -8,6 +8,7 @@
 
 function checks_arch() {
 
+    common_logger -d "Checking system architecture."
     arch=$(uname -m)
 
     if [ "${arch}" != "x86_64" ]; then
@@ -17,6 +18,15 @@ function checks_arch() {
 }
 
 function checks_arguments() {
+
+    # -------------- Port option validation ---------------------
+
+    if [ -n "${port_specified}" ]; then
+        if [ -z "${AIO}" ] && [ -z "${dashboard}" ]; then
+            common_logger -e "The argument -p|--port can only be used with -a|--all-in-one or -wd|--wazuh-dashboard."
+            exit 1
+        fi
+    fi
 
     # -------------- Configurations ---------------------------------
 
@@ -52,19 +62,19 @@ function checks_arguments() {
         fi
 
         if [ -z "${wazuh_installed}" ] && [ -z "${wazuh_remaining_files}" ]; then
-            common_logger "Wazuh manager was not found in the system so it was not uninstalled."
+            common_logger "Wazuh manager not found in the system so it was not uninstalled."
         fi
 
         if [ -z "${filebeat_installed}" ] && [ -z "${filebeat_remaining_files}" ]; then
-            common_logger "Filebeat was not found in the system so it was not uninstalled."
+            common_logger "Filebeat not found in the system so it was not uninstalled."
         fi
 
         if [ -z "${indexer_installed}" ] && [ -z "${indexer_remaining_files}" ]; then
-            common_logger "Wazuh indexer was not found in the system so it was not uninstalled."
+            common_logger "Wazuh indexer not found in the system so it was not uninstalled."
         fi
 
         if [ -z "${dashboard_installed}" ] && [ -z "${dashboard_remaining_files}" ]; then
-            common_logger "Wazuh dashboard was not found in the system so it was not uninstalled."
+            common_logger "Wazuh dashboard not found in the system so it was not uninstalled."
         fi
 
     fi
@@ -166,7 +176,20 @@ function checks_arguments() {
 
 }
 
+# Checks if the --retry-connrefused is available in curl
+function check_curlVersion() {
+
+    common_logger -d "Checking curl tool version."
+    # --retry-connrefused was added in 7.52.0
+    curl_version=$(curl -V | head -n 1 | awk '{ print $2 }')
+    if [ $(check_versions ${curl_version} 7.52.0) == "0" ]; then
+        curl_has_connrefused=0
+    fi
+
+}
+
 function check_dist() {
+    common_logger -d "Checking system distribution."
     dist_detect
     if [ "${DIST_NAME}" != "centos" ] && [ "${DIST_NAME}" != "rhel" ] && [ "${DIST_NAME}" != "amzn" ] && [ "${DIST_NAME}" != "ubuntu" ]; then
         notsupported=1
@@ -191,13 +214,19 @@ function check_dist() {
         common_logger -e "The recommended systems are: Red Hat Enterprise Linux 7, 8, 9; CentOS 7, 8; Amazon Linux 2; Ubuntu 16.04, 18.04, 20.04, 22.04. The current system does not match this list. Use -i|--ignore-check to skip this check."
         exit 1
     fi
+    common_logger -d "Detected distribution name: ${DIST_NAME}"
+    common_logger -d "Detected distribution version: ${DIST_VER}"
+    
 }
 
 function checks_health() {
 
-    logger "Verifying that your system meets the recommended minimum hardware requirements."
+    common_logger "Verifying that your system meets the recommended minimum hardware requirements."
 
     checks_specifications
+
+    common_logger -d "CPU cores detected: ${cores}"
+    common_logger -d "Free RAM memory detected: ${ram_gb}"
 
     if [ -n "${indexer}" ]; then
         if [ "${cores}" -lt 2 ] || [ "${ram_gb}" -lt 3700 ]; then
@@ -232,6 +261,7 @@ function checks_health() {
 # This function ensures different names in the config.yml file.
 function checks_names() {
 
+    common_logger -d "Checking node names in the configuration file."
     if [ -n "${indxname}" ] && [ -n "${dashname}" ] && [ "${indxname}" == "${dashname}" ]; then
         common_logger -e "The node names for Wazuh indexer and Wazuh dashboard must be different."
         exit 1
@@ -257,7 +287,7 @@ function checks_names() {
         exit 1
     fi
 
-    if [ -n "${dashname}" ] && ! echo "${dashboard_node_names[@]}" | grep -w "${dashname}"; then
+    if [ -n "${dashname}" ] && ! echo "${dashboard_node_names[@]}" | grep -w -q "${dashname}"; then
         common_logger -e "The Wazuh dashboard node name ${dashname} does not appear on the configuration file."
         exit 1
     fi
@@ -271,6 +301,7 @@ function checks_names() {
 
 # This function checks if the target certificates are created before to start the installation.
 function checks_previousCertificate() {
+    common_logger -d "Checking previous certificate existence."
     if [ ! -f "${tar_file}" ]; then
         common_logger -e "Cannot find ${tar_file}. Run the script with the option -g|--generate-config-files to create it or copy it from another node."
         exit 1
@@ -307,8 +338,11 @@ function checks_specifications() {
 
 function checks_ports() {
 
+    common_logger -d "Checking ports availability."
     used_port=0
     ports=("$@")
+
+    checks_firewall "${ports[@]}"
 
     if command -v lsof > /dev/null; then
         port_command="lsof -sTCP:LISTEN  -i:"
@@ -328,6 +362,85 @@ function checks_ports() {
         common_logger "The installation can not continue due to port usage by other processes."
         installCommon_rollBack
         exit 1
+    fi
+
+}
+
+# Checks if the first version is greater equal than to second one
+function check_versions() {
+
+    if test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1"; then
+        echo 0
+    else
+        echo 1
+    fi
+}
+
+function checks_available_port() {
+    chosen_port="$1"
+    shift
+    ports_list=("$@")
+
+    if [ "$chosen_port" -ne "${http_port}" ]; then
+        for port in "${ports_list[@]}"; do
+            if [ "$chosen_port" -eq "$port" ]; then
+                common_logger -e "Port ${chosen_port} is reserved by Wazuh. Please, choose another port."
+                exit 1
+            fi
+        done
+    fi
+}
+
+function checks_firewall(){
+    ports_list=("$@")
+    f_ports=""
+    f_message="The system has firewall enabled. Please ensure that traffic is allowed on "
+    firewalld_installed=0
+    ufw_installed=0
+
+
+    # Record of the ports that must be exposed according to the installation
+    if [ -n "${AIO}" ]; then
+        f_message+="these ports: 1515, 1514, ${http_port}"
+    elif [ -n "${dashboard}" ]; then
+        f_message+="this port: ${http_port}"
+    else
+        f_message+="these ports:"
+        for port in "${ports_list[@]}"; do
+            f_message+=" ${port},"
+        done
+
+        # Deletes last comma
+        f_message="${f_message%,}"
+    fi
+
+    # Check if the firewall is installed
+    if [ "${sys_type}" == "yum" ]; then
+        if yum list installed 2>/dev/null | grep -q -E ^"firewalld"\\.;then
+            firewalld_installed=1
+        fi
+        if yum list installed 2>/dev/null | grep -q -E ^"ufw"\\.;then
+            ufw_installed=1
+        fi
+    elif [ "${sys_type}" == "apt-get" ]; then
+        if apt list --installed 2>/dev/null | grep -q -E ^"firewalld"\/; then
+            firewalld_installed=1
+        fi
+        if apt list --installed 2>/dev/null | grep -q -E ^"ufw"\/; then
+            ufw_installed=1
+        fi
+    fi
+
+    # Check if the firewall is running
+    if [ "${firewalld_installed}" == "1" ]; then
+        if firewall-cmd --state 2>/dev/null | grep -q -w "running"; then
+            common_logger -w "${f_message/firewall/Firewalld}."
+        fi
+    fi
+    if [ "${ufw_installed}" == "1" ]; then
+        if ufw status 2>/dev/null | grep -q -w "active"; then
+            common_logger -w "${f_message/firewall/UFW}."
+        fi
     fi
 
 }

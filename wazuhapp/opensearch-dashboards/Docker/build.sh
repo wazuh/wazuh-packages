@@ -9,17 +9,19 @@ app_revision=$3
 
 # Paths
 plugin_platform_dir="/tmp/source"
-source_dir="${plugin_platform_dir}/plugins/wazuh"
-build_dir="${source_dir}/build"
+source_dir="${plugin_platform_dir}/plugins"
+packages_list=( "main_wazuh" "wazuh-check-updates_wazuhCheckUpdates" "wazuh-core_wazuhCore" )
 destination_dir="/wazuh_app"
 checksum_dir="/var/local/checksum"
+git_clone_tmp_dir="/tmp/wazuh-app"
 
 # Repositories URLs
-wazuh_app_clone_repo_url="https://github.com/wazuh/wazuh-kibana-app.git"
-wazuh_app_raw_repo_url="https://raw.githubusercontent.com/wazuh/wazuh-kibana-app"
+wazuh_app_clone_repo_url="https://github.com/wazuh/wazuh-dashboard-plugins.git"
+wazuh_app_raw_repo_url="https://raw.githubusercontent.com/wazuh/wazuh-dashboard-plugins"
 plugin_platform_app_repo_url="https://github.com/opensearch-project/OpenSearch-Dashboards.git"
 plugin_platform_app_raw_repo_url="https://raw.githubusercontent.com/opensearch-project/OpenSearch-Dashboards"
-wazuh_app_package_json_url="${wazuh_app_raw_repo_url}/${wazuh_branch}/package.json"
+wazuh_app_package_json_url="${wazuh_app_raw_repo_url}/${wazuh_branch}/plugins/main/package.json"
+wazuh_app_nvmrc_url="${wazuh_app_raw_repo_url}/${wazuh_branch}/.nvmrc"
 
 # Script vars
 wazuh_version=""
@@ -45,12 +47,16 @@ change_node_version () {
 
 
 prepare_env() {
-    echo "Downloading package.json from wazuh-kibana-app repository"
+    echo "Downloading package.json and .nvmrc from wazuh-dashboard-plugins repository"
     if ! curl $wazuh_app_package_json_url -o "/tmp/package.json" ; then
         echo "Error downloading package.json from GitHub."
         exit 1
     fi
 
+    if ! curl $wazuh_app_nvmrc_url -o "/tmp/.nvmrc" ; then
+        echo "Error downloading .nvmrc from GitHub."
+        exit 1
+    fi
     wazuh_version=$(python -c 'import json, os; f=open("/tmp/package.json"); pkg=json.load(f); f.close();\
                     print(pkg["version"])')
     plugin_platform_version=$(python -c 'import json, os; f=open("/tmp/package.json"); pkg=json.load(f); f.close();\
@@ -65,11 +71,10 @@ prepare_env() {
         exit 1
     fi
 
-    plugin_platform_node_version=$(python -c 'import json, os; f=open("/tmp/package.json"); pkg=json.load(f); f.close();\
-                          print(pkg["engines"]["node"])')
+    plugin_platform_node_version=$(cat /tmp/.nvmrc)
 
     plugin_platform_yarn_version=$(python -c 'import json, os; f=open("/tmp/package.json"); pkg=json.load(f); f.close();\
-                          print(pkg["engines"]["yarn"])')
+                          print(str(pkg["engines"]["yarn"]).replace("^",""))')
 }
 
 
@@ -97,33 +102,58 @@ install_dependencies () {
 
 
 download_wazuh_app_sources() {
-    if ! git clone $wazuh_app_clone_repo_url --branch ${wazuh_branch} --depth=1 ${plugin_platform_dir}/plugins/wazuh ; then
-        echo "Error downloading the source code from wazuh-kibana-app GitHub repository."
+    if ! git clone $wazuh_app_clone_repo_url --branch ${wazuh_branch} --depth=1 ${git_clone_tmp_dir}; then
+        echo "Error downloading the source code from wazuh-dashboard-app GitHub repository."
         exit 1
+    fi
+
+    for item in ${packages_list[@]}; do
+        array=(${item//_/ })
+        cp -r "${git_clone_tmp_dir}/plugins/${array[0]}" "${source_dir}/${array[0]}"
+    done
+}
+
+check_revisions() {
+    dirs=()
+    for item in ${packages_list[@]}; do
+        dirs+=(${item//_/ })
+    done
+
+    main_revision=$(jq -r '.revision' ${source_dir}/${dirs[0]}/package.json)
+    check_update_revision=$(jq -r '.revision' ${source_dir}/${dirs[2]}/package.json)
+    core_revision=$(jq -r '.revision' ${source_dir}/${dirs[4]}/package.json)
+
+    if [ "${main_revision}" != "${check_update_revision}" ] || [ "${check_update_revision}" != "${core_revision}" ]; then
+        echo "The package.json revisions do not match. All revisions must be equal."
+        exit 1
+    else
+        echo "The package.json revision match."
     fi
 }
 
-
 build_package(){
 
-    cd $source_dir
+    for item in ${packages_list[@]}; do
 
-    # Set pkg name
-    if [ -z "${app_revision}" ]; then
-        wazuh_app_pkg_name="wazuh-${wazuh_version}.zip"
-    else
-        wazuh_app_pkg_name="wazuh-${wazuh_version}-${app_revision}.zip"
-    fi
+        array=(${item//_/ })
 
-    # Build the package
-    yarn
-    OPENSEARCH_DASHBOARDS_VERSION=${plugin_platform_version} yarn build --allow-root
+        if [ -z "${app_revision}" ]; then
+            wazuh_app_pkg_name="${array[1]}-${wazuh_version}.zip"
+        else
+            wazuh_app_pkg_name="${array[1]}-${wazuh_version}-${app_revision}.zip"
+        fi
 
-    find ${build_dir} -name "*.zip" -exec mv {} ${destination_dir}/${wazuh_app_pkg_name} \;
+        cd "${source_dir}/${array[0]}"
+        yarn
+        OPENSEARCH_DASHBOARDS_VERSION=${plugin_platform_version} yarn build --allow-root
 
-    if [ "${checksum}" = "yes" ]; then
-        cd ${destination_dir} && sha512sum "${wazuh_app_pkg_name}" > "${checksum_dir}/${wazuh_app_pkg_name}".sha512
-    fi
+        find "${source_dir}/${array[0]}" -name "*.zip" -exec mv {} ${destination_dir}/${wazuh_app_pkg_name} \;
+
+        if [ "${checksum}" = "yes" ]; then
+            cd ${destination_dir} && sha512sum "${wazuh_app_pkg_name}" > "${checksum_dir}/${wazuh_app_pkg_name}".sha512
+        fi
+
+    done
 
     exit 0
 }
@@ -133,4 +163,5 @@ prepare_env
 download_plugin_platform_sources
 install_dependencies
 download_wazuh_app_sources
+check_revisions
 build_package

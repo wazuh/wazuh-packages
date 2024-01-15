@@ -8,15 +8,21 @@
 
 install_path="/var/ossec"
 current_path=`pwd`
+build_tools_path="/home/okkam"
 source_directory=${current_path}/wazuh-sources
 configuration_file="${source_directory}/etc/preloaded-vars.conf"
-PATH=$PATH:/usr/local/bin
 target_dir="${current_path}/output"
 checksum_dir=""
 wazuh_version=""
 wazuh_revision="1"
 depot_path=""
 control_binary=""
+
+# Needed variables to build Wazuh with custom GCC and cmake
+PATH=${build_tools_path}/bootstrap-gcc/gcc94_prefix/bin:${build_tools_path}/cmake_prefix_install/bin:$PATH:/usr/local/bin
+LD_LIBRARY_PATH=${build_tools_path}/bootstrap-gcc/gcc94_prefix/lib
+export LD_LIBRARY_PATH
+CXX=${build_tools_path}/bootstrap-gcc/gcc94_prefix/bin/g++
 
 build_environment() {
 
@@ -53,7 +59,6 @@ build_environment() {
     swinstall -s $depot \*
     /usr/local/bin/depothelper $fpt_connection -f curl
     /usr/local/bin/depothelper $fpt_connection -f unzip
-    /usr/local/bin/depothelper $fpt_connection -f gcc
     /usr/local/bin/depothelper $fpt_connection -f make
     /usr/local/bin/depothelper $fpt_connection -f bash
     /usr/local/bin/depothelper $fpt_connection -f gzip
@@ -65,6 +70,24 @@ build_environment() {
     /usr/local/bin/depothelper $fpt_connection -f perl
     /usr/local/bin/depothelper $fpt_connection -f regex
     /usr/local/bin/depothelper $fpt_connection -f python
+
+    # Install GCC 9.4
+    mkdir ${build_tools_path}
+    cd ${build_tools_path}
+    mkdir bootstrap-gcc
+    cd ${build_tools_path}/bootstrap-gcc
+    curl -k -SO http://packages.wazuh.com/utils/gcc/gcc_9.4_HPUX_build.tar.gz
+    gunzip gcc_9.4_HPUX_build.tar.gz
+    tar -xf gcc_9.4_HPUX_build.tar
+    rm -f gcc_9.4_HPUX_build.tar
+    cp -f ${build_tools_path}/bootstrap-gcc/gcc94_prefix/bin/gcc ${build_tools_path}/bootstrap-gcc/gcc94_prefix/bin/cc
+
+    # Install cmake 3.22.2
+    cd ${build_tools_path}
+    curl -k -SO http://packages.wazuh.com/utils/cmake/cmake_3.22.2_HPUX_build.tar.gz
+    gunzip cmake_3.22.2_HPUX_build.tar.gz
+    tar -xf cmake_3.22.2_HPUX_build.tar
+    rm -f cmake_3.22.2_HPUX_build.tar
 }
 
 config() {
@@ -117,6 +140,12 @@ compile() {
     gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/${deps_version} TARGET=agent
     gmake TARGET=agent USE_SELINUX=no
     bash ${source_directory}/install.sh
+    # Install std libs needed to run the agent
+    cp -f ${build_tools_path}/bootstrap-gcc/gcc94_prefix/lib/libstdc++.so.6.28 ${install_path}/lib
+    cp -f ${build_tools_path}/bootstrap-gcc/gcc94_prefix/lib/libgcc_s.so.0 ${install_path}/lib
+    ln -s ${install_path}/lib/libstdc++.so.6.28 ${install_path}/lib/libstdc++.so.6
+    ln -s ${install_path}/lib/libstdc++.so.6.28 ${install_path}/lib/libstdc++.so
+    ln -s ${install_path}/lib/libgcc_s.so.0 ${install_path}/lib/libgcc_s.so
     cd $current_path
 }
 
@@ -171,6 +200,8 @@ clean() {
     find /sbin -name "*wazuh-agent*" -exec rm {} \;
     userdel wazuh
     groupdel wazuh
+
+    rm -rf ${build_tools_path}
 
     exit ${exit_code}
 }

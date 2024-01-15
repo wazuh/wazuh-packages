@@ -1,4 +1,4 @@
-network.host: "127.0.0.1"
+network.host: "localhost"
 node.name: "node-1"
 cluster.initial_master_nodes:
 - "node-1"

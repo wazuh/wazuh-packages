@@ -10,13 +10,14 @@ set -x
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-set -e
+set -ex
 
 architecture="$1"
 revision="$2"
-future="$3"
-reference="$4"
-opensearch_version="2.6.0"
+filebeat_module_reference="$3"
+future="$4"
+reference="$5"
+opensearch_version="2.10.0"
 base_dir=/opt/wazuh-indexer-base
 
 # -----------------------------------------------------------------------------
@@ -58,17 +59,22 @@ find -type l -exec rm -rf {} \;
 find -name "*.bat" -exec rm -rf {} \;
 rm -rf README.md manifest.yml opensearch-tar-install.sh logs
 sed -i 's|OPENSEARCH_DISTRIBUTION_TYPE=tar|OPENSEARCH_DISTRIBUTION_TYPE=rpm|g' bin/opensearch-env
-sed -i 's|"$OPENSEARCH_HOME"/config|/etc/wazuh-indexer|g' bin/opensearch-env 
+sed -i 's|"$OPENSEARCH_HOME"/config|/etc/wazuh-indexer|g' bin/opensearch-env
 cp -r /root/stack/indexer/base/files/systemd-entrypoint bin/
 mkdir -p ./etc/wazuh-indexer/
 cp -r ./config/* ./etc/wazuh-indexer/
 rm -rf ./config
 cp -r /root/stack/indexer/base/files/etc/wazuh-indexer/* ./etc/wazuh-indexer/
+curl -so ./etc/wazuh-indexer/wazuh-template.json "https://raw.githubusercontent.com/wazuh/wazuh/${filebeat_module_reference}/extensions/elasticsearch/7.x/wazuh-template.json"
 cp -r /root/stack/indexer/base/files/etc/sysconfig ./etc/
 cp -r /root/stack/indexer/base/files/etc/init.d ./etc/
 cp -r /root/stack/indexer/base/files/usr ./
+cp -r /root/stack/indexer/indexer-ism-init.sh bin/
+cp -r /root/stack/indexer/indexer-init.sh bin/
 rm -rf ./plugins/opensearch-security/tools/install_demo_configuration.sh
 cp /root/VERSION .
+
+
 
 # -----------------------------------------------------------------------------
 
@@ -84,6 +90,12 @@ cp build/generated-resources/plugin-descriptor.properties "${base_dir}"/modules/
 sed -i 's|-SNAPSHOT||g' "${base_dir}"/modules/systemd/plugin-descriptor.properties
 cd "${base_dir}"
 rm -rf OpenSearch
+
+find -type d -exec chmod 750 {} \;
+find -type f -perm 644 -exec chmod 640 {} \;
+find -type f -perm 664 -exec chmod 660 {} \;
+find -type f -perm 755 -exec chmod 750 {} \;
+find -type f -perm 744 -exec chmod 740 {} \;
 
 # -----------------------------------------------------------------------------
 
