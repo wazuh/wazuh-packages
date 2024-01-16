@@ -58,6 +58,10 @@ function passwords_changePassword() {
             fi
             passwords_restartService "filebeat"
         fi
+        if [ -n "${wazuh}" ]; then
+            eval "sed -i 's/<password>admin<\/password>/<password>${adminpass}<\/password>/g' /var/ossec/etc/ossec.conf ${debug}"
+            passwords_restartService "wazuh-manager"
+        fi
     fi
 
     if [ "$nuser" == "kibanaserver" ] || [ -n "$changeall" ]; then
@@ -608,7 +612,7 @@ function passwords_runSecurityAdmin() {
 }
 
 function passwords_updateInternalUsers() {
-    
+
     common_logger "Updating the internal users."
     backup_datetime=$(date +"%Y%m%d_%H%M%S")
     internal_users_backup_path="/etc/wazuh-indexer/internalusers-backup"
