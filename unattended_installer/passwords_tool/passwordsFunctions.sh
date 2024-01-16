@@ -58,7 +58,7 @@ function passwords_changePassword() {
             fi
             passwords_restartService "filebeat"
         fi
-        if [ -n "${wazuh}" ]; then
+        if [ -n "${wazuh}" ] || [ -n "${AIO}" ]; then
             eval "sed -i 's/<password>admin<\/password>/<password>${adminpass}<\/password>/g' /var/ossec/etc/ossec.conf ${debug}"
             passwords_restartService "wazuh-manager"
         fi
