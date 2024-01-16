@@ -7,7 +7,7 @@ RUN mv /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo /etc/yum.repos.d/CentOS-SCLo-scl
 RUN mv /etc/yum.repos.d/CentOS-SCLo-scl.repo /etc/yum.repos.d/CentOS-SCLo-scl.repo.old
 
 RUN yum -y install gcc make wget git \
-    openssh-clients rpm-build sudo gnupg \
+    openssh-clients openssl rpm-build sudo gnupg \
     automake autoconf libtool policycoreutils-python \
     yum-utils epel-release redhat-rpm-config rpm-devel
 
@@ -40,6 +40,13 @@ RUN curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz && \
         CXX=/usr/local/gcc-9.4.0/bin/g++ && \
     make -j$(nproc) && make install && cd / && rm -rf cmake-* && \
     ln -sf /usr/bin/rpmbuild /usr/local/bin/rpmbuild
+
+# Install Perl 5.10
+RUN curl -OL http://packages.wazuh.com/utils/perl/perl-5.10.1.tar.gz && \
+    gunzip perl-5.10.1.tar.gz && tar -xf perl*.tar && \
+    cd /perl-5.10.1 && ./Configure -des -Dcc='gcc' -Dusethreads && \
+    make -j2 && make install && ln -fs /usr/local/bin/perl /bin/perl && \
+    cd / && rm -rf /perl-5.10.1*
 
 # Add the scripts to build the RPM package
 ADD build.sh /usr/local/bin/build_package
