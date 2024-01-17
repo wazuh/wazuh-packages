@@ -57,9 +57,7 @@ function passwords_changePassword() {
                 echo "${conf}" > /etc/filebeat/filebeat.yml
             fi
             passwords_restartService "filebeat"
-        fi
-        if [ -n "${wazuh}" ] || [ -n "${AIO}" ]; then
-            eval "sed -i 's/<password>admin<\/password>/<password>${adminpass}<\/password>/g' /var/ossec/etc/ossec.conf ${debug}"
+            eval "sed -i 's/<password>.*<\/password>/<password>${adminpass}<\/password>/g' /var/ossec/etc/ossec.conf ${debug}"
             passwords_restartService "wazuh-manager"
         fi
     fi
@@ -591,11 +589,11 @@ function passwords_runSecurityAdmin() {
 
     if [[ -n "${nuser}" ]] && [[ -n ${autopass} ]]; then
         common_logger -nl "The password for user ${nuser} is ${password}"
-        common_logger -w "Password changed. Remember to update the password in the Wazuh dashboard and Filebeat nodes if necessary, and restart the services."
+        common_logger -w "Password changed. Remember to update the password in the Wazuh dashboard, Wazuh server, and Filebeat nodes if necessary, and restart the services."
     fi
 
     if [[ -n "${nuser}" ]] && [[ -z ${autopass} ]]; then
-        common_logger -w "Password changed. Remember to update the password in the Wazuh dashboard and Filebeat nodes if necessary, and restart the services."
+        common_logger -w "Password changed. Remember to update the password in the Wazuh dashboard Wazuh server, and Filebeat nodes if necessary, and restart the services."
     fi
 
     if [ -n "${changeall}" ]; then
@@ -603,7 +601,7 @@ function passwords_runSecurityAdmin() {
             for i in "${!users[@]}"; do
                 common_logger -nl "The password for user ${users[i]} is ${passwords[i]}"
             done
-            common_logger -w "Wazuh indexer passwords changed. Remember to update the password in the Wazuh dashboard and Filebeat nodes if necessary, and restart the services."
+            common_logger -w "Wazuh indexer passwords changed. Remember to update the password in the Wazuh dashboard Wazuh server, and Filebeat nodes if necessary, and restart the services."
         else
             common_logger -d "Passwords changed."
         fi
