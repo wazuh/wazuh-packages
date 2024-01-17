@@ -47,16 +47,16 @@ function manager_configure(){
     common_logger -d "Configuring Wazuh manager."
 
     if [ -n "${AIO}" ]; then
-        eval "sed -i 's/<host>https:\/\/.*<\/host>/<host>https:\/\/localhost:9200<\/host>/g' /var/ossec/etc/ossec.conf ${debug}"
+        eval "sed -i 's/<host>.*<\/host>/<host>https:\/\/localhost:9200<\/host>/g' /var/ossec/etc/ossec.conf ${debug}"
     else
         if [ ${#indexer_node_names[@]} -eq 1 ]; then
-            eval "sed -i 's/<host>https:\/\/.*<\/host>/<host>https:\/\/${indexer_node_ips[0]}:9200<\/host>/g' /var/ossec/etc/ossec.conf ${debug}"
+            eval "sed -i 's/<host>.*<\/host>/<host>https:\/\/${indexer_node_ips[0]}:9200<\/host>/g' /var/ossec/etc/ossec.conf ${debug}"
         else
             lstart=$(grep -n "<hosts>" /var/ossec/etc/ossec.conf | cut -d : -f 1)
             lend=$(grep -n "</hosts>" /var/ossec/etc/ossec.conf | cut -d : -f 1)
             for i in "${!indexer_node_ips[@]}"; do
                 if [ $i -eq 0 ]; then
-                    eval "sed -i 's/<host>https:\/\/.*<\/host>/<host>https:\/\/${indexer_node_ips[0]}:9200<\/host>/g' /var/ossec/etc/ossec.conf ${debug}"
+                    eval "sed -i 's/<host>.*<\/host>/<host>https:\/\/${indexer_node_ips[0]}:9200<\/host>/g' /var/ossec/etc/ossec.conf ${debug}"
                 else
                     eval "sed -i '/<hosts>/a\      <host>https:\/\/${indexer_node_ips[$i]}:9200<\/host>' /var/ossec/etc/ossec.conf"
                 fi
