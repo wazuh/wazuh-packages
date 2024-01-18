@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Dummy commit to test PR_checks
 # Wazuh package generator
 # Copyright (C) 2021, Wazuh Inc.
 #
