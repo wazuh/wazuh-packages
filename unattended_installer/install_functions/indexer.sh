@@ -128,6 +128,7 @@ function indexer_initialize() {
             installCommon_rollBack
             exit 1
         else
+            common_logger "Wazuh indexer cluster security configuration initialized."
             eval "bash /usr/share/wazuh-indexer/bin/indexer-ism-init.sh ${debug}"
             if [  "${PIPESTATUS[0]}" != 0  ]; then
                 common_logger -w "The Wazuh indexer cluster ISM policy could not be created."
