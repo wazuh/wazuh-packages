@@ -60,7 +60,7 @@ build_perl() {
 
   curl -LO http://www.cpan.org/src/5.0/perl-5.10.1.tar.gz -k -s
   gunzip perl-5.10.1.tar.gz && tar -xf perl-5.10.1.tar
-  cd perl-5.10.1 && ./Configure -des -Dcc='gcc'
+  cd perl-5.10.1 && ./Configure -des -Dcc='gcc' -Dusethreads
   make && make install
   ln -fs /usr/local/bin/perl /bin/perl
   ln -fs /usr/local/bin/perl /opt/freeware/bin/perl
