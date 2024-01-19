@@ -23,6 +23,13 @@ RUN curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz && \
         CXX=/usr/local/gcc-9.4.0/bin/g++ && \
     linux32 make -j$(nproc) && linux32 make install && cd / && rm -rf cmake-*
 
+# Install Perl 5.10
+RUN curl -OL http://packages.wazuh.com/utils/perl/perl-5.10.1.tar.gz && \
+    gunzip perl-5.10.1.tar.gz && tar -xf perl*.tar && \
+    cd /perl-5.10.1 && ./Configure -des -Dcc='gcc' -Dusethreads && \
+    make -j2 && make install && ln -fs /usr/local/bin/perl /bin/perl && \
+    cd / && rm -rf /perl-5.10.1*
+
 RUN curl -O http://packages.wazuh.com/utils/openssl/openssl-1.1.1a.tar.gz && \
     tar -xzf openssl-1.1.1a.tar.gz && cd openssl* && \
     linux32 ./config -Wl,--enable-new-dtags,-rpath,'$(LIBRPATH)' && \

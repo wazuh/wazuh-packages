@@ -19,7 +19,7 @@ depot_path=""
 control_binary=""
 
 # Needed variables to build Wazuh with custom GCC and cmake
-PATH=${build_tools_path}/bootstrap-gcc/gcc94_prefix/bin:${build_tools_path}/cmake_prefix_install/bin:$PATH:/usr/local/bin
+PATH=${build_tools_path}/bootstrap-gcc/gcc94_prefix/bin:${build_tools_path}/cmake_prefix_install/bin:/usr/local/bin:$PATH
 LD_LIBRARY_PATH=${build_tools_path}/bootstrap-gcc/gcc94_prefix/lib
 export LD_LIBRARY_PATH
 CXX=${build_tools_path}/bootstrap-gcc/gcc94_prefix/bin/g++
@@ -70,6 +70,8 @@ build_environment() {
     /usr/local/bin/depothelper $fpt_connection -f perl
     /usr/local/bin/depothelper $fpt_connection -f regex
     /usr/local/bin/depothelper $fpt_connection -f python
+
+    rm -rf ${build_tools_path}
 
     # Install GCC 9.4
     mkdir ${build_tools_path}
@@ -200,8 +202,6 @@ clean() {
     find /sbin -name "*wazuh-agent*" -exec rm {} \;
     userdel wazuh
     groupdel wazuh
-
-    rm -rf ${build_tools_path}
 
     exit ${exit_code}
 }
