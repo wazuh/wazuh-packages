@@ -150,6 +150,10 @@ if [ -f ${DIR}/queue/alerts/sockets ]; then
   rm ${DIR}/queue/alerts/sockets
 fi
 
+echo "upgrade: ${upgrade}" > /tmp/upgrade_restart_values.txt
+echo "restart: ${restart}" >> /tmp/upgrade_restart_values.txt
+
 if [ -n "${upgrade}" ] && [ -n "${restart}" ]; then
+    echo "Restarting Wazuh..." >> /tmp/upgrade_restart_values.txt
     ${DIR}/bin/wazuh-control restart
 fi
