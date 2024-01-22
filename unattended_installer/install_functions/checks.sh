@@ -194,7 +194,10 @@ function check_dist() {
     if [ "${DIST_NAME}" != "centos" ] && [ "${DIST_NAME}" != "rhel" ] && [ "${DIST_NAME}" != "amzn" ] && [ "${DIST_NAME}" != "ubuntu" ]; then
         notsupported=1
     fi
-    if { [ "${DIST_NAME}" == "centos" ] || [ "${DIST_NAME}" == "rhel" ]; } && { [ "${DIST_VER}" -ne "7" ] && [ "${DIST_VER}" -ne "8" ] && [ "${DIST_VER}" -ne "9" ]; }; then
+    if [ "${DIST_NAME}" == "centos" ] && { [ "${DIST_VER}" -ne "7" ] && [ "${DIST_VER}" -ne "8" ]; }; then
+        notsupported=1
+    fi
+    if [ "${DIST_NAME}" == "rhel" ] && { [ "${DIST_VER}" -ne "7" ] && [ "${DIST_VER}" -ne "8" ] && [ "${DIST_VER}" -ne "9" ]; }; then
         notsupported=1
     fi
     if [ "${DIST_NAME}" == "amzn" ] && [ "${DIST_VER}" -ne "2" ]; then
