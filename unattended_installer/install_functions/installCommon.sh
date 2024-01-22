@@ -812,14 +812,16 @@ function installCommon_yumRemoveWIADependencies(){
     if [ "${#wia_dependencies_installed[@]}" -gt 0 ]; then
         common_logger "--- Dependencies ---"
         for dep in "${wia_dependencies_installed[@]}"; do
-            common_logger "Removing $dep."
-            yum_output=$(yum remove ${dep} -y 2>&1)
-            yum_code="${PIPESTATUS[0]}"
+            if [ "${dep}" != "systemd" ]; then
+                common_logger "Removing $dep."
+                yum_output=$(yum remove ${dep} -y 2>&1)
+                yum_code="${PIPESTATUS[0]}"
 
-            eval "echo \${yum_output} ${debug}"
-            if [  "${yum_code}" != 0  ]; then
-                common_logger -e "Cannot remove dependency: ${dep}."
-                exit 1
+                eval "echo \${yum_output} ${debug}"
+                if [  "${yum_code}" != 0  ]; then
+                    common_logger -e "Cannot remove dependency: ${dep}."
+                    exit 1
+                fi
             fi
         done
     fi
@@ -831,14 +833,16 @@ function installCommon_aptRemoveWIADependencies(){
     if [ "${#wia_dependencies_installed[@]}" -gt 0 ]; then
         common_logger "--- Dependencies ----"
         for dep in "${wia_dependencies_installed[@]}"; do
-            common_logger "Removing $dep."
-            apt_output=$(apt-get remove --purge ${dep} -y 2>&1)
-            apt_code="${PIPESTATUS[0]}"
+            if [ "${dep}" != "systemd" ]; then
+                common_logger "Removing $dep."
+                apt_output=$(apt-get remove --purge ${dep} -y 2>&1)
+                apt_code="${PIPESTATUS[0]}"
 
-            eval "echo \${apt_output} ${debug}"
-            if [  "${apt_code}" != 0  ]; then
-                common_logger -e "Cannot remove dependency: ${dep}."
-                exit 1
+                eval "echo \${apt_output} ${debug}"
+                if [  "${apt_code}" != 0  ]; then
+                    common_logger -e "Cannot remove dependency: ${dep}."
+                    exit 1
+                fi
             fi
         done
     fi
