@@ -62,10 +62,14 @@ function cert_checkRootCA() {
 
 function cert_generateAdmincertificate() {
 
-    common_logger -d "Generating Admin certificates."
+    common_logger "Generating Admin certificates."
+    common_logger -d "Generating Admin private key."
     eval "openssl genrsa -out ${cert_tmp_path}/admin-key-temp.pem 2048 ${debug}"
+    common_logger -d "Converting Admin private key to PKCS8 format."
     eval "openssl pkcs8 -inform PEM -outform PEM -in ${cert_tmp_path}/admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out ${cert_tmp_path}/admin-key.pem ${debug}"
+    common_logger -d "Generating Admin CSR."
     eval "openssl req -new -key ${cert_tmp_path}/admin-key.pem -out ${cert_tmp_path}/admin.csr -batch -subj '/C=US/L=California/O=Wazuh/OU=Wazuh/CN=admin' ${debug}"
+    common_logger -d "Creating Admin certificate."
     eval "openssl x509 -days 3650 -req -in ${cert_tmp_path}/admin.csr -CA ${cert_tmp_path}/root-ca.pem -CAkey ${cert_tmp_path}/root-ca.key -CAcreateserial -sha256 -out ${cert_tmp_path}/admin.pem ${debug}"
 
 }
@@ -126,14 +130,16 @@ function cert_generateCertificateconfiguration() {
 
 function cert_generateIndexercertificates() {
 
-    common_logger -d "Generating Wazuh indexer certificates."
+    common_logger "Generating Wazuh indexer certificates."
     if [ ${#indexer_node_names[@]} -gt 0 ]; then
-        common_logger -d "Creating the Wazuh indexer certificates."
 
         for i in "${!indexer_node_names[@]}"; do
             indexer_node_name=${indexer_node_names[$i]}
+            common_logger -d "Creating the certificates for ${indexer_node_name} indexer node."
             cert_generateCertificateconfiguration "${indexer_node_name}" "${indexer_node_ips[i]}"
+            common_logger -d "Creating the Wazuh indexer tmp key pair."
             eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${cert_tmp_path}/${indexer_node_name}-key.pem -out ${cert_tmp_path}/${indexer_node_name}.csr -config ${cert_tmp_path}/${indexer_node_name}.conf ${debug}"
+            common_logger -d "Creating the Wazuh indexer certificates."
             eval "openssl x509 -req -in ${cert_tmp_path}/${indexer_node_name}.csr -CA ${cert_tmp_path}/root-ca.pem -CAkey ${cert_tmp_path}/root-ca.key -CAcreateserial -out ${cert_tmp_path}/${indexer_node_name}.pem -extfile ${cert_tmp_path}/${indexer_node_name}.conf -extensions v3_req -days 3650 ${debug}"
         done
     else
@@ -144,16 +150,18 @@ function cert_generateIndexercertificates() {
 
 function cert_generateFilebeatcertificates() {
 
-    common_logger -d "Generating Filebeat certificates."
+    common_logger "Generating Filebeat certificates."
     if [ ${#server_node_names[@]} -gt 0 ]; then
-        common_logger -d "Creating the Wazuh server certificates."
 
         for i in "${!server_node_names[@]}"; do
             server_name="${server_node_names[i]}"
+            common_logger -d "Generating the certificates for ${server_name} server node."
             j=$((i+1))
             declare -a server_ips=(server_node_ip_"$j"[@])
             cert_generateCertificateconfiguration "${server_name}" "${!server_ips}"
+            common_logger -d "Creating the Wazuh server tmp key pair."
             eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${cert_tmp_path}/${server_name}-key.pem -out ${cert_tmp_path}/${server_name}.csr  -config ${cert_tmp_path}/${server_name}.conf ${debug}"
+            common_logger -d "Creating the Wazuh server certificates."
             eval "openssl x509 -req -in ${cert_tmp_path}/${server_name}.csr -CA ${cert_tmp_path}/root-ca.pem -CAkey ${cert_tmp_path}/root-ca.key -CAcreateserial -out ${cert_tmp_path}/${server_name}.pem -extfile ${cert_tmp_path}/${server_name}.conf -extensions v3_req -days 3650 ${debug}"
         done
     else
@@ -164,14 +172,15 @@ function cert_generateFilebeatcertificates() {
 
 function cert_generateDashboardcertificates() {
 
-    common_logger -d "Generating Wazuh dashboard certificates."
+    common_logger "Generating Wazuh dashboard certificates."
     if [ ${#dashboard_node_names[@]} -gt 0 ]; then
-        common_logger -d "Creating the Wazuh dashboard certificates."
 
         for i in "${!dashboard_node_names[@]}"; do
             dashboard_node_name="${dashboard_node_names[i]}"
             cert_generateCertificateconfiguration "${dashboard_node_name}" "${dashboard_node_ips[i]}"
+            common_logger -d "Creating the Wazuh dashboard tmp key pair."
             eval "openssl req -new -nodes -newkey rsa:2048 -keyout ${cert_tmp_path}/${dashboard_node_name}-key.pem -out ${cert_tmp_path}/${dashboard_node_name}.csr -config ${cert_tmp_path}/${dashboard_node_name}.conf ${debug}"
+            common_logger -d "Creating the Wazuh dashboard certificates."
             eval "openssl x509 -req -in ${cert_tmp_path}/${dashboard_node_name}.csr -CA ${cert_tmp_path}/root-ca.pem -CAkey ${cert_tmp_path}/root-ca.key -CAcreateserial -out ${cert_tmp_path}/${dashboard_node_name}.pem -extfile ${cert_tmp_path}/${dashboard_node_name}.conf -extensions v3_req -days 3650 ${debug}"
         done
     else
@@ -182,8 +191,8 @@ function cert_generateDashboardcertificates() {
 
 function cert_generateRootCAcertificate() {
 
+    common_logger "Generating the root certificate."
     common_logger -d "Creating the root certificate."
-
     eval "openssl req -x509 -new -nodes -newkey rsa:2048 -keyout ${cert_tmp_path}/root-ca.key -out ${cert_tmp_path}/root-ca.pem -batch -subj '/OU=Wazuh/O=Wazuh/L=California/' -days 3650 ${debug}"
 
 }
