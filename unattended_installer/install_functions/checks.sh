@@ -206,9 +206,15 @@ function check_dist() {
     if { [ "${DIST_NAME}" == "centos" ] || [ "${DIST_NAME}" == "rhel" ]; } && { [ "${DIST_VER}" -ne "7" ] && [ "${DIST_VER}" -ne "8" ] && [ "${DIST_VER}" -ne "9" ]; }; then
         notsupported=1
     fi
-    if [ "${DIST_NAME}" == "amzn" ] && [ "${DIST_VER}" -ne "2" ]; then
-        notsupported=1
+
+    if [ "${DIST_NAME}" == "amzn" ]; then
+        if [ "${DIST_VER}" != "2" ] &&
+           [ "${DIST_VER}" != "2023" ] &&
+           [ "${DIST_VER}" != "2018.03" ]; then
+            notsupported=1
+        fi
     fi
+
     if [ "${DIST_NAME}" == "ubuntu" ]; then
         if  [ "${DIST_VER}" == "16" ] || [ "${DIST_VER}" == "18" ] ||
             [ "${DIST_VER}" == "20" ] || [ "${DIST_VER}" == "22" ]; then
