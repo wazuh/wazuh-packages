@@ -134,21 +134,37 @@ sed -i 's|updater\$:appUpdater\$|status:1|' ./src/plugins/opensearch_dashboards_
 ## Help header - Version
 sed -i 's|"core.ui.chrome.headerGlobalNav.helpMenuVersion",defaultMessage:"v {version}"|"core.ui.chrome.headerGlobalNav.helpMenuVersion",defaultMessage:"v'${version}'"|' ./src/core/target/public/core.entry.js
 ## Help link - OpenSearch Dashboards documentation
-sed -i 's|OpenSearch Dashboards documentation|Wazuh documentation|' ./src/core/target/public/core.entry.js
-sed -i 's|href:opensearchDashboardsDocLink,|href:"https://documentation.wazuh.com/'${wazuh_minor}'",|' ./src/core/target/public/core.entry.js
+### Required changes to detect if dark mode is on 
+sed -i 's|injectedMetadata.getSurvey()}|injectedMetadata.getSurvey(),darkmode:uiSettings.get("theme:darkMode")}|' ./src/core/target/public/core.entry.js
+sed -i 's|surveyLink:survey}|surveyLink:survey,darkmode:observables.darkmode}|' ./src/core/target/public/core.entry.js
+sed -i 's|opensearchDashboardsDocLink,surveyLink:surveyLink}|opensearchDashboardsDocLink,surveyLink:surveyLink,darkmode:darkmode}|' ./src/core/target/public/core.entry.js
+
+### Opensearch Dashboards documentation
+sed -i 's|OpenSearch Dashboards documentation|Documentation|' ./src/core/target/public/core.entry.js
+sed -i 's|href:opensearchDashboardsDocLink,|href:"https://documentation.wazuh.com/'${wazuh_minor}'", iconType:darkmode?"/ui/logos/icon_dark.svg":"/ui/logos/icon_light.svg",|' ./src/core/target/public/core.entry.js
+
 ## Help link - Ask OpenSearch
 sed -i 's|Ask OpenSearch|Ask Wazuh|' ./src/core/target/public/core.entry.js
-sed -i 's|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://github.com/opensearch-project"|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://wazuh.com/community/join-us-on-slack"|' ./src/core/target/public/core.entry.js
+sed -i 's|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://github.com/opensearch-project"|=="https://wazuh.com/community/join-us-on-slack"|' ./src/core/target/public/core.entry.js
+
 ## Help link - Community
 sed -i 's|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://forum.opensearch.org/"|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://wazuh.com/community/join-us-on-slack"|' ./src/core/target/public/core.entry.js
 sed -i 's|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://forum.opensearch.org/"|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://wazuh.com/community/join-us-on-slack"|' ./plugins/alertingDashboards/target/public/alertingDashboards.plugin.js
 sed -i 's|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://forum.opensearch.org/"|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://wazuh.com/community/join-us-on-slack"|' ./plugins/indexManagementDashboards/target/public/indexManagementDashboards.plugin.js
 sed -i 's|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://forum.opensearch.org/"|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://wazuh.com/community/join-us-on-slack"|' ./plugins/notificationsDashboards/target/public/notificationsDashboards.plugin.js
 sed -i 's|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://forum.opensearch.org/"|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://wazuh.com/community/join-us-on-slack"|' ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
+sed -i 's|Community|Slack channel|' ./src/core/target/public/core.entry.js
+sed -i 's|href:helpSupportUrl,|href:"https://wazuh.com/community/join-us-on-slack", iconType:"logoSlack",|' ./src/core/target/public/core.entry.js
+
 ## Help link - Give feedback
-sed -i 's|https://survey.opensearch.org|https://wazuh.com/community/join-us-on-slack|' src/core/server/opensearch_dashboards_config.js
+sed -i 's|https://survey.opensearch.org|https://github.com/wazuh/|' src/core/server/opensearch_dashboards_config.js
+sed -i 's|"Give feedback"|"Projects on Github"|' ./src/core/target/public/core.entry.js
+sed -i 's|href:surveyLink,|href:surveyLink, iconType:"logoGithub",|' ./src/core/target/public/core.entry.js
+
 ## Help link - Open an issue in GitHub
 sed -i 's|GITHUB_CREATE_ISSUE_LINK="https://github.com/opensearch-project/OpenSearch-Dashboards/issues/new/choose"|GITHUB_CREATE_ISSUE_LINK="https://github.com/wazuh/wazuh/issues/new/choose"|' ./src/core/target/public/core.entry.js
+sed -i 's|"Open an issue in GitHub"|"Google group"|' ./src/core/target/public/core.entry.js
+sed -i 's|href:GITHUB_CREATE_ISSUE_LINK,target:"_blank",size:"xs",iconType:"logoGithub"|href:"https://groups.google.com/forum/#!forum/wazuh/",target:"_blank",size:"xs",iconType:"/ui/logos/google_groups.svg"|' ./src/core/target/public/core.entry.js
 
 # Custom logos
 ## Custom logos - Login logo
