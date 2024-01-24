@@ -863,3 +863,4 @@ rm -fr %{buildroot}
 - Fixed daemon list for service reloading at wazuh-control.
 - Fixed socket waiting issue on Windows agents.
 - Fixed PCI_DSS definitions grouping issue at Rootcheck controls.
+

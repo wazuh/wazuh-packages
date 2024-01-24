@@ -103,3 +103,4 @@ find -type f -perm 744 -exec chmod 740 {} \;
 cd /opt
 tar -Jcvf wazuh-indexer-base-"${version}"-"${revision}"-linux-${architecture}.tar.xz wazuh-indexer-base
 cp wazuh-indexer-base-"${version}"-"${revision}"-linux-${architecture}.tar.xz /tmp/output
+

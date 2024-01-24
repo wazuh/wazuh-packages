@@ -468,3 +468,4 @@ rm -fr %{buildroot}
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-1-0.html
 * Mon Nov 06 2017 support <support@wazuh.com> - 3.0.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-0-0.html
+

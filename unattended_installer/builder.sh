@@ -330,3 +330,4 @@ function checkFilebeatURL() {
 }
 
 builder_main "$@"
+
