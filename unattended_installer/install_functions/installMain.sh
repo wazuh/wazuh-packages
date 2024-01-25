@@ -224,16 +224,16 @@ function main() {
 
     common_checkSystem
 
+    if [ -z "${download}" ]; then
+        check_dist
+    fi
+
     if [ -z "${uninstall}" ] && [ -z "${offline_install}" ]; then
         installCommon_installCheckDependencies
     elif [ -n "${offline_install}" ]; then
         offline_checkDependencies
     fi
     
-    if [ -z "${download}" ]; then
-        check_dist
-    fi
-
     common_checkInstalled
     checks_arguments
     if [ -n "${uninstall}" ]; then

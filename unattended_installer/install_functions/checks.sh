@@ -213,6 +213,9 @@ function check_dist() {
            [ "${DIST_VER}" != "2018.03" ]; then
             notsupported=1
         fi
+        if [ "${DIST_VER}" -eq "2023" ]; then
+            checks_specialDepsAL2023
+        fi
     fi
 
     if [ "${DIST_NAME}" == "ubuntu" ]; then
@@ -341,6 +344,18 @@ function checks_previousCertificate() {
             common_logger -e "There is no certificate for the wazuh server node ${winame} in ${tar_file}."
             exit 1
         fi
+    fi
+}
+
+# Manages the special dependencies in case of AL2023
+function checks_specialDepsAL2023() {
+
+    # Change curl for curl-minimal
+    wia_yum_dependencies=( "${wia_yum_dependencies[@]/curl/curl-minimal}" )
+
+    # In containers, coreutils is replaced for coreutils-single
+    if [ -f "/.dockerenv" ]; then
+        wia_yum_dependencies=( "${wia_yum_dependencies[@]/coreutils/coreutils-single}" )
     fi
 }
 
