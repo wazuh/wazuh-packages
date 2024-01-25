@@ -191,6 +191,9 @@ function dashboard_initializeAIO() {
         sleep 15
     done
     if [ "${http_code}" -eq "200" ]; then
+        if [ -f "/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml" ]; then
+            eval "sed -i 's,url: https://localhost,url: https://127.0.0.1,g' /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml ${debug}"
+        fi
         common_logger "Wazuh dashboard web application initialized."
         common_logger -nl "--- Summary ---"
         common_logger -nl "You can access the web interface https://<wazuh-dashboard-ip>:${http_port}\n    User: admin\n    Password: ${u_pass}"
