@@ -117,10 +117,13 @@ else
 fi
 
 deb_file="wazuh-${build_target}_${wazuh_version}-${package_release}"
+deb_file_dbg="wazuh-${build_target}-dbg_${wazuh_version}-${package_release}"
 if [[ "${architecture_target}" == "ppc64le" ]]; then
   deb_file="${deb_file}_ppc64el.deb"
+  deb_file_dbg="${deb_file_dbg}_ppc64el.deb"
 else
   deb_file="${deb_file}_${architecture_target}.deb"
+  deb_file_dbg="${deb_file_dbg}_${architecture_target}.deb"
 fi
 pkg_path="${build_dir}/${build_target}"
 
@@ -128,3 +131,4 @@ if [[ "${checksum}" == "yes" ]]; then
     cd ${pkg_path} && sha512sum ${deb_file} > /var/local/checksum/${deb_file}.sha512
 fi
 mv ${pkg_path}/${deb_file} /var/local/wazuh
+mv ${pkg_path}/${deb_file_dbg} /var/local/wazuh
