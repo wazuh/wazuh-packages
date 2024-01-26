@@ -200,11 +200,8 @@ sed -i -e "s|category:DEFAULT_APP_CATEGORIES.management|category:${category_expl
 # Replace app category to Index Management app
 sed -i -e "s|category:DEFAULT_APP_CATEGORIES.management|category:${category_indexer_management}|g" ./plugins/indexManagementDashboards/target/public/indexManagementDashboards.plugin.js
 
-# Replace app category to Dev Tools app
-sed -i -e "s|category:public_["DEFAULT_APP_CATEGORIES"].management|category:${category_indexer_management}|g" ./src/plugins/dev_tools/target/public/devTools.plugin.js
-
 # Replace app category to Dashboard Management app
-sed -i -e "s|category:public_["DEFAULT_APP_CATEGORIES"].management|category:${category_dashboard_management}|g" ./src/plugins/management/target/public/management.plugin.js
+sed -i -e "s|category:public_\[\"DEFAULT_APP_CATEGORIES\"\].management|category:${category_dashboard_management}|g" ./src/plugins/management/target/public/management.plugin.js
 
 # Replace app category to Security app
 sed -i -e "s|category:DEFAULT_APP_CATEGORIES.management|category:${category_indexer_management}|g" ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
@@ -264,25 +261,25 @@ do
     brotli -c "$value" > "$value.br"
 done
 
-# -----------------------------------------------------------------------------
-# Wazuh customizations
-# -----------------------------------------------------------------------------
+# # -----------------------------------------------------------------------------
+# # Wazuh customizations
+# # -----------------------------------------------------------------------------
 
-# Add VERSION file
-cp /root/VERSION .
+# # Add VERSION file
+# cp /root/VERSION .
 
-# Add an exception for wazuh plugin install
-wazuh_plugin="if (plugin.includes(\'wazuh\')) {\n    return plugin;\n  } else {\n    return \`\${LATEST_PLUGIN_BASE_URL}\/\${version}\/latest\/\${platform}\/\${arch}\/tar\/builds\/opensearch-dashboards\/plugins\/\${plugin}-\${version}.zip\`;\n  }"
-sed -i "s|return \`\${LATEST_PLUGIN_BASE_URL}\/\${version}\/latest\/\${platform}\/\${arch}\/tar\/builds\/opensearch-dashboards\/plugins\/\${plugin}-\${version}.zip\`;|$wazuh_plugin|" ./src/cli_plugin/install/settings.js
+# # Add an exception for wazuh plugin install
+# wazuh_plugin="if (plugin.includes(\'wazuh\')) {\n    return plugin;\n  } else {\n    return \`\${LATEST_PLUGIN_BASE_URL}\/\${version}\/latest\/\${platform}\/\${arch}\/tar\/builds\/opensearch-dashboards\/plugins\/\${plugin}-\${version}.zip\`;\n  }"
+# sed -i "s|return \`\${LATEST_PLUGIN_BASE_URL}\/\${version}\/latest\/\${platform}\/\${arch}\/tar\/builds\/opensearch-dashboards\/plugins\/\${plugin}-\${version}.zip\`;|$wazuh_plugin|" ./src/cli_plugin/install/settings.js
 
-# Generate build number for package.json
-curl -sO ${url}
-unzip *.zip 'opensearch-dashboards/wazuh/package.json'
-build_number=$(jq -r '.version' ./opensearch-dashboards/wazuh/package.json | tr -d '.')$(jq -r '.revision' ./opensearch-dashboards/wazuh/package.json)
-rm -rf ./opensearch-dashboards
-rm -f ./*.zip
-jq ".build.number=${build_number}" ./package.json > ./package.json.tmp
-mv ./package.json.tmp ./package.json
+# # Generate build number for package.json
+# curl -sO ${url}
+# unzip *.zip 'opensearch-dashboards/wazuh/package.json'
+# build_number=$(jq -r '.version' ./opensearch-dashboards/wazuh/package.json | tr -d '.')$(jq -r '.revision' ./opensearch-dashboards/wazuh/package.json)
+# rm -rf ./opensearch-dashboards
+# rm -f ./*.zip
+# jq ".build.number=${build_number}" ./package.json > ./package.json.tmp
+# mv ./package.json.tmp ./package.json
 
 # -----------------------------------------------------------------------------
 # Clean
