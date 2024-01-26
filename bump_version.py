@@ -39,6 +39,7 @@ test_files=glob.glob('**/test-*.sh', recursive=True)
 install_variables_files=glob.glob('**/installVariables.sh', recursive=True)
 changelog_md_files=glob.glob('**/CHANGELOG.md', recursive=True)
 VERSION_files=glob.glob('**/VERSION', recursive=True)
+builder_files=glob.glob('**/unattended_installer/builder.sh', recursive=True)
 
 ## Bump version in .spec files
 SPEC_FORMAT_STRING="%a %b %d %Y"
@@ -199,4 +200,17 @@ for VERSION_file in VERSION_files:
         filedata=re.sub(REGEX, f'{version}', filedata)
 
     with open(VERSION_file, 'w', encoding="utf-8") as file:
+        file.write(filedata)
+
+## Bump version in builder.sh files
+
+for builder_file in builder_files:
+    with open(builder_file, 'r', encoding="utf-8") as file:
+        print('Bumping version in ' + builder_file)
+        filedata=file.read()
+        # Replace source_branch
+        REGEX=r'source_branch=\"(\d+\.\d+\.\d+)\"'
+        filedata=re.sub(REGEX, f'source_branch=\"{version}\"', filedata)
+
+    with open(builder_file, 'w', encoding="utf-8") as file:
         file.write(filedata)
