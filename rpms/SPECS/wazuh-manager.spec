@@ -27,6 +27,8 @@ BuildRequires: coreutils glibc-devel automake autoconf libtool policycoreutils-p
 
 ExclusiveOS: linux
 
+%define _source_payload w9.xzdio
+%define _binary_payload w9.xzdio
 
 %description
 Wazuh helps you to gain security visibility into your infrastructure by monitoring
