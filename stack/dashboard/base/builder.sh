@@ -265,21 +265,21 @@ done
 # # Wazuh customizations
 # # -----------------------------------------------------------------------------
 
-# # Add VERSION file
-# cp /root/VERSION .
+# Add VERSION file
+cp /root/VERSION .
 
-# # Add an exception for wazuh plugin install
-# wazuh_plugin="if (plugin.includes(\'wazuh\')) {\n    return plugin;\n  } else {\n    return \`\${LATEST_PLUGIN_BASE_URL}\/\${version}\/latest\/\${platform}\/\${arch}\/tar\/builds\/opensearch-dashboards\/plugins\/\${plugin}-\${version}.zip\`;\n  }"
-# sed -i "s|return \`\${LATEST_PLUGIN_BASE_URL}\/\${version}\/latest\/\${platform}\/\${arch}\/tar\/builds\/opensearch-dashboards\/plugins\/\${plugin}-\${version}.zip\`;|$wazuh_plugin|" ./src/cli_plugin/install/settings.js
+# Add an exception for wazuh plugin install
+wazuh_plugin="if (plugin.includes(\'wazuh\')) {\n    return plugin;\n  } else {\n    return \`\${LATEST_PLUGIN_BASE_URL}\/\${version}\/latest\/\${platform}\/\${arch}\/tar\/builds\/opensearch-dashboards\/plugins\/\${plugin}-\${version}.zip\`;\n  }"
+sed -i "s|return \`\${LATEST_PLUGIN_BASE_URL}\/\${version}\/latest\/\${platform}\/\${arch}\/tar\/builds\/opensearch-dashboards\/plugins\/\${plugin}-\${version}.zip\`;|$wazuh_plugin|" ./src/cli_plugin/install/settings.js
 
-# # Generate build number for package.json
-# curl -sO ${url}
-# unzip *.zip 'opensearch-dashboards/wazuh/package.json'
-# build_number=$(jq -r '.version' ./opensearch-dashboards/wazuh/package.json | tr -d '.')$(jq -r '.revision' ./opensearch-dashboards/wazuh/package.json)
-# rm -rf ./opensearch-dashboards
-# rm -f ./*.zip
-# jq ".build.number=${build_number}" ./package.json > ./package.json.tmp
-# mv ./package.json.tmp ./package.json
+# Generate build number for package.json
+curl -sO ${url}
+unzip *.zip 'opensearch-dashboards/wazuh/package.json'
+build_number=$(jq -r '.version' ./opensearch-dashboards/wazuh/package.json | tr -d '.')$(jq -r '.revision' ./opensearch-dashboards/wazuh/package.json)
+rm -rf ./opensearch-dashboards
+rm -f ./*.zip
+jq ".build.number=${build_number}" ./package.json > ./package.json.tmp
+mv ./package.json.tmp ./package.json
 
 # -----------------------------------------------------------------------------
 # Clean
