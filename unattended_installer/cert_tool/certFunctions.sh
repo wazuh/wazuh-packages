@@ -106,8 +106,7 @@ function cert_generateCertificateconfiguration() {
         sed -i '/IP.1/d' "${cert_tmp_path}/${1}.conf"
         for (( i=2; i<=${#@}; i++ )); do
             isIP=$(echo "${!i}" | grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
-            isDNS=$(echo "${!i}" | grep -P "^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$" )
-            j=$((i-1))
+            isDNS=$(echo "${!i}" | grep -P "^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])\.([A-Za-z]{2,})$" )            j=$((i-1))
             if [ "${isIP}" ]; then
                 printf '%s\n' "        IP.${j} = ${!i}" >> "${cert_tmp_path}/${1}.conf"
             elif [ "${isDNS}" ]; then
@@ -355,7 +354,7 @@ function cert_readConfig() {
 
         for i in $(seq 1 "${number_server_ips}"); do
             nodes_server="nodes[_]+server[_]+${i}[_]+ip"
-            eval "server_node_ip_$i=( $( cert_parseYaml "${config_file}" | grep -E "${nodes_server}" | cut -d = -f 2 | sed -r 's/\s+//g' | sed -E '/nodes_/d') )"
+            eval "server_node_ip_$i=( $( cert_parseYaml "${config_file}" | grep -E "${nodes_server}" | sed '/\./!d' | cut -d = -f 2 | sed -r 's/\s+//g') )"
         done
 
         unique_names=($(echo "${indexer_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
