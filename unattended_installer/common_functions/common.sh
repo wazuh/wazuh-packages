@@ -75,7 +75,7 @@ function common_checkRoot() {
 
     common_logger -d "Checking sudo package."
     if ! command -v sudo; then 
-        common_logger -e "The sudo package is not installed and necessary for the installation."
+        common_logger -e "The sudo package is not installed and it is necessary for the installation."
         exit 1;
     fi
 }
