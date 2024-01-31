@@ -57,7 +57,6 @@ function passwords_changePassword() {
                 echo "${conf}" > /etc/filebeat/filebeat.yml
             fi
             passwords_restartService "filebeat"
-            eval "/var/ossec/bin/wazuh-keystore -f indexer -k user -v admin"   
             eval "/var/ossec/bin/wazuh-keystore -f indexer -k password -v ${adminpass}"
             passwords_restartService "wazuh-manager"
         fi
