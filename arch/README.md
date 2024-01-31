@@ -12,6 +12,7 @@ In this repository, you can find the necessary tools to build a Wazuh package fo
 - [OVA](/ova/README.md)
 - [RPM](/rpms/README.md)
 - [Solaris](/solaris/README.md)
+- [SplunkApp](/splunkapp/README.md)
 - [Windows](/windows/README.md)
 - [WPK](/wpk/README.md)
 

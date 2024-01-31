@@ -1,10 +1,10 @@
-# Wazuh OpenSearch Dashboards plugin package
+# Wazuh Splunk App package
 
-In this repository, you can find the necessary tools to build a Wazuh OpenSearch Dashboards plugin package.
+In this repository, you can find the necessary tools to build a Wazuh Splunk App package.
 
-## Building Wazuh plugin for OpenSearch Dashboards packages
+## Building Wazuh Splunk app packages
 
-Please, visit the following link for the full Wazuh Kibana plugin packages building documentation: [Generate Wazuh Kibana plugin.](https://documentation.wazuh.com/current/development/packaging/generate-wazuh-kibana-app.html)
+Please, visit the following link for the full Splunk App packages building documentation: [Generate Wazuh Splunk App packages.](https://documentation.wazuh.com/current/development/packaging/generate-wazuh-splunk-app.html)
 
 ## More Packages
 
@@ -12,11 +12,11 @@ Please, visit the following link for the full Wazuh Kibana plugin packages build
 - [Arch](/arch/README.md)
 - [Debian](/debs/README.md)
 - [HP-UX](/hp-ux/README.md)
+- [KibanaApp](/wazuhapp/README.md)
 - [macOS](/macos/README.md)
 - [OVA](/ova/README.md)
 - [RPM](/rpms/README.md)
 - [Solaris](/solaris/README.md)
-- [SplunkApp](/splunkapp/README.md)
 - [Windows](/windows/README.md)
 - [WPK](/wpk/README.md)
 

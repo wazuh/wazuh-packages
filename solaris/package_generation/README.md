@@ -104,6 +104,7 @@ To build a Solaris package using vagrant, you need to download this repository c
 - [macOS](/macos/README.md)
 - [OVA](/ova/README.md)
 - [RPM](/rpms/README.md)
+- [SplunkApp](/splunkapp/README.md)
 - [Windows](/windows/README.md)
 - [WPK](/wpk/README.md)
 
