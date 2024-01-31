@@ -569,9 +569,7 @@ function installCommon_rollBack() {
             common_checkYumLock
             if [ "${attempt}" -ne "${max_attempts}" ]; then
                 eval "yum remove wazuh-manager -y ${debug}"
-                if rpm -q wazuh-manager --quiet; then
-                    manager_installed=1
-                fi
+                eval "rpm -q wazuh-manager --quiet && manager_installed=1"
             fi
         elif [ "${sys_type}" == "apt-get" ]; then
             common_checkAptLock
@@ -597,9 +595,7 @@ function installCommon_rollBack() {
             common_checkYumLock
             if [ "${attempt}" -ne "${max_attempts}" ]; then
                 eval "yum remove wazuh-indexer -y ${debug}"
-                if rpm -q wazuh-indexer --quiet; then
-                    indexer_installed=1
-                fi
+                eval "rpm -q wazuh-indexer --quiet && indexer_installed=1"
             fi
         elif [ "${sys_type}" == "apt-get" ]; then
             common_checkAptLock
@@ -626,9 +622,7 @@ function installCommon_rollBack() {
             common_checkYumLock
             if [ "${attempt}" -ne "${max_attempts}" ]; then
                 eval "yum remove filebeat -y ${debug}"
-                if rpm -q filebeat --quiet; then
-                    filebeat_installed=1
-                fi
+                eval "rpm -q filebeat --quiet && filebeat_installed=1"
             fi
         elif [ "${sys_type}" == "apt-get" ]; then
             common_checkAptLock
@@ -655,9 +649,7 @@ function installCommon_rollBack() {
             common_checkYumLock
             if [ "${attempt}" -ne "${max_attempts}" ]; then
                 eval "yum remove wazuh-dashboard -y ${debug}"
-                if rpm -q wazuh-dashboard --quiet; then
-                    dashboard_installed=1
-                fi
+                eval "rpm -q wazuh-dashboard --quiet && dashboard_installed=1"
             fi
         elif [ "${sys_type}" == "apt-get" ]; then
             common_checkAptLock
@@ -770,8 +762,7 @@ function installCommon_yumInstallList(){
     dependencies=("$@")
     not_installed=()
     for dep in "${dependencies[@]}"; do
-        common_checkYumLock
-        if ! rpm -q "${dep}" 2>/dev/null;then
+        if ! rpm -q "${dep}" --quiet;then
             not_installed+=("${dep}")
             for wia_dep in "${wia_yum_dependencies[@]}"; do
                 if [ "${wia_dep}" == "${dep}" ]; then

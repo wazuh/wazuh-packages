@@ -84,9 +84,7 @@ function common_checkInstalled() {
     dashboard_installed=""
 
     if [ "${sys_type}" == "yum" ]; then
-        if rpm -q wazuh-manager --quiet; then
-            wazuh_installed=1
-        fi
+        eval "rpm -q wazuh-manager --quiet && wazuh_installed=1"
     elif [ "${sys_type}" == "apt-get" ]; then
         wazuh_installed=$(apt list --installed  2>/dev/null | grep wazuh-manager)
     fi
@@ -97,9 +95,8 @@ function common_checkInstalled() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
-        if rpm -q wazuh-indexer --quiet; then
-            indexer_installed=1
-        fi
+        eval "rpm -q wazuh-indexer --quiet && indexer_installed=1"
+
     elif [ "${sys_type}" == "apt-get" ]; then
         indexer_installed=$(apt list --installed 2>/dev/null | grep wazuh-indexer)
     fi
@@ -110,9 +107,7 @@ function common_checkInstalled() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
-        if rpm -q filebeat --quiet; then
-            filebeat_installed=1
-        fi
+        eval "rpm -q filebeat --quiet && filebeat_installed=1"
     elif [ "${sys_type}" == "apt-get" ]; then
         filebeat_installed=$(apt list --installed  2>/dev/null | grep filebeat)
     fi
@@ -123,9 +118,7 @@ function common_checkInstalled() {
     fi
 
     if [ "${sys_type}" == "yum" ]; then
-        if rpm -q wazuh-dashboard 2>/dev/null; then
-            dashboard_installed=1
-        fi
+        eval "rpm -q wazuh-dashboard --quiet && dashboard_installed=1"
     elif [ "${sys_type}" == "apt-get" ]; then
         dashboard_installed=$(apt list --installed  2>/dev/null | grep wazuh-dashboard)
     fi
