@@ -209,7 +209,6 @@ function cert_generateDashboardcertificates() {
 function cert_generateRootCAcertificate() {
 
     common_logger "Generating the root certificate."
-    common_logger -d "Creating the root certificate."
     cert_executeAndValidate "openssl req -x509 -new -nodes -newkey rsa:2048 -keyout ${cert_tmp_path}/root-ca.key -out ${cert_tmp_path}/root-ca.pem -batch -subj '/OU=Wazuh/O=Wazuh/L=California/' -days 3650"
 
 }
