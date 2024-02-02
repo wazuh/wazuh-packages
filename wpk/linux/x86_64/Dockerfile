@@ -17,6 +17,12 @@ RUN yum -y install epel-release && \
     libarchive-devel elfutils-libelf-devel \
     elfutils-libelf patchelf elfutils-devel libgcrypt-devel
 
+RUN curl -OL http://packages.wazuh.com/utils/perl/perl-5.10.1.tar.gz && \
+    gunzip perl-5.10.1.tar.gz && tar -xf perl*.tar && \
+    cd /perl-5.10.1 && ./Configure -des -Dcc='gcc' -Dusethreads && \
+    make -j2 && make install && ln -fs /usr/local/bin/perl /bin/perl && \
+    cd / && rm -rf /perl-5.10.1*
+
 RUN curl -OL http://packages.wazuh.com/utils/gcc/gcc-9.4.0.tar.gz && \
     tar xzf gcc-9.4.0.tar.gz  && cd gcc-9.4.0/ && \
     ./contrib/download_prerequisites && \
