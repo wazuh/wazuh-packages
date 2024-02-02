@@ -65,6 +65,9 @@ function manager_configure(){
     fi
     eval "sed -i s/filebeat.pem/${server_node_names[0]}.pem/ /var/ossec/etc/ossec.conf ${debug}"
     eval "sed -i s/filebeat-key.pem/${server_node_names[0]}-key.pem/ /var/ossec/etc/ossec.conf ${debug}"
+    common_logger -d "Setting provisional Wazuh indexer password."
+    eval "/var/ossec/bin/wazuh-keystore -f indexer -k username -v admin"
+    eval "/var/ossec/bin/wazuh-keystore -f indexer -k password -v admin"  
     common_logger "Wazuh manager vulnerability detection configuration finished."
 }
 
