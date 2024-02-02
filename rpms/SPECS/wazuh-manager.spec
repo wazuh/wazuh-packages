@@ -654,6 +654,7 @@ rm -fr %{buildroot}
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-db
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-modulesd
 %attr(750, root, wazuh) %{_localstatedir}/bin/rbac_control
+%attr(750, root, wazuh) %{_localstatedir}/bin/wazuh-keystore
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/etc
 %attr(660, root, wazuh) %config(noreplace) %{_localstatedir}/etc/ossec.conf
 %attr(640, root, wazuh) %config(noreplace) %{_localstatedir}/etc/client.keys
@@ -757,6 +758,7 @@ rm -fr %{buildroot}
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/indexer
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/router
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/logcollector
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/keystore
 %dir %attr(750, root, wazuh) %{_localstatedir}/ruleset
 %dir %attr(750, root, wazuh) %{_localstatedir}/ruleset/sca
 %dir %attr(750, root, wazuh) %{_localstatedir}/ruleset/decoders
