@@ -12,7 +12,6 @@ Please, visit the following link for the full RPM packages building documentatio
 - [Arch](/arch/README.md)
 - [Debian](/debs/README.md)
 - [HP-UX](/hp-ux/README.md)
-- [KibanaApp](/wazuhapp/README.md)
 - [macOS](/macos/README.md)
 - [OVA](/ova/README.md)
 - [Solaris](/solaris/README.md)

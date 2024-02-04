@@ -161,7 +161,6 @@ class HttpService {
       server
     } = await httpServer.setup(config);
     this.notReadyServer = server; // use hapi server while OpenSearchDashboardsResponseFactory doesn't allow specifying custom headers
-    // https://github.com/elastic/kibana/issues/33779
 
     this.notReadyServer.route({
       path: '/{p*}',

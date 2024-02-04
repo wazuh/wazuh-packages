@@ -100,7 +100,6 @@ To build a Solaris package using vagrant, you need to download this repository c
 - [AIX](/aix/README.md)
 - [Debian](/debs/README.md)
 - [HP-UX](/hp-ux/README.md)
-- [KibanaApp](/wazuhapp/README.md)
 - [macOS](/macos/README.md)
 - [OVA](/ova/README.md)
 - [RPM](/rpms/README.md)
