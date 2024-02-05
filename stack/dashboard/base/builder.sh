@@ -183,13 +183,14 @@ sed -i "s/navigateToApp(\"home\")/navigateToApp(\"${app_home}\")/g" ./src/core/t
 
 # Define categories
 category_explore='{id:"explore",label:"Explore",order:100,euiIconType:"search"}'
-category_dashboard_management='{id:"management",label:"Indexer/dashboard management",order:5e3,euiIconType:"managementApp"}'
+category_indexer_management='{id:"management",label:"Indexer management",order:5e3,euiIconType:"managementApp"}'
+category_dashboard_management='{id:"wz-category-dashboard-management",label:"Dashboard management",order:700,euiIconType:"dashboardApp"}'
 
 # Add custom categories (explore) to the built-in
 sed -i -e "s|DEFAULT_APP_CATEGORIES=Object.freeze({|DEFAULT_APP_CATEGORIES=Object.freeze({explore:${category_explore},|" ./src/core/target/public/core.entry.js
 
 # Replace management built-in app category
-sed -i -e "s|management:{id:\"management\",label:external_osdSharedDeps_OsdI18n_\[\"i18n\"\].translate(\"core.ui.managementNavList.label\",{defaultMessage:\"Management\"}),order:5e3,euiIconType:\"managementApp\"}|management:${category_dashboard_management}|" ./src/core/target/public/core.entry.js
+sed -i -e "s|management:{id:\"management\",label:external_osdSharedDeps_OsdI18n_\[\"i18n\"\].translate(\"core.ui.managementNavList.label\",{defaultMessage:\"Management\"}),order:5e3,euiIconType:\"managementApp\"}|management:${category_indexer_management}|" ./src/core/target/public/core.entry.js
 
 # Replace app category to Discover app
 sed -i -e 's|category:core_public_\["DEFAULT_APP_CATEGORIES"\].opensearchDashboards|category:core_public_["DEFAULT_APP_CATEGORIES"].explore|' ./src/plugins/discover/target/public/discover.plugin.js
@@ -213,16 +214,13 @@ sed -i -e "s|category:{id:\"opensearch\",label:\"OpenSearch Plugins\",order:2e3}
 sed -i -e "s|category:DEFAULT_APP_CATEGORIES.management|category:${category_explore}|" ./plugins/notificationsDashboards/target/public/notificationsDashboards.plugin.js
 
 # Replace app category to Index Management app
-sed -i -e "s|category:DEFAULT_APP_CATEGORIES.management|category:${category_dashboard_management}|g" ./plugins/indexManagementDashboards/target/public/indexManagementDashboards.plugin.js
+sed -i -e "s|category:DEFAULT_APP_CATEGORIES.management|category:${category_indexer_management}|g" ./plugins/indexManagementDashboards/target/public/indexManagementDashboards.plugin.js
 
-# Replace app category to Dev Tools app
-sed -i -e "s|category:public_["DEFAULT_APP_CATEGORIES"].management|category:${category_dashboard_management}|g" ./src/plugins/dev_tools/target/public/devTools.plugin.js
-
-# Replace app category to Dashboards Management (Stack management) app
-sed -i -e "s|category:public_["DEFAULT_APP_CATEGORIES"].management|category:${category_dashboard_management}|g" ./src/plugins/management/target/public/management.plugin.js
+# Replace app category to Dashboard Management app
+sed -i -e "s|category:public_\[\"DEFAULT_APP_CATEGORIES\"\].management|category:${category_dashboard_management}|g" ./src/plugins/management/target/public/management.plugin.js
 
 # Replace app category to Security app
-sed -i -e "s|category:DEFAULT_APP_CATEGORIES.management|category:${category_dashboard_management}|g" ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
+sed -i -e "s|category:DEFAULT_APP_CATEGORIES.management|category:${category_indexer_management}|g" ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
 
 # Replace app order to Discover app
 app_order_discover=1000
@@ -237,24 +235,16 @@ app_order_visualize=1020
 sed -i -e "s|order:8e3|order:${app_order_visualize}|g" ./src/plugins/visualize/target/public/visualize.plugin.js
 
 # Replace app order to Dev tools app
-app_order_dev_tools=9010
+app_order_dev_tools=9050
 sed -i -e "s|order:9070|order:${app_order_dev_tools}|g" ./src/plugins/dev_tools/target/public/devTools.plugin.js
 
 # Replace app order to Dashboard management app
-app_order_dashboard_management=9020
+app_order_dashboard_management=701
 sed -i -e "s|order:9030|order:${app_order_dashboard_management}|g" ./src/plugins/management/target/public/management.plugin.js
 
 # Replace app order to Security app
 app_order_security=9030
 sed -i -e "s|order:9050|order:${app_order_security}|g" ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
-
-# Replace app order to Index management app
-app_order_index_management=9040
-sed -i -e "s|order:9010|order:${app_order_index_management}|g" ./plugins/indexManagementDashboards/target/public/indexManagementDashboards.plugin.js
-
-# Replace app order to Snapshot management app
-app_order_snapshot_management=9050
-sed -i -e "s|order:9020|order:${app_order_snapshot_management}|g" ./plugins/indexManagementDashboards/target/public/indexManagementDashboards.plugin.js
 
 # Avoid the management Overview application is registered to feature catalog
 sed -i -e "s|home.featureCatalogue|false \&\& home.featureCatalogue|g" ./src/plugins/management_overview/target/public/managementOverview.plugin.js
