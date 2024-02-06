@@ -338,6 +338,15 @@ function checks_specifications() {
 
 function checks_ports() {
 
+    dep="lsof"
+    if [ "${sys_type}" == "yum" ]; then
+        installCommon_yumInstallList "${dep}"
+        wia_dependencies_installed+=("${dep}")
+    elif [ "${sys_type}" == "apt-get" ]; then
+        installCommon_aptInstallList "${dep}"
+        wia_dependencies_installed+=("${dep}")
+    fi
+    
     common_logger -d "Checking ports availability."
     used_port=0
     ports=("$@")

@@ -276,7 +276,6 @@ function main() {
 # --------------  Wazuh repo  ----------------------
 
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
-        installCommon_installPrerequisites
         check_curlVersion
         installCommon_addWazuhRepo
     fi

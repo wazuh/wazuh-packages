@@ -214,6 +214,16 @@ function installCommon_createInstallFiles() {
 
     if eval "mkdir /tmp/wazuh-install-files ${debug}"; then
         common_logger "Generating configuration files."
+
+        dep="openssl"
+        if [ "${sys_type}" == "yum" ]; then
+            installCommon_yumInstallList "${dep}"
+            wia_dependencies_installed+=("${dep}")
+        elif [ "${sys_type}" == "apt-get" ]; then
+            installCommon_aptInstallList "${dep}"
+            wia_dependencies_installed+=("${dep}")
+        fi
+        
         if [ -n "${configurations}" ]; then
             cert_checkOpenSSL
         fi
