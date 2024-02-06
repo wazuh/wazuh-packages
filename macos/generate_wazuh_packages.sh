@@ -57,6 +57,7 @@ function notarize_pkg() {
     # Notarize the macOS package
     sleep_time="120"
     build_timestamp="$(date +"%m%d%Y%H%M%S")"
+    NOTARIZE="no"
     if [ "${NOTARIZE}" = "yes" ]; then
            
         if sudo xcrun notarytool submit ${1} --apple-id "${DEVELOPER_ID}" --team-id "${TEAM_ID}" --password "${ALTOOL_PASS}" --wait ; then
@@ -75,6 +76,7 @@ function notarize_pkg() {
             clean_and_exit 1
         fi
     fi
+    NOTARIZE="yes"
 
     return 0
 }
