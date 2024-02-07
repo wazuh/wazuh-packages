@@ -27,6 +27,8 @@ BuildRequires: coreutils glibc-devel automake autoconf libtool policycoreutils-p
 
 ExclusiveOS: linux
 
+%define _source_payload w9.xzdio
+%define _binary_payload w9.xzdio
 
 %description
 Wazuh helps you to gain security visibility into your infrastructure by monitoring
@@ -665,6 +667,7 @@ rm -fr %{buildroot}
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-db
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-modulesd
 %attr(750, root, wazuh) %{_localstatedir}/bin/rbac_control
+%attr(750, root, wazuh) %{_localstatedir}/bin/wazuh-keystore
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/etc
 %attr(660, root, wazuh) %config(noreplace) %{_localstatedir}/etc/ossec.conf
 %attr(640, root, wazuh) %config(noreplace) %{_localstatedir}/etc/client.keys
@@ -768,6 +771,7 @@ rm -fr %{buildroot}
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/indexer
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/router
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/logcollector
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/keystore
 %dir %attr(750, root, wazuh) %{_localstatedir}/ruleset
 %dir %attr(750, root, wazuh) %{_localstatedir}/ruleset/sca
 %dir %attr(750, root, wazuh) %{_localstatedir}/ruleset/decoders
@@ -1007,7 +1011,7 @@ rm -fr %{buildroot}
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-12-1.html
 * Wed Mar 25 2020 support <info@wazuh.com> - 3.12.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-12-0.html
-* Thu Feb 24 2020 support <info@wazuh.com> - 3.11.4
+* Mon Feb 24 2020 support <info@wazuh.com> - 3.11.4
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-11-4.html
 * Wed Jan 22 2020 support <info@wazuh.com> - 3.11.3
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-11-3.html
@@ -1023,15 +1027,15 @@ rm -fr %{buildroot}
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-10-1.html
 * Mon Aug 26 2019 support <support@wazuh.com> - 3.10.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-10-0.html
-* Mon Aug 8 2019 support <support@wazuh.com> - 3.9.5
+* Thu Aug 8 2019 support <support@wazuh.com> - 3.9.5
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-9-5.html
-* Mon Jul 12 2019 support <support@wazuh.com> - 3.9.4
+* Fri Jul 12 2019 support <support@wazuh.com> - 3.9.4
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-9-4.html
-* Mon Jul 02 2019 support <support@wazuh.com> - 3.9.3
+* Tue Jul 02 2019 support <support@wazuh.com> - 3.9.3
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-9-3.html
-* Mon Jun 11 2019 support <support@wazuh.com> - 3.9.2
+* Tue Jun 11 2019 support <support@wazuh.com> - 3.9.2
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-9-2.html
-* Mon Jun 01 2019 support <support@wazuh.com> - 3.9.1
+* Sat Jun 01 2019 support <support@wazuh.com> - 3.9.1
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-9-1.html
 * Mon Feb 25 2019 support <support@wazuh.com> - 3.9.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-9-0.html
