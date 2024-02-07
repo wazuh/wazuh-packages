@@ -218,9 +218,11 @@ function installCommon_createInstallFiles() {
         dep="openssl"
         if [ "${sys_type}" == "yum" ]; then
             installCommon_yumInstallList "${dep}"
-            wia_dependencies_installed+=("${dep}")
         elif [ "${sys_type}" == "apt-get" ]; then
             installCommon_aptInstallList "${dep}"
+        fi
+        
+        if [ "${#not_installed[@]}" -gt 0 ]; then
             wia_dependencies_installed+=("${dep}")
         fi
         
