@@ -8,7 +8,7 @@
 
 ## Package vars
 readonly wazuh_major="4.8"
-readonly wazuh_version="4.8.2"
+readonly wazuh_version="4.8.0"
 readonly filebeat_version="7.10.2"
 readonly wazuh_install_vesion="0.1"
 readonly source_branch="v${wazuh_version}"
