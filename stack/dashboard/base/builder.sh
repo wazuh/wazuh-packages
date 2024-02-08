@@ -134,21 +134,37 @@ sed -i 's|updater\$:appUpdater\$|status:1|' ./src/plugins/opensearch_dashboards_
 ## Help header - Version
 sed -i 's|"core.ui.chrome.headerGlobalNav.helpMenuVersion",defaultMessage:"v {version}"|"core.ui.chrome.headerGlobalNav.helpMenuVersion",defaultMessage:"v'${version}'"|' ./src/core/target/public/core.entry.js
 ## Help link - OpenSearch Dashboards documentation
-sed -i 's|OpenSearch Dashboards documentation|Wazuh documentation|' ./src/core/target/public/core.entry.js
-sed -i 's|href:opensearchDashboardsDocLink,|href:"https://documentation.wazuh.com/'${wazuh_minor}'",|' ./src/core/target/public/core.entry.js
+### Required changes to detect if dark mode is on 
+sed -i 's|injectedMetadata.getSurvey()}|injectedMetadata.getSurvey(),darkmode:uiSettings.get("theme:darkMode")}|' ./src/core/target/public/core.entry.js
+sed -i 's|surveyLink:survey}|surveyLink:survey,darkmode:observables.darkmode}|' ./src/core/target/public/core.entry.js
+sed -i 's|opensearchDashboardsDocLink,surveyLink:surveyLink}|opensearchDashboardsDocLink,surveyLink:surveyLink,darkmode:darkmode}|' ./src/core/target/public/core.entry.js
+
+### Opensearch Dashboards documentation
+sed -i 's|OpenSearch Dashboards documentation|Documentation|' ./src/core/target/public/core.entry.js
+sed -i 's|href:opensearchDashboardsDocLink,|href:"https://documentation.wazuh.com/'${wazuh_minor}'", iconType:darkmode?"/ui/logos/icon_dark.svg":"/ui/logos/icon_light.svg",|' ./src/core/target/public/core.entry.js
+
 ## Help link - Ask OpenSearch
 sed -i 's|Ask OpenSearch|Ask Wazuh|' ./src/core/target/public/core.entry.js
-sed -i 's|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://github.com/opensearch-project"|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://wazuh.com/community/join-us-on-slack"|' ./src/core/target/public/core.entry.js
+sed -i 's|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://github.com/opensearch-project"|=="https://wazuh.com/community/join-us-on-slack"|' ./src/core/target/public/core.entry.js
+
 ## Help link - Community
 sed -i 's|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://forum.opensearch.org/"|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://wazuh.com/community/join-us-on-slack"|' ./src/core/target/public/core.entry.js
 sed -i 's|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://forum.opensearch.org/"|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://wazuh.com/community/join-us-on-slack"|' ./plugins/alertingDashboards/target/public/alertingDashboards.plugin.js
 sed -i 's|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://forum.opensearch.org/"|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://wazuh.com/community/join-us-on-slack"|' ./plugins/indexManagementDashboards/target/public/indexManagementDashboards.plugin.js
 sed -i 's|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://forum.opensearch.org/"|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://wazuh.com/community/join-us-on-slack"|' ./plugins/notificationsDashboards/target/public/notificationsDashboards.plugin.js
 sed -i 's|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://forum.opensearch.org/"|OPENSEARCH_DASHBOARDS_ASK_OPENSEARCH_LINK="https://wazuh.com/community/join-us-on-slack"|' ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
+sed -i 's|Community|Slack channel|' ./src/core/target/public/core.entry.js
+sed -i 's|href:helpSupportUrl,|href:"https://wazuh.com/community/join-us-on-slack", iconType:"logoSlack",|' ./src/core/target/public/core.entry.js
+
 ## Help link - Give feedback
-sed -i 's|https://survey.opensearch.org|https://wazuh.com/community/join-us-on-slack|' src/core/server/opensearch_dashboards_config.js
+sed -i 's|https://survey.opensearch.org|https://github.com/wazuh/|' src/core/server/opensearch_dashboards_config.js
+sed -i 's|"Give feedback"|"Projects on Github"|' ./src/core/target/public/core.entry.js
+sed -i 's|href:surveyLink,|href:surveyLink, iconType:"logoGithub",|' ./src/core/target/public/core.entry.js
+
 ## Help link - Open an issue in GitHub
 sed -i 's|GITHUB_CREATE_ISSUE_LINK="https://github.com/opensearch-project/OpenSearch-Dashboards/issues/new/choose"|GITHUB_CREATE_ISSUE_LINK="https://github.com/wazuh/wazuh/issues/new/choose"|' ./src/core/target/public/core.entry.js
+sed -i 's|"Open an issue in GitHub"|"Google group"|' ./src/core/target/public/core.entry.js
+sed -i 's|href:GITHUB_CREATE_ISSUE_LINK,target:"_blank",size:"xs",iconType:"logoGithub"|href:"https://groups.google.com/forum/#!forum/wazuh/",target:"_blank",size:"xs",iconType:"/ui/logos/google_groups.svg"|' ./src/core/target/public/core.entry.js
 
 # Custom logos
 ## Custom logos - Login logo
@@ -167,13 +183,14 @@ sed -i "s/navigateToApp(\"home\")/navigateToApp(\"${app_home}\")/g" ./src/core/t
 
 # Define categories
 category_explore='{id:"explore",label:"Explore",order:100,euiIconType:"search"}'
-category_dashboard_management='{id:"management",label:"Indexer/dashboard management",order:5e3,euiIconType:"managementApp"}'
+category_indexer_management='{id:"management",label:"Indexer management",order:5e3,euiIconType:"managementApp"}'
+category_dashboard_management='{id:"wz-category-dashboard-management",label:"Dashboard management",order:700,euiIconType:"dashboardApp"}'
 
 # Add custom categories (explore) to the built-in
 sed -i -e "s|DEFAULT_APP_CATEGORIES=Object.freeze({|DEFAULT_APP_CATEGORIES=Object.freeze({explore:${category_explore},|" ./src/core/target/public/core.entry.js
 
 # Replace management built-in app category
-sed -i -e "s|management:{id:\"management\",label:external_osdSharedDeps_OsdI18n_\[\"i18n\"\].translate(\"core.ui.managementNavList.label\",{defaultMessage:\"Management\"}),order:5e3,euiIconType:\"managementApp\"}|management:${category_dashboard_management}|" ./src/core/target/public/core.entry.js
+sed -i -e "s|management:{id:\"management\",label:external_osdSharedDeps_OsdI18n_\[\"i18n\"\].translate(\"core.ui.managementNavList.label\",{defaultMessage:\"Management\"}),order:5e3,euiIconType:\"managementApp\"}|management:${category_indexer_management}|" ./src/core/target/public/core.entry.js
 
 # Replace app category to Discover app
 sed -i -e 's|category:core_public_\["DEFAULT_APP_CATEGORIES"\].opensearchDashboards|category:core_public_["DEFAULT_APP_CATEGORIES"].explore|' ./src/plugins/discover/target/public/discover.plugin.js
@@ -197,16 +214,13 @@ sed -i -e "s|category:{id:\"opensearch\",label:\"OpenSearch Plugins\",order:2e3}
 sed -i -e "s|category:DEFAULT_APP_CATEGORIES.management|category:${category_explore}|" ./plugins/notificationsDashboards/target/public/notificationsDashboards.plugin.js
 
 # Replace app category to Index Management app
-sed -i -e "s|category:DEFAULT_APP_CATEGORIES.management|category:${category_dashboard_management}|g" ./plugins/indexManagementDashboards/target/public/indexManagementDashboards.plugin.js
+sed -i -e "s|category:DEFAULT_APP_CATEGORIES.management|category:${category_indexer_management}|g" ./plugins/indexManagementDashboards/target/public/indexManagementDashboards.plugin.js
 
-# Replace app category to Dev Tools app
-sed -i -e "s|category:public_["DEFAULT_APP_CATEGORIES"].management|category:${category_dashboard_management}|g" ./src/plugins/dev_tools/target/public/devTools.plugin.js
-
-# Replace app category to Dashboards Management (Stack management) app
-sed -i -e "s|category:public_["DEFAULT_APP_CATEGORIES"].management|category:${category_dashboard_management}|g" ./src/plugins/management/target/public/management.plugin.js
+# Replace app category to Dashboard Management app
+sed -i -e "s|category:public_\[\"DEFAULT_APP_CATEGORIES\"\].management|category:${category_dashboard_management}|g" ./src/plugins/management/target/public/management.plugin.js
 
 # Replace app category to Security app
-sed -i -e "s|category:DEFAULT_APP_CATEGORIES.management|category:${category_dashboard_management}|g" ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
+sed -i -e "s|category:DEFAULT_APP_CATEGORIES.management|category:${category_indexer_management}|g" ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
 
 # Replace app order to Discover app
 app_order_discover=1000
@@ -221,24 +235,16 @@ app_order_visualize=1020
 sed -i -e "s|order:8e3|order:${app_order_visualize}|g" ./src/plugins/visualize/target/public/visualize.plugin.js
 
 # Replace app order to Dev tools app
-app_order_dev_tools=9010
+app_order_dev_tools=9050
 sed -i -e "s|order:9070|order:${app_order_dev_tools}|g" ./src/plugins/dev_tools/target/public/devTools.plugin.js
 
 # Replace app order to Dashboard management app
-app_order_dashboard_management=9020
+app_order_dashboard_management=701
 sed -i -e "s|order:9030|order:${app_order_dashboard_management}|g" ./src/plugins/management/target/public/management.plugin.js
 
 # Replace app order to Security app
 app_order_security=9030
 sed -i -e "s|order:9050|order:${app_order_security}|g" ./plugins/securityDashboards/target/public/securityDashboards.plugin.js
-
-# Replace app order to Index management app
-app_order_index_management=9040
-sed -i -e "s|order:9010|order:${app_order_index_management}|g" ./plugins/indexManagementDashboards/target/public/indexManagementDashboards.plugin.js
-
-# Replace app order to Snapshot management app
-app_order_snapshot_management=9050
-sed -i -e "s|order:9020|order:${app_order_snapshot_management}|g" ./plugins/indexManagementDashboards/target/public/indexManagementDashboards.plugin.js
 
 # Avoid the management Overview application is registered to feature catalog
 sed -i -e "s|home.featureCatalogue|false \&\& home.featureCatalogue|g" ./src/plugins/management_overview/target/public/managementOverview.plugin.js

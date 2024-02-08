@@ -408,7 +408,7 @@ rm -fr %{buildroot}
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-12-1.html
 * Wed Mar 25 2020 support <info@wazuh.com> - 3.12.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-12-0.html
-* Thu Feb 24 2020 support <info@wazuh.com> - 3.11.4
+* Mon Feb 24 2020 support <info@wazuh.com> - 3.11.4
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-11-4.html
 * Wed Jan 22 2020 support <info@wazuh.com> - 3.11.3
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-11-3.html
@@ -424,15 +424,15 @@ rm -fr %{buildroot}
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-10-1.html
 * Mon Aug 26 2019 support <support@wazuh.com> - 3.10.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-10-0.html
-* Mon Aug 8 2019 support <support@wazuh.com> - 3.9.5
+* Thu Aug 8 2019 support <support@wazuh.com> - 3.9.5
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-9-5.html
-* Mon Jul 12 2019 support <support@wazuh.com> - 3.9.4
+* Fri Jul 12 2019 support <support@wazuh.com> - 3.9.4
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-9-4.html
-* Mon Jul 02 2019 support <support@wazuh.com> - 3.9.3
+* Tue Jul 02 2019 support <support@wazuh.com> - 3.9.3
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-9-3.html
-* Mon Jun 11 2019 support <support@wazuh.com> - 3.9.2
+* Tue Jun 11 2019 support <support@wazuh.com> - 3.9.2
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-9-2.html
-* Mon Jun 01 2019 support <support@wazuh.com> - 3.9.1
+* Sat Jun 01 2019 support <support@wazuh.com> - 3.9.1
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-9-1.html
 * Mon Feb 25 2019 support <support@wazuh.com> - 3.9.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-3-9-0.html
