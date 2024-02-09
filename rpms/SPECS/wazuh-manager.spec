@@ -27,6 +27,8 @@ BuildRequires: coreutils glibc-devel automake autoconf libtool policycoreutils-p
 
 ExclusiveOS: linux
 
+%define _source_payload w9.xzdio
+%define _binary_payload w9.xzdio
 
 %description
 Wazuh helps you to gain security visibility into your infrastructure by monitoring
@@ -115,6 +117,7 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/am
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/{8,7,6,5}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/{15,16,17,18,19,20,21,22,23}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/{7,8,9,10,11,12}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ol/{9}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ubuntu/{12,14,16,18,20,22}/04
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/{9,8,7,6,5}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sles/{11,12,15}
@@ -122,9 +125,10 @@ mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/su
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/sunos
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/windows
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/{29,30,31,32,33,34}
+mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/almalinux/{8,9}
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rocky/{8,9}
 
-cp -r ruleset/sca/{applications,generic,mongodb,nginx,oracledb,centos,darwin,debian,rhel,sles,sunos,windows,amazon,ubuntu,rocky} ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp
+cp -r ruleset/sca/{applications,generic,mongodb,nginx,oracledb,centos,darwin,debian,ol,rhel,sles,sunos,windows,amazon,ubuntu,rocky,almalinux} ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp
 
 cp etc/templates/config/generic/{sca.files,sca.manager.files} ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/generic
 
@@ -137,6 +141,8 @@ cp etc/templates/config/centos/8/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tm
 cp etc/templates/config/centos/7/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/7
 cp etc/templates/config/centos/6/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/6
 cp etc/templates/config/centos/5/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/centos/5
+
+cp etc/templates/config/ol/9/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ol/9
 
 cp etc/templates/config/rhel/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel
 cp etc/templates/config/rhel/9/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/9
@@ -162,7 +168,12 @@ cp etc/templates/config/fedora/32/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/t
 cp etc/templates/config/fedora/33/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/33
 cp etc/templates/config/fedora/34/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/34
 
+cp etc/templates/config/almalinux/9/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/almalinux/9
+
 cp etc/templates/config/rocky/8/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rocky/8
+cp etc/templates/config/rocky/9/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rocky/9
+
+cp etc/templates/config/almalinux/8/sca.files ${RPM_BUILD_ROOT}%{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/almalinux/8
 
 # Add SUSE initscript
 sed -i "s:WAZUH_HOME_TMP:%{_localstatedir}:g" src/init/templates/ossec-hids-suse.init
@@ -372,6 +383,10 @@ elif [ -r "/etc/centos-release" ]; then
 elif [ -r "/etc/fedora-release" ]; then
     DIST_NAME="fedora"
     DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.*[0-9]{0,2}.*/\1/p' /etc/fedora-release`
+# Oracle Linux
+elif [ -r "/etc/oracle-release" ]; then
+    DIST_NAME="ol"
+    DIST_VER=`sed -rn 's/.* ([0-9]{1,2})\.*[0-9]{0,2}.*/\1/p' /etc/oracle-release`
 # RedHat
 elif [ -r "/etc/redhat-release" ]; then
   if grep -q "AlmaLinux" /etc/redhat-release; then
@@ -652,6 +667,7 @@ rm -fr %{buildroot}
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-db
 %attr(750, root, root) %{_localstatedir}/bin/wazuh-modulesd
 %attr(750, root, wazuh) %{_localstatedir}/bin/rbac_control
+%attr(750, root, wazuh) %{_localstatedir}/bin/wazuh-keystore
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/etc
 %attr(660, root, wazuh) %config(noreplace) %{_localstatedir}/etc/ossec.conf
 %attr(640, root, wazuh) %config(noreplace) %{_localstatedir}/etc/client.keys
@@ -755,6 +771,7 @@ rm -fr %{buildroot}
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/indexer
 %dir %attr(770, wazuh, wazuh) %{_localstatedir}/queue/router
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/logcollector
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/queue/keystore
 %dir %attr(750, root, wazuh) %{_localstatedir}/ruleset
 %dir %attr(750, root, wazuh) %{_localstatedir}/ruleset/sca
 %dir %attr(750, root, wazuh) %{_localstatedir}/ruleset/decoders
@@ -813,6 +830,8 @@ rm -fr %{buildroot}
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/darwin/23/*
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/debian/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ol/9
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/ol/9/*
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/sca.files
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rhel/5
@@ -848,8 +867,12 @@ rm -fr %{buildroot}
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/fedora/*
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/windows
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/windows/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/almalinux
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/almalinux/*
 %dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rocky
 %attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/rocky/*
+%dir %attr(750, wazuh, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/almalinux
+%attr(640, root, wazuh) %config(missingok) %{_localstatedir}/tmp/sca-%{version}-%{release}-tmp/almalinux/*
 %dir %attr(750, root, wazuh) %{_localstatedir}/var
 %dir %attr(770, root, wazuh) %{_localstatedir}/var/db
 %attr(660, root, wazuh) %{_localstatedir}/var/db/mitre.db

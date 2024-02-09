@@ -193,7 +193,7 @@ function main() {
                 common_logger "Wazuh indexer certificates created."
             fi
             if cert_generateFilebeatcertificates; then
-                common_logger "Wazuh server certificates created."
+                common_logger "Wazuh Filebeat certificates created."
             fi
             if cert_generateDashboardcertificates; then
                 common_logger "Wazuh dashboard certificates created."
@@ -228,7 +228,7 @@ function main() {
             if [ ${#server_node_names[@]} -gt 0 ]; then
                 cert_checkRootCA
                 cert_generateFilebeatcertificates
-                common_logger "Wazuh server certificates created."
+                common_logger "Wazuh Filebeat certificates created."
                 cert_cleanFiles
                 cert_setpermisions
                 eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"

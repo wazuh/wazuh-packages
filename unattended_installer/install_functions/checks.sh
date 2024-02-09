@@ -203,7 +203,10 @@ function check_dist() {
     if [ "${DIST_NAME}" != "centos" ] && [ "${DIST_NAME}" != "rhel" ] && [ "${DIST_NAME}" != "amzn" ] && [ "${DIST_NAME}" != "ubuntu" ]; then
         notsupported=1
     fi
-    if { [ "${DIST_NAME}" == "centos" ] || [ "${DIST_NAME}" == "rhel" ]; } && { [ "${DIST_VER}" -ne "7" ] && [ "${DIST_VER}" -ne "8" ] && [ "${DIST_VER}" -ne "9" ]; }; then
+    if [ "${DIST_NAME}" == "centos" ] && { [ "${DIST_VER}" -ne "7" ] && [ "${DIST_VER}" -ne "8" ]; }; then
+        notsupported=1
+    fi
+    if [ "${DIST_NAME}" == "rhel" ] && { [ "${DIST_VER}" -ne "7" ] && [ "${DIST_VER}" -ne "8" ] && [ "${DIST_VER}" -ne "9" ]; }; then
         notsupported=1
     fi
 
@@ -446,12 +449,8 @@ function checks_firewall(){
 
     # Check if the firewall is installed
     if [ "${sys_type}" == "yum" ]; then
-        if yum list installed 2>/dev/null | grep -q -E ^"firewalld"\\.;then
-            firewalld_installed=1
-        fi
-        if yum list installed 2>/dev/null | grep -q -E ^"ufw"\\.;then
-            ufw_installed=1
-        fi
+        eval "rpm -q firewalld --quiet && firewalld_installed=1"
+        eval "rpm -q ufw --quiet && ufw_installed=1"
     elif [ "${sys_type}" == "apt-get" ]; then
         if apt list --installed 2>/dev/null | grep -q -E ^"firewalld"\/; then
             firewalld_installed=1

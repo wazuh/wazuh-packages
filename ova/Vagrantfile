@@ -3,8 +3,8 @@
 
 Vagrant.configure("2") do |config|
 
-  config.vm.box_url = "https://packages-dev.wazuh.com/vms/ova/amazonlinux-2.box"
-  config.vm.box = "amazonlinux-2"
+  config.vm.box_url = "https://packages-dev.wazuh.com/vms/ova/amznlinux-2.box"
+  config.vm.box = "amznlinux-2"
   config.vm.hostname = "wazuh-server"
   config.vm.provider "virtualbox" do |vb|
     vb.name = "vm_wazuh"
