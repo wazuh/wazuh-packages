@@ -57,6 +57,8 @@ function passwords_changePassword() {
                 echo "${conf}" > /etc/filebeat/filebeat.yml
             fi
             passwords_restartService "filebeat"
+            eval "/var/ossec/bin/wazuh-keystore -f indexer -k password -v ${adminpass}"
+            passwords_restartService "wazuh-manager"
         fi
     fi
 
@@ -590,11 +592,11 @@ function passwords_runSecurityAdmin() {
 
     if [[ -n "${nuser}" ]] && [[ -n ${autopass} ]]; then
         common_logger -nl "The password for user ${nuser} is ${password}"
-        common_logger -w "Password changed. Remember to update the password in the Wazuh dashboard and Filebeat nodes if necessary, and restart the services."
+        common_logger -w "Password changed. Remember to update the password in the Wazuh dashboard, Wazuh server, and Filebeat nodes if necessary, and restart the services."
     fi
 
     if [[ -n "${nuser}" ]] && [[ -z ${autopass} ]]; then
-        common_logger -w "Password changed. Remember to update the password in the Wazuh dashboard and Filebeat nodes if necessary, and restart the services."
+        common_logger -w "Password changed. Remember to update the password in the Wazuh dashboard, Wazuh server, and Filebeat nodes if necessary, and restart the services."
     fi
 
     if [ -n "${changeall}" ]; then
@@ -602,7 +604,7 @@ function passwords_runSecurityAdmin() {
             for i in "${!users[@]}"; do
                 common_logger -nl "The password for user ${users[i]} is ${passwords[i]}"
             done
-            common_logger -w "Wazuh indexer passwords changed. Remember to update the password in the Wazuh dashboard and Filebeat nodes if necessary, and restart the services."
+            common_logger -w "Wazuh indexer passwords changed. Remember to update the password in the Wazuh dashboard, Wazuh server, and Filebeat nodes if necessary, and restart the services."
         else
             common_logger -d "Passwords changed."
         fi
@@ -611,7 +613,7 @@ function passwords_runSecurityAdmin() {
 }
 
 function passwords_updateInternalUsers() {
-    
+
     common_logger "Updating the internal users."
     backup_datetime=$(date +"%Y%m%d_%H%M%S")
     internal_users_backup_path="/etc/wazuh-indexer/internalusers-backup"
