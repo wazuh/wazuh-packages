@@ -81,7 +81,7 @@ function cert_generateAdmincertificate() {
 
     common_logger "Generating Admin certificates."
     common_logger -d "Generating Admin private key."
-    cert_executeAndValidate "openssl genrsa -out ${cert_tmp_path}/admin-key-temp.pem 2048 ${debug}"
+    cert_executeAndValidate "openssl genrsa -out ${cert_tmp_path}/admin-key-temp.pem 2048"
     common_logger -d "Converting Admin private key to PKCS8 format."
     cert_executeAndValidate "openssl pkcs8 -inform PEM -outform PEM -in ${cert_tmp_path}/admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out ${cert_tmp_path}/admin-key.pem"
     common_logger -d "Generating Admin CSR."
