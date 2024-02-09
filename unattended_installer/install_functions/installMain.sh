@@ -360,6 +360,7 @@ function main() {
     if [ -n "${wazuh}" ]; then
         common_logger "--- Wazuh server ---"
         manager_install
+        manager_configure
         if [ -n "${server_node_types[*]}" ]; then
             manager_startCluster
         fi
@@ -382,6 +383,7 @@ function main() {
         indexer_initialize
         common_logger "--- Wazuh server ---"
         manager_install
+        manager_configure
         installCommon_startService "wazuh-manager"
         filebeat_install
         filebeat_configure
