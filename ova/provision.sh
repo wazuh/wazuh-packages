@@ -8,6 +8,7 @@ BUILDER="builder.sh"
 INSTALLER="wazuh-install.sh"
 SYSTEM_USER="wazuh-user"
 HOSTNAME="wazuh-server"
+INDEXES=("wazuh-alerts-*" "wazuh-archives-*" "wazuh-states-vulnerabilities-*" "wazuh-statistics-*" "wazuh-monitoring-*")
 
 CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ASSETS_PATH="${CURRENT_PATH}/assets"
@@ -42,9 +43,18 @@ preInstall
 # Install
 bash ${RESOURCES_PATH}/${INSTALLER} ${INSTALL_ARGS}
 
-systemctl stop wazuh-dashboard filebeat wazuh-indexer wazuh-manager
+systemctl stop filebeat wazuh-manager
+
+# Delete indexes
+for index in "${INDEXES[@]}"; do
+    curl -u admin:admin -XDELETE "https://127.0.0.1:9200/$index" -k
+done
+
+# Recreate empty indexes (wazuh-alerts and wazuh-archives)
+bash /usr/share/wazuh-indexer/bin/indexer-ism-init.sh -i 127.0.0.1 -p admin
+
+systemctl stop wazuh-indexer wazuh-dashboard
 systemctl enable wazuh-manager
-rm -f /var/log/wazuh-indexer/*
-rm -f /var/log/filebeat/*
+
 
 clean
