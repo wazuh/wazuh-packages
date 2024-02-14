@@ -66,19 +66,10 @@ clean() {
 
   rm -f /securityadmin_demo.sh
   yum clean all
-
   systemctl daemon-reload
 
   # Clear synced files
   rm -rf ${CURRENT_PATH}/* ${CURRENT_PATH}/.gitignore
-
-  # Remove logs
-  find /var/log/ -type f -exec bash -c 'cat /dev/null > {}' \;
-  find /var/ossec/logs -type f -execdir sh -c 'cat /dev/null > "$1"' _ {} \;
-  find /var/log/wazuh-indexer -type f -execdir sh -c 'cat /dev/null > "$1"' _ {} \;
-  find /var/log/filebeat -type f -execdir sh -c 'cat /dev/null > "$1"' _ {} \;
-  find /usr/share/wazuh-dashboard/data/wazuh/logs -type f -execdir sh -c 'cat /dev/null > "$1"' _ {} \;
-
   cat /dev/null > ~/.bash_history && history -c
 
 }
