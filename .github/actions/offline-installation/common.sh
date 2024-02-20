@@ -44,7 +44,7 @@ function check_file() {
 function check_shards() {
 
     retries=0
-    until [ "$(curl -s -k -u admin:admin "https://localhost:9200/_template/wazuh?pretty&filter_path=wazuh.settings.index.number_of_shards" | grep "number_of_shards")" ] || [ "${retries}" -eq 5 ]; do
+    until [ "$(curl -s -k -u admin:admin "https://127.0.0.1:9200/_template/wazuh?pretty&filter_path=wazuh.settings.index.number_of_shards" | grep "number_of_shards")" ] || [ "${retries}" -eq 5 ]; do
         sleep 5
         retries=$((retries+1))
     done
@@ -53,7 +53,7 @@ function check_shards() {
         echo "ERROR: Could not get the number of shards."
         exit 1
     fi
-    curl -s -k -u admin:admin "https://localhost:9200/_template/wazuh?pretty&filter_path=wazuh.settings.index.number_of_shards"
+    curl -s -k -u admin:admin "https://127.0.0.1:9200/_template/wazuh?pretty&filter_path=wazuh.settings.index.number_of_shards"
     echo "INFO: Number of shards detected."
 
 }
@@ -81,7 +81,7 @@ function dashboard_installation() {
 
     sleep 10
     # In this context, 302 HTTP code refers to SSL certificates warning: success.
-    if [ "$(curl -k -s -I -w "%{http_code}" https://localhost -o /dev/null --fail)" -ne "302" ]; then
+    if [ "$(curl -k -s -I -w "%{http_code}" https://127.0.0.1 -o /dev/null --fail)" -ne "302" ]; then
         echo "ERROR: The Wazuh dashboard installation has failed."
         exit 1
     fi
@@ -226,7 +226,7 @@ function indexer_installation() {
 
     indexer_initialize
     sleep 10
-    eval "curl -s -XGET https://localhost:9200 -u admin:admin -k --fail"
+    eval "curl -s -XGET https://127.0.0.1:9200 -u admin:admin -k --fail"
     if [ "${PIPESTATUS[0]}" != 0 ]; then
         echo "ERROR: The Wazuh indexer installation has failed."
         exit 1
