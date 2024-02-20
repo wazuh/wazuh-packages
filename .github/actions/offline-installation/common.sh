@@ -79,13 +79,19 @@ function dashboard_installation() {
         /usr/share/wazuh-dashboard/bin/opensearch-dashboards "-c /etc/wazuh-dashboard/opensearch_dashboards.yml" --allow-root > /dev/null 2>&1 &
     fi
 
-    sleep 10
+    retries=0
     # In this context, 302 HTTP code refers to SSL certificates warning: success.
-    if [ "$(curl -k -s -I -w "%{http_code}" https://127.0.0.1 -o /dev/null --fail)" -ne "302" ]; then
+    until [ "$(curl -k -s -I -w "%{http_code}" https://127.0.0.1 -o /dev/null --fail)" -ne "302" ] || [ "${retries}" -eq 5 ]; then
+        
+        sleep 10
+        retries=$((retries+1))
+    fi
+    if [ ${retries} -eq 5 ]; then
         echo "ERROR: The Wazuh dashboard installation has failed."
         exit 1
+    else
+        echo "INFO: The Wazuh dashboard is ready."
     fi
-    echo "INFO: The Wazuh dashboard is ready."
 
 }
 
