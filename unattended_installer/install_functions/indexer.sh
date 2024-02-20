@@ -203,4 +203,14 @@ function indexer_startCluster() {
         fi
     fi
 
+    # Wazuh alerts template injection
+    eval "common_curl --silent ${filebeat_wazuh_template} --max-time 300 --retry 5 --retry-delay 5 ${debug}" | eval "common_curl -X PUT 'https://${indexer_node_ips[pos]}:9200/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k --silent --max-time 300 --retry 5 --retry-delay 5 ${debug}"
+    if [  "${PIPESTATUS[0]}" != 0  ]; then
+        common_logger -e "The wazuh-alerts template could not be inserted into the Wazuh indexer cluster."
+        exit 1
+    else
+        common_logger -d "Inserted wazuh-alerts template into the Wazuh indexer cluster."
+    fi
+
+
 }
