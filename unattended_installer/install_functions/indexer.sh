@@ -129,14 +129,6 @@ function indexer_initialize() {
             exit 1
         else
             common_logger "Wazuh indexer cluster security configuration initialized."
-            eval "bash /usr/share/wazuh-indexer/bin/indexer-ism-init.sh ${debug}"
-            if [  "${PIPESTATUS[0]}" != 0  ]; then
-                common_logger -w "The Wazuh indexer cluster ISM policy could not be created."
-                installCommon_rollBack
-                exit 1
-            else
-                common_logger "The Wazuh indexer cluster ISM initialized."
-            fi
         fi
     fi
 
@@ -193,14 +185,6 @@ function indexer_startCluster() {
         exit 1
     else
         common_logger "Wazuh indexer cluster security configuration initialized."
-        eval "bash /usr/share/wazuh-indexer/bin/indexer-ism-init.sh -i ${wazuh_indexer_ip} ${debug}"
-        if [  "${PIPESTATUS[0]}" != 0  ]; then
-            common_logger -w "The Wazuh indexer cluster ISM policy could not be created."
-            installCommon_rollBack
-            exit 1
-        else
-            common_logger "The Wazuh indexer cluster ISM initialized."
-        fi
     fi
 
     # Wazuh alerts template injection
