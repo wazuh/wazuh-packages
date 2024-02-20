@@ -48,7 +48,7 @@ clean(){
         pkill -n -f wazuh-indexer
     fi
     exit "${exit_code}"
-    
+
 }
 
 ctrl_c() {
@@ -70,7 +70,7 @@ getNetworkHost() {
     # Allow to find ip with an interface
     if [ -z "${isIP}" ] && [ -z "${isDNS}" ]; then
         interface="${HOST//_}"
-        HOST=$(ip -o -4 addr list "${interface}" | awk '{print $4}' | cut -d/ -f1) 
+        HOST=$(ip -o -4 addr list "${interface}" | awk '{print $4}' | cut -d/ -f1)
     fi
 
     if [ "${HOST}" = "0.0.0.0" ]; then
@@ -122,9 +122,9 @@ help() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "    -ho, --host <host>    [Optional] Target IP or DNS to configure security."
-    echo "    --port <port>         [Optional] wazuh-indexer security port."
+    echo "    -p,  --port <port>    [Optional] wazuh-indexer security port."
     echo "    --options <options>   [Optional] Custom securityadmin options."
-    echo "    -h, --help            Show this help."
+    echo "    -h,  --help           Show this help."
     echo
     exit "$1"
 }
@@ -156,7 +156,7 @@ main() {
                 help 1
             fi
             ;;
-        "--port")
+        "-p, --port")
             if [ -n "$2" ]; then
                 PORT="$2"
                 PORT=$(echo "${PORT}" | tr -d "[\"\']")
