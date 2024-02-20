@@ -190,7 +190,7 @@ function indexer_initialize() {
         echo "ERROR: The indexer node is not started."
         exit 1
     fi
-    /usr/share/wazuh-indexer/bin/indexer-init.sh
+    /usr/share/wazuh-indexer/bin/indexer-security-init.sh
 
 }
 
