@@ -713,7 +713,8 @@ rm -fr %{buildroot}
 %attr(640, wazuh, wazuh) %ghost %{_localstatedir}/logs/integrations.log
 %attr(660, wazuh, wazuh) %ghost %{_localstatedir}/logs/ossec.log
 %attr(660, wazuh, wazuh) %ghost %{_localstatedir}/logs/ossec.json
-%attr(0440, root, wazuh) %{_localstatedir}/queue/indexer/vd_states_template.json
+%dir %attr(750, wazuh, wazuh) %{_localstatedir}/templates
+%attr(0440, root, wazuh) %{_localstatedir}/templates/vd_states_template.json
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/logs/api
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/logs/archives
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/logs/alerts
