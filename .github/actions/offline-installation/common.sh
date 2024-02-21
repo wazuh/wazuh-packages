@@ -81,11 +81,11 @@ function dashboard_installation() {
 
     retries=0
     # In this context, 302 HTTP code refers to SSL certificates warning: success.
-    until [ "$(curl -k -s -I -w "%{http_code}" https://127.0.0.1 -o /dev/null --fail)" -ne "302" ] || [ "${retries}" -eq 5 ]; then
+    until [ "$(curl -k -s -I -w "%{http_code}" https://127.0.0.1 -o /dev/null --fail)" -ne "302" ] || [ "${retries}" -eq 5 ]; do
         echo "INFO: Sleeping 10 seconds."
         sleep 10
         retries=$((retries+1))
-    fi
+    done
     if [ ${retries} -eq 5 ]; then
         echo "ERROR: The Wazuh dashboard installation has failed."
         exit 1
