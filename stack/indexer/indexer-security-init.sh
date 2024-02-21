@@ -156,7 +156,7 @@ main() {
                 help 1
             fi
             ;;
-        "-p, --port")
+       "-p"|"--port")
             if [ -n "$2" ]; then
                 PORT="$2"
                 PORT=$(echo "${PORT}" | tr -d "[\"\']")
