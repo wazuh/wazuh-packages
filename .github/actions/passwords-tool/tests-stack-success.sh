@@ -22,7 +22,7 @@ echo '::endgroup::'
 
 echo '::group:: Change all passwords except Wazuh API ones.'
 
-mapfile -t pass < <(bash wazuh-passwords-tool.sh -a | awk '{ print $NF }' | sed \$d | sed '1d' )
+mapfile -t pass < <(bash wazuh-passwords-tool.sh -a | grep 'The password for' | awk '{ print $NF }')
 for i in "${!users[@]}"; do
     if curl -s -XGET https://localhost:9200/ -u "${users[i]}":"${pass[i]}" -k -w %{http_code} | grep "401"; then
         exit 1
@@ -35,7 +35,7 @@ echo '::group:: Change all passwords.'
 
 wazuh_pass="$(cat wazuh-install-files/wazuh-passwords.txt | awk "/username: 'wazuh'/{getline;print;}" | awk '{ print $2 }' | tr -d \' )"
 
-mapfile -t passall < <(bash wazuh-passwords-tool.sh -a -au wazuh -ap "${wazuh_pass}" | awk '{ print $NF }' | sed \$d ) 
+mapfile -t passall < <(bash wazuh-passwords-tool.sh -a -au wazuh -ap "${wazuh_pass}" | grep 'The password for' | awk '{ print $NF }' ) 
 passindexer=("${passall[@]:0:6}")
 passapi=("${passall[@]:(-2)}")
 
@@ -63,7 +63,7 @@ echo '::endgroup::'
 
 echo '::group:: Change all passwords except Wazuh API ones using a file.'
 
-mapfile -t passfile < <(bash wazuh-passwords-tool.sh -f wazuh-install-files/wazuh-passwords.txt | awk '{ print $NF }' | sed \$d | sed '1d' )
+mapfile -t passfile < <(bash wazuh-passwords-tool.sh -f wazuh-install-files/wazuh-passwords.txt | grep 'The password for' | awk '{ print $NF }' ) 
 for i in "${!users[@]}"; do
     if curl -s -XGET https://localhost:9200/ -u "${users[i]}":"${passfile[i]}" -k -w %{http_code} | grep "401"; then
         exit 1
@@ -72,7 +72,7 @@ done
 echo '::endgroup::'
 
 echo '::group:: Change all passwords from a file.'
-mapfile -t passallf < <(bash wazuh-passwords-tool.sh -f wazuh-install-files/wazuh-passwords.txt -au wazuh -ap BkJt92r*ndzN.CkCYWn?d7i5Z7EaUt63 | awk '{ print $NF }' | sed \$d ) 
+mapfile -t passallf < <(bash wazuh-passwords-tool.sh -f wazuh-install-files/wazuh-passwords.txt -au wazuh -ap BkJt92r*ndzN.CkCYWn?d7i5Z7EaUt63 | grep 'The password for' | awk '{ print $NF }' )
 passindexerf=("${passallf[@]:0:6}")
 passapif=("${passallf[@]:(-2)}")
 
