@@ -51,7 +51,7 @@ for index in "${INDEXES[@]}"; do
 done
 
 # Recreate empty indexes (wazuh-alerts and wazuh-archives)
-bash /usr/share/wazuh-indexer/bin/indexer-ism-init.sh -i 127.0.0.1 -p admin
+bash /usr/share/wazuh-indexer/bin/indexer-security-init.sh -ho 127.0.0.1
 
 systemctl stop wazuh-indexer wazuh-dashboard
 systemctl enable wazuh-manager
