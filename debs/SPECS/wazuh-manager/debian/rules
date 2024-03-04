@@ -64,7 +64,7 @@ override_dh_install:
 	USER_GENERATE_AUTHD_CERT="y" \
 	USER_AUTO_START="n" \
 	USER_CREATE_SSL_CERT="n" \
-	DOWNLOAD_CONTENT="yes" \
+	DOWNLOAD_CONTENT="y" \
 	./install.sh
 
 	# Copying init.d script
@@ -119,7 +119,6 @@ override_dh_install:
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/generic
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/amzn/1
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/amzn/2
-	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/amzn/2023
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/centos/5
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/centos/6
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/centos/7
@@ -156,11 +155,11 @@ override_dh_install:
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/ubuntu/20/04
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/ubuntu/22/04
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/windows
-	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sunos/5/11
-	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/almalinux/9
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/rocky/8
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/rocky/9
 	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/almalinux/8
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/almalinux/9
+	mkdir -p ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sunos/5/11
 
 	cp -r ruleset/sca/* ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca
 
@@ -170,7 +169,6 @@ override_dh_install:
 
 	cp etc/templates/config/amzn/1/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/amzn/1
 	cp etc/templates/config/amzn/2/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/amzn/2
-	cp etc/templates/config/amzn/2023/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/amzn/2023
 
 	cp etc/templates/config/darwin/15/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/15
 	cp etc/templates/config/darwin/16/sca.files ${TARGET_DIR}$(INSTALLATION_SCRIPTS_DIR)/sca/darwin/16
