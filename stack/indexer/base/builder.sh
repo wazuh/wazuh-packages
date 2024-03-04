@@ -14,9 +14,8 @@ set -ex
 
 architecture="$1"
 revision="$2"
-filebeat_module_reference="$3"
-future="$4"
-reference="$5"
+future="$3"
+reference="$4"
 opensearch_version="2.10.0"
 base_dir=/opt/wazuh-indexer-base
 
@@ -65,16 +64,11 @@ mkdir -p ./etc/wazuh-indexer/
 cp -r ./config/* ./etc/wazuh-indexer/
 rm -rf ./config
 cp -r /root/stack/indexer/base/files/etc/wazuh-indexer/* ./etc/wazuh-indexer/
-curl -so ./etc/wazuh-indexer/wazuh-template.json "https://raw.githubusercontent.com/wazuh/wazuh/${filebeat_module_reference}/extensions/elasticsearch/7.x/wazuh-template.json"
 cp -r /root/stack/indexer/base/files/etc/sysconfig ./etc/
 cp -r /root/stack/indexer/base/files/etc/init.d ./etc/
 cp -r /root/stack/indexer/base/files/usr ./
-cp -r /root/stack/indexer/indexer-ism-init.sh bin/
-cp -r /root/stack/indexer/indexer-init.sh bin/
 rm -rf ./plugins/opensearch-security/tools/install_demo_configuration.sh
 cp /root/VERSION .
-
-
 
 # -----------------------------------------------------------------------------
 

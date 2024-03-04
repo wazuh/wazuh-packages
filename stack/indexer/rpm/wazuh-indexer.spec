@@ -93,7 +93,6 @@ cp %{REPO_DIR}/wazuh-passwords-tool.sh ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/o
 cp /root/documentation-templates/wazuh/config.yml ${RPM_BUILD_ROOT}%{INSTALL_DIR}/plugins/opensearch-security/tools/config.yml
 
 # Copy Wazuh's config files for the security plugin
-cp %{REPO_DIR}/config/indexer/roles/action_groups.yml ${RPM_BUILD_ROOT}%{CONFIG_DIR}/opensearch-security
 cp %{REPO_DIR}/config/indexer/roles/internal_users.yml ${RPM_BUILD_ROOT}%{CONFIG_DIR}/opensearch-security
 cp %{REPO_DIR}/config/indexer/roles/roles.yml ${RPM_BUILD_ROOT}%{CONFIG_DIR}/opensearch-security
 cp %{REPO_DIR}/config/indexer/roles/roles_mapping.yml ${RPM_BUILD_ROOT}%{CONFIG_DIR}/opensearch-security
@@ -647,7 +646,6 @@ rm -fr %{buildroot}
 %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/*.properties
 %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/plugin-stats-metadata
 %attr(640, %{USER}, %{GROUP}) %{CONFIG_DIR}/opensearch-performance-analyzer/*.policy
-%attr(660, %{USER}, %{GROUP}) %{CONFIG_DIR}/wazuh-template.json
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/
 %dir %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config/
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/performance-analyzer-rca/config/agent-stats-metadata
@@ -677,19 +675,18 @@ rm -fr %{buildroot}
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-performance-analyzer/performance-analyzer-agent-cli
 %attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/opensearch-performance-analyzer/performance-analyzer-agent
 %attr(440, %{USER}, %{GROUP}) %{INSTALL_DIR}/VERSION
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/indexer-security-init.sh
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/indexer-ism-init.sh
-%attr(750, %{USER}, %{GROUP}) %{INSTALL_DIR}/bin/indexer-init.sh
 %attr(640, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/config.yml
 %attr(740, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/wazuh-certs-tool.sh
 %attr(740, %{USER}, %{GROUP}) %{INSTALL_DIR}/plugins/opensearch-security/tools/wazuh-passwords-tool.sh
 
 
 %changelog
-* Wed Feb 28 2024 support <info@wazuh.com> - 4.8.1
+* Wed Apr 03 2024 support <info@wazuh.com> - 4.8.1
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-8-1.html
-* Wed Feb 21 2024 support <info@wazuh.com> - 4.8.0
+* Wed Mar 20 2024 support <info@wazuh.com> - 4.8.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-8-0.html
+* Tue Feb 27 2024 support <info@wazuh.com> - 4.7.3
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-7-3.html
 * Tue Jan 09 2024 support <info@wazuh.com> - 4.7.2
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-7-2.html
 * Wed Dec 13 2023 support <info@wazuh.com> - 4.7.1

@@ -23,4 +23,6 @@ Vagrant.configure("2") do |config|
   # Provision stage
   config.vm.provision :shell, path: "provision.sh", :args => "#{ENV['PACKAGES_REPOSITORY']} #{ENV['DEBUG']}"
 
+  # Provision cleanup stage
+  config.vm.provision :shell, path: "assets/postProvision.sh", :args => "#{ENV['DEBUG']}"
 end

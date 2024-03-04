@@ -81,7 +81,7 @@ function cert_generateAdmincertificate() {
 
     common_logger "Generating Admin certificates."
     common_logger -d "Generating Admin private key."
-    cert_executeAndValidate "openssl genrsa -out ${cert_tmp_path}/admin-key-temp.pem 2048 ${debug}"
+    cert_executeAndValidate "openssl genrsa -out ${cert_tmp_path}/admin-key-temp.pem 2048"
     common_logger -d "Converting Admin private key to PKCS8 format."
     cert_executeAndValidate "openssl pkcs8 -inform PEM -outform PEM -in ${cert_tmp_path}/admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out ${cert_tmp_path}/admin-key.pem"
     common_logger -d "Generating Admin CSR."
@@ -146,8 +146,8 @@ function cert_generateCertificateconfiguration() {
 
 function cert_generateIndexercertificates() {
 
-    common_logger "Generating Wazuh indexer certificates."
     if [ ${#indexer_node_names[@]} -gt 0 ]; then
+        common_logger "Generating Wazuh indexer certificates."
 
         for i in "${!indexer_node_names[@]}"; do
             indexer_node_name=${indexer_node_names[$i]}
@@ -166,8 +166,8 @@ function cert_generateIndexercertificates() {
 
 function cert_generateFilebeatcertificates() {
 
-    common_logger "Generating Filebeat certificates."
     if [ ${#server_node_names[@]} -gt 0 ]; then
+        common_logger "Generating Filebeat certificates."
 
         for i in "${!server_node_names[@]}"; do
             server_name="${server_node_names[i]}"
@@ -187,9 +187,8 @@ function cert_generateFilebeatcertificates() {
 }
 
 function cert_generateDashboardcertificates() {
-
-    common_logger "Generating Wazuh dashboard certificates."
     if [ ${#dashboard_node_names[@]} -gt 0 ]; then
+        common_logger "Generating Wazuh dashboard certificates."
 
         for i in "${!dashboard_node_names[@]}"; do
             dashboard_node_name="${dashboard_node_names[i]}"
