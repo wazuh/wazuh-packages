@@ -2,10 +2,6 @@
 
 In this repository, you can find the necessary tools to build a Wazuh OpenSearch Dashboards plugin package.
 
-## Building Wazuh plugin for OpenSearch Dashboards packages
-
-Please, visit the following link for the full Wazuh Kibana plugin packages building documentation: [Generate Wazuh Kibana plugin.](https://documentation.wazuh.com/current/development/packaging/generate-wazuh-kibana-app.html)
-
 ## More Packages
 
 - [AIX](/aix/README.md)

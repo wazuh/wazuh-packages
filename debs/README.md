@@ -11,7 +11,6 @@ Please, visit the following link for the full DEB packages building documentatio
 - [AIX](/aix/README.md)
 - [Arch](/arch/README.md)
 - [HP-UX](/hp-ux/README.md)
-- [KibanaApp](/wazuhapp/README.md)
 - [macOS](/macos/README.md)
 - [OVA](/ova/README.md)
 - [RPM](/rpms/README.md)
