@@ -17,7 +17,6 @@ Please, visit the following link for the full Windows packages building document
 - [OVA](/ova/README.md)
 - [RPM](/rpms/README.md)
 - [Solaris](/solaris/README.md)
-- [SplunkApp](/splunkapp/README.md)
 - [WPK](/wpk/README.md)
 
 ## Contribute

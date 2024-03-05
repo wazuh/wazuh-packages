@@ -16,7 +16,6 @@ Please, visit the following link for the full RPM packages building documentatio
 - [macOS](/macos/README.md)
 - [OVA](/ova/README.md)
 - [Solaris](/solaris/README.md)
-- [SplunkApp](/splunkapp/README.md)
 - [Windows](/windows/README.md)
 - [WPK](/wpk/README.md)
 

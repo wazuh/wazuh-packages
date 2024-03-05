@@ -16,7 +16,6 @@ Please, visit the following link for the full DEB packages building documentatio
 - [OVA](/ova/README.md)
 - [RPM](/rpms/README.md)
 - [Solaris](/solaris/README.md)
-- [SplunkApp](/splunkapp/README.md)
 - [Windows](/windows/README.md)
 - [WPK](/wpk/README.md)
 

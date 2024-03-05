@@ -7,7 +7,7 @@
 
 Wazuh is an Open Source Host-based Intrusion Detection System that performs log analysis, file integrity monitoring, policy monitoring, rootkit detection, real-time alerting, active response, vulnerability detector, etc.
 
-In this repository, you can find the necessary tools to build a Wazuh package for Debian based OS, RPM based OS package, Arch based OS, macOS, RPM packages for IBM AIX, the OVA, and the apps for Kibana and Splunk:
+In this repository, you can find the necessary tools to build a Wazuh package for Debian based OS, RPM based OS package, Arch based OS, macOS, RPM packages for IBM AIX, the OVA, and the app for Kibana:
 
 - [AIX](/aix/README.md)
 - [Arch](/arch/README.md)
@@ -17,7 +17,6 @@ In this repository, you can find the necessary tools to build a Wazuh package fo
 - [macOS](/macos/README.md)
 - [OVA](/ova/README.md)
 - [RPM](/rpms/README.md)
-- [SplunkApp](/splunkapp/README.md)
 - [Solaris](/solaris/README.md)
 - [Windows](/windows/README.md)
 

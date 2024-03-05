@@ -27,7 +27,6 @@ To build a Wazuh package you need to install the following tools:
 - [macOS](/macos/README.md)
 - [OVA](/ova/README.md)
 - [RPM](/rpms/README.md)
-- [SplunkApp](/splunkapp/README.md)
 - [Windows](/windows/README.md)
 - [WPK](/wpk/README.md)
 
