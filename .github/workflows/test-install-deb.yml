@@ -34,10 +34,15 @@ jobs:
     strategy:
       matrix:
         distro_name: ['ubuntu:xenial', 'ubuntu:bionic', 'ubuntu:focal', 'ubuntu:jammy', 'debian:stretch', 'debian:buster', 'debian:bullseye']
-        type: [agent, manager]
+        type: [agent, manager, agent-dbg, manager-dbg]
         arch: [amd64, i386]
         exclude:
           - type: manager
+            arch: i386
+          - distro_name: 'ubuntu:jammy'
+            arch: i386
+        exclude:
+          - type: manager-dbg
             arch: i386
           - distro_name: 'ubuntu:jammy'
             arch: i386
