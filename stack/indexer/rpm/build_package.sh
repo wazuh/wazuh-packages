@@ -18,7 +18,6 @@ rpm_builder_dockerfile="${current_path}/docker"
 future="no"
 base_cmd=""
 build_base="yes"
-filebeat_module_reference=""
 
 trap ctrl_c INT
 
@@ -50,7 +49,7 @@ build_rpm() {
         if [ "${reference}" ];then
             base_cmd+="--reference ${reference}"
         fi
-        ../base/generate_base.sh -s ${outdir} -r ${revision} -f ${filebeat_module_reference} ${base_cmd}
+        ../base/generate_base.sh -s ${outdir} -r ${revision} ${base_cmd}
     else
         if [ "${reference}" ];then
             version=$(curl -sL https://raw.githubusercontent.com/wazuh/wazuh-packages/${reference}/VERSION | cat)
@@ -112,7 +111,6 @@ help() {
     echo "    -r, --revision <rev>              [Optional] Package revision. By default: 1."
     echo "    -s, --store <path>                [Optional] Set the destination path of package. By default, an output folder will be created."
     echo "    --reference <ref>                 [Optional] wazuh-packages branch to download SPECs, not used by default."
-    echo "    -f, --filebeat-module-reference   [Optional] wazuh/wazuh Filebeat template branch or tag."
     echo "    --dont-build-docker               [Optional] Locally built docker image will be used instead of generating a new one."
     echo "    --future                          [Optional] Build test future package 99.99.0 Used for development purposes."
     echo "    -h, --help                        Show this help."
@@ -160,14 +158,6 @@ main() {
                 help 1
             fi
             ;;
-        "-f"|"--filebeat-module-reference")
-            if [ -n "${2}" ]; then
-                filebeat_module_reference="${2}"
-                shift 2
-            else
-                help 1
-            fi
-            ;;
         "--dont-build-docker")
             build_docker="no"
             shift 1
@@ -188,10 +178,6 @@ main() {
             help 1
         esac
     done
-
-    if [ -z "${filebeat_module_reference}" ]; then
-        filebeat_module_reference=$(cat ${current_path}/../../../VERSION)
-    fi
 
     build || clean 1
 
