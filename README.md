@@ -33,22 +33,24 @@ The following table shows the references for the versions of each component.
 ### Wazuh dashboard
 
 | Wazuh dashboard | Opensearch dashboards |
-|-----------------|-----------------------|
+| --------------- | --------------------- |
 | 4.3.x           | 1.2.0                 |
 | 4.4.0           | 2.4.1                 |
 | 4.4.1 - 4.5.x   | 2.6.0                 |
 | 4.6.x - 4.7.x   | 2.8.0                 |
-| 4.8.x - current | 2.10.0                |
+| 4.8.x           | 2.10.0                |
+| 4.9.x - current | 2.12.0                |
 
 ### Wazuh indexer
 
-| Wazuh indexer   | Opensearch            |
-|-----------------|-----------------------|
-| 4.3.x           | 1.2.4                 |
-| 4.4.0           | 2.4.1                 |
-| 4.4.1 - 4.5.x   | 2.6.0                 |
-| 4.6.x - 4.7.x   | 2.8.0                 |
-| 4.8.x - current | 2.10.0                |
+| Wazuh indexer   | Opensearch |
+| --------------- | ---------- |
+| 4.3.x           | 1.2.4      |
+| 4.4.0           | 2.4.1      |
+| 4.4.1 - 4.5.x   | 2.6.0      |
+| 4.6.x - 4.7.x   | 2.8.0      |
+| 4.8.x           | 2.10.0     |
+| 4.9.x - current | 2.12.0     |
 
 ## Contribute
 
@@ -57,4 +59,4 @@ If you want to contribute to our project please don't hesitate to send a pull re
 ## License and copyright
 
 WAZUH
-Copyright (C) 2015 Wazuh Inc.  (License GPLv2)
+Copyright (C) 2015 Wazuh Inc. (License GPLv2)
