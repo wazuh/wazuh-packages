@@ -17,7 +17,7 @@ revision="$2"
 filebeat_module_reference="$3"
 future="$4"
 reference="$5"
-opensearch_version="2.10.2"
+opensearch_version="2.12.0"
 base_dir=/opt/wazuh-indexer-base
 
 # -----------------------------------------------------------------------------
