@@ -52,8 +52,9 @@ fi
 build_dir=/build_wazuh
 rpm_build_dir=${build_dir}/rpmbuild
 file_name="wazuh-${build_target}-${wazuh_version}-${package_release}"
+symbols_file_name="wazuh-${build_target}-${wazuh_version}-${package_release}"
 rpm_file="${file_name}.${architecture_target}.rpm"
-symbols_rpm_file="${file_name}-dbg.${architecture_target}.rpm"
+symbols_rpm_file="${symbols_file_name}-dbg.${architecture_target}.rpm"
 src_file="${file_name}.src.rpm"
 pkg_path="${rpm_build_dir}/RPMS/${architecture_target}"
 src_path="${rpm_build_dir}/SRPMS"
