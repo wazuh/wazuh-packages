@@ -1,6 +1,6 @@
 %if %{_debugenabled} == yes
-  %global _enable_debug_package 0
-  %global debug_package %{nil}
+  %global _enable_debug_package 1
+  %global debug_package %{_rpmfilename debuginfo}
   %global __os_install_post %{nil}
   %define __strip /bin/true
 %endif
@@ -38,6 +38,11 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 # Don't generate build_id links to prevent conflicts with other
 # packages.
 %global _build_id_links none
+
+%package debuginfo
+Summary: Debug information for package %{name}
+%description debuginfo
+This package provides debug information for package %{name}
 
 %prep
 %setup -q

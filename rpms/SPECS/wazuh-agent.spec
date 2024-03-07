@@ -1,6 +1,6 @@
 %if %{_debugenabled} == yes
-  %global _enable_debug_package 0
-  %global debug_package %{nil}
+  %global _enable_debug_package 1
+  %global debug_package %{_rpmfilename debuginfo}
   %global __os_install_post %{nil}
   %define __strip /bin/true
 %endif
@@ -34,6 +34,11 @@ ExclusiveOS: linux
 Wazuh helps you to gain security visibility into your infrastructure by monitoring
 hosts at an operating system and application level. It provides the following capabilities:
 log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
+
+%package debuginfo
+Summary: Debug information for package %{name}
+%description debuginfo
+This package provides debug information for package %{name}
 
 %prep
 %setup -q

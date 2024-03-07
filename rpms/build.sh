@@ -27,13 +27,12 @@ future=${14}
 wazuh_version=""
 rpmbuild="rpmbuild"
 
-disable_debug_flag='%debug_package %{nil}'
-
 if [ -z "${package_release}" ]; then
     package_release="1"
 fi
 
 if [ "${debug}" = "no" ]; then
+    disable_debug_flag='%debug_package %{nil}'
     echo ${disable_debug_flag} > /etc/rpm/macros
 fi
 
@@ -54,6 +53,7 @@ build_dir=/build_wazuh
 rpm_build_dir=${build_dir}/rpmbuild
 file_name="wazuh-${build_target}-${wazuh_version}-${package_release}"
 rpm_file="${file_name}.${architecture_target}.rpm"
+symbols_rpm_file="${file_name}-dbg.${architecture_target}.rpm"
 src_file="${file_name}.src.rpm"
 pkg_path="${rpm_build_dir}/RPMS/${architecture_target}"
 src_path="${rpm_build_dir}/SRPMS"
@@ -129,6 +129,7 @@ $linux $rpmbuild --define "_sysconfdir /etc" --define "_topdir ${rpm_build_dir}"
 
 if [[ "${checksum}" == "yes" ]]; then
     cd ${pkg_path} && sha512sum ${rpm_file} > /var/local/checksum/${rpm_file}.sha512
+    cd ${pkg_path} && sha512sum ${symbols_rpm_file} > /var/local/checksum/${symbols_rpm_file}.sha512
     if [[ "${src}" == "yes" ]]; then
         cd ${src_path} && sha512sum ${src_file} > /var/local/checksum/${src_file}.sha512
     fi
