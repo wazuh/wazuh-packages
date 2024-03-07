@@ -291,9 +291,6 @@ function main() {
     fi
 
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then
-        if [ -z "${offline_install}" ]; then
-            installCommon_installPrerequisites
-        fi
         check_curlVersion
         if [ -z "${offline_install}" ]; then
             installCommon_addWazuhRepo
