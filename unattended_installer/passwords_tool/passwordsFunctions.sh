@@ -187,6 +187,9 @@ function passwords_createBackUp() {
     eval "JAVA_HOME=/usr/share/wazuh-indexer/jdk/ OPENSEARCH_CONF_DIR=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -backup /etc/wazuh-indexer/backup -icl -p 9200 -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -h ${IP} ${debug}"
     if [ "${PIPESTATUS[0]}" != 0 ]; then
         common_logger -e "The backup could not be created"
+        if [[ $(type -t installCommon_rollBack) == "function" ]]; then
+            installCommon_rollBack
+        fi
         exit 1;
     fi
     common_logger -d "Password backup created in /etc/wazuh-indexer/backup."
@@ -202,6 +205,9 @@ function passwords_generateHash() {
             nhash=$(bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "${passwords[i]}" | grep -A 2 'issues' | tail -n 1)
             if [  "${PIPESTATUS[0]}" != 0  ]; then
                 common_logger -e "Hash generation failed."
+                if [[ $(type -t installCommon_rollBack) == "function" ]]; then
+                    installCommon_rollBack
+                fi
                 exit 1;
             fi
             hashes+=("${nhash}")
@@ -212,6 +218,9 @@ function passwords_generateHash() {
         hash=$(bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "${password}" | grep -A 2 'issues' | tail -n 1)
         if [  "${PIPESTATUS[0]}" != 0  ]; then
             common_logger -e "Hash generation failed."
+            if [[ $(type -t installCommon_rollBack) == "function" ]]; then
+                installCommon_rollBack
+            fi
             exit 1;
         fi
         common_logger -d "Password hash generated."
@@ -402,7 +411,7 @@ For Wazuh API users, the file must have this format:
   api_password: <password>
 
 "
-	    exit 1
+        exit 1
     fi
 
     sfileusers=$(grep indexer_username: "${p_file}" | awk '{ print substr( $2, 1, length($2) ) }' | sed -e "s/[\'\"]//g")
@@ -585,6 +594,9 @@ function passwords_runSecurityAdmin() {
     eval "OPENSEARCH_CONF_DIR=/etc/wazuh-indexer /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh -f /etc/wazuh-indexer/backup/internal_users.yml -t internalusers -p 9200 -nhnv -cacert ${capem} -cert ${adminpem} -key ${adminkey} -icl -h ${IP} ${debug}"
     if [  "${PIPESTATUS[0]}" != 0  ]; then
         common_logger -e "Could not load the changes."
+        if [[ $(type -t installCommon_rollBack) == "function" ]]; then
+            installCommon_rollBack
+        fi
         exit 1;
     fi
     eval "cp /etc/wazuh-indexer/backup/internal_users.yml /etc/wazuh-indexer/opensearch-security/internal_users.yml"
