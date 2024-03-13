@@ -1,7 +1,4 @@
-%global _enable_debug_package 1
-%global debug_package %{_rpmfilename debuginfo}
-%global __os_install_post %{nil}
-%define __strip /bin/true
+%define _debugenabled yes
 
 Summary:     Wazuh helps you to gain security visibility into your infrastructure by monitoring hosts at an operating system and application level. It provides the following capabilities: log analysis, file integrity monitoring, intrusions detection and policy and compliance monitoring
 Name:        wazuh-manager
@@ -37,10 +34,12 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 # packages.
 %global _build_id_links none
 
-%package debuginfo
-Summary: Debug information for package %{name}
-%description debuginfo
-This package provides debug information for package %{name}
+# Build debuginfo package
+%debug_package
+%package wazuh-manager-debuginfo
+Summary: Debug information for package %{name}.
+%description wazuh-agent-debuginfo
+his package provides debug information for package %{name}.
 
 %prep
 %setup -q
@@ -191,6 +190,8 @@ install -m 0640 src/init/*.sh ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/
 # Add installation scripts
 cp src/VERSION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/
 cp src/REVISION ${RPM_BUILD_ROOT}%{_localstatedir}/packages_files/manager_installation_scripts/src/
+
+%{_rpmconfigdir}/find-debuginfo.sh
 
 exit 0
 

@@ -112,7 +112,7 @@ build_rpm() {
         ${CHECKSUM} ${PACKAGES_BRANCH} ${USE_LOCAL_SPECS} ${SRC} \
         ${LEGACY} ${USE_LOCAL_SOURCE_CODE} ${FUTURE}|| return 1
 
-    echo "Package $(ls -Art ${OUTDIR} | tail -n 1) added to ${OUTDIR}."
+    echo "Package $(ls -Art ${OUTDIR} | tail -n 2 | tr '\n' ' ') added to ${OUTDIR}."
 
     return 0
 }
