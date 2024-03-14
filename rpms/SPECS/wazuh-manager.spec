@@ -38,8 +38,8 @@ log analysis, file integrity monitoring, intrusions detection and policy and com
 %debug_package
 %package wazuh-manager-debuginfo
 Summary: Debug information for package %{name}.
-%description wazuh-agent-debuginfo
-his package provides debug information for package %{name}.
+%description wazuh-manager-debuginfo
+This package provides debug information for package %{name}.
 
 %prep
 %setup -q
