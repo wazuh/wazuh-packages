@@ -85,6 +85,7 @@ function dashboard_copyCertificates() {
         common_logger -d "Wazuh dashboard certificate setup finished."
     else
         common_logger -e "No certificates found. Wazuh dashboard  could not be initialized."
+        installCommon_rollBack
         exit 1
     fi
 
