@@ -365,7 +365,7 @@ function checks_specialDepsAL2023() {
 function checks_specifications() {
 
     cores=$(grep -c processor /proc/cpuinfo)
-    ram_gb=$(free -m | awk '/^Mem:/{print $2}')
+    ram_gb=$(free -m | awk 'FNR == 2 {print $2}')
 
 }
 
