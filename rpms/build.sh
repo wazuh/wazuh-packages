@@ -58,6 +58,7 @@ src_file="${file_name}.src.rpm"
 pkg_path="${rpm_build_dir}/RPMS/${architecture_target}"
 src_path="${rpm_build_dir}/SRPMS"
 extract_path="${pkg_path}"
+ssl_flag=""
 mkdir -p ${rpm_build_dir}/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
 # Prepare the sources directory to build the source tar.gz
@@ -68,7 +69,10 @@ cp -R wazuh-* ${build_dir}/${package_name}
 if [ "${use_local_specs}" = "no" ]; then
     specs_path="/downloaded_tmp_specs"
     mkdir -p "${specs_path}"
-    curl -L "https://raw.githubusercontent.com/wazuh/wazuh-packages/${wazuh_packages_branch}/rpms/SPECS/wazuh-${build_target}.spec" -o "${specs_path}/wazuh-${build_target}.spec"
+    if [ "${legacy}" = "yes" ]; then
+        ssl_flag+="-k"
+    fi
+    curl -L "https://raw.githubusercontent.com/wazuh/wazuh-packages/${wazuh_packages_branch}/rpms/SPECS/wazuh-${build_target}.spec" -o "${specs_path}/wazuh-${build_target}.spec" ${ssl_flag}
 else
     specs_path="/specs"
 fi
