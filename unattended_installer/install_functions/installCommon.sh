@@ -138,6 +138,7 @@ function installCommon_aptInstallList(){
             installCommon_aptInstall "${dep}"
             if [ "${install_result}" != 0 ]; then
                 common_logger -e "Cannot install dependency: ${dep}."
+                installCommon_rollBack
                 exit 1
             fi
         done
@@ -277,6 +278,7 @@ function installCommon_changePasswords() {
         installCommon_readPasswordFileUsers
     else
         common_logger -e "Cannot find passwords file. Exiting"
+        installCommon_rollBack
         exit 1
     fi
     if [ -n "${start_indexer_cluster}" ] || [ -n "${AIO}" ]; then
@@ -801,6 +803,7 @@ function installCommon_yumInstallList(){
             eval "echo \${yum_output} ${debug}"
             if [  "${yum_code}" != 0  ]; then
                 common_logger -e "Cannot install dependency: ${dep}."
+                installCommon_rollBack
                 exit 1
             fi
         done

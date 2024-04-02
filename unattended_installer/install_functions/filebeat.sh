@@ -91,6 +91,7 @@ function filebeat_copyCertificates() {
         eval "chown root:root ${filebeat_cert_path}/* ${debug}"
     else
         common_logger -e "No certificates found. Could not initialize Filebeat"
+        installCommon_rollBack
         exit 1
     fi
 
