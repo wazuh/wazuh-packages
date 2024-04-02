@@ -184,7 +184,7 @@ sed -i "s/navigateToApp(\"home\")/navigateToApp(\"${app_home}\")/g" ./src/core/t
 # Define categories
 category_explore='{id:"explore",label:"Explore",order:100,euiIconType:"search"}'
 category_indexer_management='{id:"management",label:"Indexer management",order:5e3,euiIconType:"managementApp"}'
-category_dashboard_management='{id:"wz-category-dashboard-management",label:"Dashboard management",order:700,euiIconType:"dashboardApp"}'
+category_dashboard_management='{id:"wz-category-dashboard-management",label:"Dashboard management",order:6e3,euiIconType:"dashboardApp"}'
 
 # Add custom categories (explore) to the built-in
 sed -i -e "s|DEFAULT_APP_CATEGORIES=Object.freeze({|DEFAULT_APP_CATEGORIES=Object.freeze({explore:${category_explore},|" ./src/core/target/public/core.entry.js
@@ -239,7 +239,7 @@ app_order_dev_tools=9050
 sed -i -e "s|order:9070|order:${app_order_dev_tools}|g" ./src/plugins/dev_tools/target/public/devTools.plugin.js
 
 # Replace app order to Dashboard management app
-app_order_dashboard_management=701
+app_order_dashboard_management=10001
 sed -i -e "s|order:9030|order:${app_order_dashboard_management}|g" ./src/plugins/management/target/public/management.plugin.js
 
 # Replace app order to Security app
