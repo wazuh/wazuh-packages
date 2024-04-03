@@ -10,7 +10,7 @@ function dashboard_changePort() {
 
     chosen_port="$1"
     http_port="${chosen_port}" 
-    wazuh_dashboard_ports=( "${http_port}" )
+    wazuh_dashboard_port=( "${http_port}" )
     wazuh_aio_ports=(9200 9300 1514 1515 1516 55000 "${http_port}")
 
     sed -i 's/server\.port: [0-9]\+$/server.port: '"${chosen_port}"'/' "$0"
@@ -85,6 +85,7 @@ function dashboard_copyCertificates() {
         common_logger -d "Wazuh dashboard certificate setup finished."
     else
         common_logger -e "No certificates found. Wazuh dashboard  could not be initialized."
+        installCommon_rollBack
         exit 1
     fi
 
