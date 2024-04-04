@@ -19,7 +19,7 @@ depot_path=""
 control_binary=""
 
 # Needed variables to build Wazuh with custom GCC and cmake
-PATH=${build_tools_path}/bootstrap-gcc/gcc94_prefix/bin:${build_tools_path}/cmake_prefix_install/bin:$PATH:/usr/local/bin
+PATH=${build_tools_path}/bootstrap-gcc/gcc94_prefix/bin:${build_tools_path}/cmake_prefix_install/bin:/usr/local/bin:$PATH
 LD_LIBRARY_PATH=${build_tools_path}/bootstrap-gcc/gcc94_prefix/lib
 export LD_LIBRARY_PATH
 CXX=${build_tools_path}/bootstrap-gcc/gcc94_prefix/bin/g++
@@ -70,6 +70,8 @@ build_environment() {
     /usr/local/bin/depothelper $fpt_connection -f perl
     /usr/local/bin/depothelper $fpt_connection -f regex
     /usr/local/bin/depothelper $fpt_connection -f python
+
+    rm -rf ${build_tools_path}
 
     # Install GCC 9.4
     mkdir ${build_tools_path}
@@ -160,8 +162,10 @@ create_package() {
     VERSION=`cat /tmp/VERSION`
     rm ${install_path}/wodles/oscap/content/*.xml
     wazuh_version=`echo "${wazuh_version}" | cut -d v -f 2`
-    pkg_name="wazuh-agent-${wazuh_version}-${wazuh_revision}-hpux-11v3-ia64.tar"
-    tar cvpf ${target_dir}/${pkg_name} ${install_path} /sbin/init.d/wazuh-agent /sbin/rc2.d/S97wazuh-agent /sbin/rc3.d/S97wazuh-agent
+    pkg_tar_file="wazuh-agent-${wazuh_version}-${wazuh_revision}-hpux-11v3-ia64.tar"
+    tar cvpf ${target_dir}/${pkg_tar_file} ${install_path} /sbin/init.d/wazuh-agent /sbin/rc2.d/S97wazuh-agent /sbin/rc3.d/S97wazuh-agent
+    pkg_name="${pkg_tar_file}.gz"
+    gzip ${target_dir}/${pkg_tar_file}
 
     if [ "${compute_checksums}" = "yes" ]; then
         cd ${target_dir}
@@ -201,8 +205,6 @@ clean() {
     userdel wazuh
     groupdel wazuh
 
-    rm -rf ${build_tools_path}
-
     exit ${exit_code}
 }
 
@@ -210,11 +212,11 @@ show_help() {
     echo
     echo "Usage: $0 [OPTIONS]"
     echo
-    echo "    -e Install all the packages necessaries to build the TAR package"
+    echo "    -e Install all the packages necessaries to build the package"
     echo "    -b <branch> Select Git branch. Example v3.5.0"
-    echo "    -s <tar_directory> Directory to store the resulting tar package. By default, an output folder will be created."
-    echo "    -p <tar_home> Installation path for the package. By default: /var"
-    echo "    -c, --checksum Compute the SHA512 checksum of the TAR package."
+    echo "    -s <pkg_directory> Directory to store the resulting package. By default, an output folder will be created."
+    echo "    -p <pkg_home> Installation path for the package. By default: /var"
+    echo "    -c, --checksum Compute the SHA512 checksum of the package."
     echo "    -d <path_to_depot>, --depot Change the path to depothelper package (by default current path)."
     echo "    -h Shows this help"
     echo

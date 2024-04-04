@@ -10,7 +10,7 @@ function dashboard_changePort() {
 
     chosen_port="$1"
     http_port="${chosen_port}" 
-    wazuh_dashboard_ports=( "${http_port}" )
+    wazuh_dashboard_port=( "${http_port}" )
     wazuh_aio_ports=(9200 9300 1514 1515 1516 55000 "${http_port}")
 
     sed -i 's/server\.port: [0-9]\+$/server.port: '"${chosen_port}"'/' "$0"
@@ -178,6 +178,7 @@ function dashboard_initialize() {
 
 function dashboard_initializeAIO() {
 
+    wazuh_api_address=${server_node_ips[0]}
     common_logger "Initializing Wazuh dashboard web application."
     installCommon_getPass "admin"
     http_code=$(curl -XGET https://localhost:"${http_port}"/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)
@@ -191,6 +192,9 @@ function dashboard_initializeAIO() {
         sleep 15
     done
     if [ "${http_code}" -eq "200" ]; then
+        if [ -f "/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml" ]; then
+            eval "sed -i 's,url: https://localhost,url: https://${wazuh_api_address},g' /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml ${debug}"
+        fi
         common_logger "Wazuh dashboard web application initialized."
         common_logger -nl "--- Summary ---"
         common_logger -nl "You can access the web interface https://<wazuh-dashboard-ip>:${http_port}\n    User: admin\n    Password: ${u_pass}"

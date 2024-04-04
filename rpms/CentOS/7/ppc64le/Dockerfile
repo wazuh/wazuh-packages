@@ -41,6 +41,13 @@ RUN curl -OL http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz && \
     make -j$(nproc) && make install && cd / && rm -rf cmake-* && \
     ln -sf /usr/bin/rpmbuild /usr/local/bin/rpmbuild
 
+# Install Perl 5.10
+RUN curl -OL http://packages.wazuh.com/utils/perl/perl-5.10.1.tar.gz && \
+    gunzip perl-5.10.1.tar.gz && tar -xf perl*.tar && \
+    cd /perl-5.10.1 && ./Configure -des -Dcc='gcc' -Dusethreads && \
+    make -j2 && make install && ln -fs /usr/local/bin/perl /bin/perl && \
+    cd / && rm -rf /perl-5.10.1*
+
 # Add the scripts to build the RPM package
 ADD build.sh /usr/local/bin/build_package
 RUN chmod +x /usr/local/bin/build_package

@@ -21,6 +21,12 @@ RUN yum -y install util-linux-ng \
 
 RUN yum-builddep python34 -y
 
+RUN curl -OL http://packages.wazuh.com/utils/perl/perl-5.10.1.tar.gz && \
+    gunzip perl-5.10.1.tar.gz && tar -xf perl*.tar && \
+    cd /perl-5.10.1 && ./Configure -des -Dcc='gcc' -Dusethreads && \
+    make -j2 && make install && ln -fs /usr/local/bin/perl /bin/perl && \
+    cd / && rm -rf /perl-5.10.1*
+
 # Update rpmbuild, rpm and autoconf
 RUN curl -O http://packages.wazuh.com/utils/autoconf/autoconf-2.69.tar.gz && \
     gunzip autoconf-2.69.tar.gz && tar xvf autoconf-2.69.tar && \

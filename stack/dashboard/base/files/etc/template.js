@@ -193,7 +193,6 @@ const Template = ({
     href: favicon ? `` : `${uiPublicUrl}/favicons/manifest.json`
   }), /*#__PURE__*/_react.default.createElement("link", {
     rel: "mask-icon",
-    color: "#e8488b",
     href: favicon !== null && favicon !== void 0 ? favicon : `${uiPublicUrl}/favicons/safari-pinned-tab.svg`
   }), /*#__PURE__*/_react.default.createElement("link", {
     rel: "shortcut icon",
