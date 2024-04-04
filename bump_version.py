@@ -39,34 +39,88 @@ test_files=glob.glob('**/test-*.sh', recursive=True)
 install_variables_files=glob.glob('**/installVariables.sh', recursive=True)
 changelog_md_files=glob.glob('**/CHANGELOG.md', recursive=True)
 VERSION_files=glob.glob('**/VERSION', recursive=True)
+builder_files=glob.glob('**/unattended_installer/builder.sh', recursive=True)
 
-## Bump version in .spec files
+#Format variables
 SPEC_FORMAT_STRING="%a %b %d %Y"
 spec_date=date.strftime(SPEC_FORMAT_STRING)
-for spec_file in spec_files:
-    with open(spec_file, 'r', encoding="utf-8") as file:
-        print('Bumping version in ' + spec_file)
-        filedata=file.read()
-        # Replace version and revision
-        REGEX=r'Version:\s*(\d+\.\d+\.\d+)'
-        filedata=re.sub(REGEX, f"Version:     {version}", filedata)
-        REGEX=r'Revision:\s*(\d+)'
-        filedata=re.sub(REGEX, 'Revision:     ' + str(args.revision),
-                          filedata)
-        # Add new version to changelog
-        REGEX=r'%changelog'
-        changelog_string=(f"* {spec_date} support <info@wazuh.com> - {version}"
-            "\n- More info: https://documentation.wazuh.com/current/release-"
-            f"notes/release-{version.major}-{version.minor}-"
-            f"{version.micro}.html")
-        filedata=re.sub(REGEX, '%changelog\n' + changelog_string, filedata)
-
-    with open(spec_file, 'w', encoding="utf-8") as file:
-        file.write(filedata)
-
-## Bump version in deb changelog files
 DEB_FORMAT_STRING="%a, %d %b %Y %H:%M:%S +0000"
 deb_changelog_date=date.strftime(DEB_FORMAT_STRING)
+PKGINFO_FORMAT_STRING="%d%b%Y"
+
+#Regex-replacement dicts for each file
+spec_files_dict = {
+    r'Version:\s*(\d+\.\d+\.\d+)':f"Version:     {version}",    
+    r'Revision:\s*(\d+)':'Revision:     ' + str(args.revision),
+    r'%changelog':'%changelog\n' 
+        + (f"* {spec_date} support <info@wazuh.com> - {version}"
+        "\n- More info: https://documentation.wazuh.com/current/release-"
+        f"notes/release-{version.major}-{version.minor}-"
+        f"{version.micro}.html")}
+
+copyright_files_dict = {
+    (r'Wazuh, Inc <info@wazuh.com> on '
+     r'(\w+),\s(\d+)\s(\w+)\s(\d+)\s(\d+):(\d+):(\d+)\s\+(\d+)'):
+     f"Wazuh, Inc <info@wazuh.com> on {deb_changelog_date}"}
+
+pkginfo_files_dict = {
+    r'VERSION=\"(\d+\.\d+\.\d+)\"':f'VERSION=\"{version}\"',
+    r'PSTAMP=(.*)':f'PSTAMP=\"{date.strftime(PKGINFO_FORMAT_STRING)}\"'}
+
+pkgproj_files_dict = {
+    r'<string>(\d+\.\d+\.\d+)-(\d+)</string>':
+    f'<string>{version}-{args.revision}</string>',
+    r'<string>wazuh-agent-(\d+\.\d+\.\d+)-(\d+)':
+    f'<string>wazuh-agent-{version}-{args.revision}'}
+
+test_files_dict = {
+    r'wazuh-manager.x86_64\s+(\d+\.\d+\.\d+)-(\d+)':
+    f'wazuh-manager.x86_64 {version}-{args.revision}',
+    r'wazuh_version=\"(\d+\.\d+\.\d+)\"':
+    f'wazuh_version=\"{version}\"'}
+
+install_variables_files_dict = {
+    r'wazuh_major=\"(\d+\.\d+)\"':
+    f'wazuh_major=\"{version.major}.{version.minor}\"',
+    r'wazuh_version=\"(\d+\.\d+\.\d+)\"':f'wazuh_version=\"{version}\"'}
+
+changelog_md_files_dict = {
+    (r'All notable changes to this project '
+    r'will be documented in this file.'):
+    (r'All notable changes to this project '
+    r'will be documented in this file.') + '\n'  
+    + (f"## [{version}]\n\n- https://github.com/wazuh/"
+    f"wazuh-packages/releases/tag/v{version}\n")}
+
+builder_files_dict = {
+    r'source_branch=\"(\d+\.\d+\.\d+)\"': f'source_branch=\"{version}\"'}
+
+VERSION_files_dict = {
+    r'(\d+\.\d+\.\d+)': f'{version}'}
+
+
+#Generic function to bump a file
+def bump_file_list(file_list, regex_replacement):
+    """Bumps a list of files matching the given regex and replacements
+
+    Args:
+        file_list(list):  path list for the selected files.
+        regex_replacement(dict): specific dict for the file list where the key
+        represent the regex to be matched and the value its replacement.
+     """
+    for bumping_file in file_list:
+        with open(bumping_file, 'r', encoding="utf-8") as file:
+            print('Bumping version in ' + bumping_file)
+            filedata=file.read()
+            for regex in regex_replacement:
+                # Replace match
+                filedata=re.sub(regex, regex_replacement[regex], filedata)
+
+        with open(bumping_file, 'w', encoding="utf-8") as file:
+            file.write(filedata)
+
+
+## Bump version in deb changelog files
 for changelog_file in changelog_files:
     with open(changelog_file, 'r', encoding="utf-8") as file:
         print('Bumping version in ' + changelog_file)
@@ -84,119 +138,13 @@ for changelog_file in changelog_files:
     with open(changelog_file, 'w', encoding="utf-8") as file:
         file.write(filedata)
 
-## Bump version in deb copyrigth files
 
-for copyrigth_file in copyright_files:
-    with open(copyrigth_file, 'r', encoding="utf-8") as file:
-        print('Bumping version in ' + copyrigth_file)
-        filedata=file.read()
-        # Replace version and revision
-        REGEX=(r'Wazuh, Inc <info@wazuh.com> on '
-                r'(\w+),\s(\d+)\s(\w+)\s(\d+)\s(\d+):(\d+):(\d+)\s\+(\d+)')
-        filedata=re.sub(REGEX,
-                    f"Wazuh, Inc <info@wazuh.com> on {deb_changelog_date}",
-                    filedata)
-
-    with open(copyrigth_file, 'w', encoding="utf-8") as file:
-        file.write(filedata)
-
-## Bump version in pkginfo files
-
-PKGINFO_FORMAT_STRING="%d%b%Y"
-
-for pkginfo_file in pkginfo_files:
-    with open(pkginfo_file, 'r', encoding="utf-8") as file:
-        print('Bumping version in ' + pkginfo_file)
-        filedata=file.read()
-        # Replace version and revision
-        REGEX=r'VERSION=\"(\d+\.\d+\.\d+)\"'
-        filedata=re.sub(REGEX, f'VERSION=\"{version}\"', filedata)
-        REGEX=r'PSTAMP=(.*)'
-        filedata=re.sub(REGEX,
-                    f'PSTAMP=\"{date.strftime(PKGINFO_FORMAT_STRING)}\"',
-                    filedata)
-
-    with open(pkginfo_file, 'w', encoding="utf-8") as file:
-        file.write(filedata)
-
-## Bump version in .pkgproj files
-
-for pkgproj_file in pkgproj_files:
-    with open(pkgproj_file, 'r', encoding="utf-8") as file:
-        print('Bumping version in ' + pkgproj_file)
-        filedata=file.read()
-        # Replace version and revision
-        REGEX=r'<string>(\d+\.\d+\.\d+)-(\d+)</string>'
-        filedata=re.sub(REGEX, f'<string>{version}-{args.revision}</string>',
-                          filedata)
-        REGEX=r'<string>wazuh-agent-(\d+\.\d+\.\d+)-(\d+)'
-        filedata=re.sub(REGEX,
-                    f'<string>wazuh-agent-{version}-{args.revision}',
-                    filedata)
-
-    with open(pkgproj_file, 'w', encoding="utf-8") as file:
-        file.write(filedata)
-
-## Bump version in test-*.sh files
-
-for test_file in test_files:
-    with open(test_file, 'r', encoding="utf-8") as file:
-        print('Bumping version in ' + test_file)
-        filedata=file.read()
-        # Replace version and revision
-        REGEX=r'wazuh-manager.x86_64\s+(\d+\.\d+\.\d+)-(\d+)'
-        filedata=re.sub(REGEX,
-                    f'wazuh-manager.x86_64 {version}-{args.revision}',
-                    filedata)
-        REGEX=r'wazuh_version=\"(\d+\.\d+\.\d+)\"'
-        filedata=re.sub(REGEX, f'wazuh_version=\"{version}\"', filedata)
-
-    with open(test_file, 'w', encoding="utf-8") as file:
-        file.write(filedata)
-
-## Bump version in installVariables.sh files
-
-for install_variables_file in install_variables_files:
-    with open(install_variables_file, 'r', encoding="utf-8") as file:
-        print('Bumping version in ' + install_variables_file)
-        filedata=file.read()
-        # Replace version and revision
-        REGEX=r'wazuh_major=\"(\d+\.\d+)\"'
-        filedata=re.sub(REGEX,
-                    f'wazuh_major=\"{version.major}.{version.minor}\"',
-                    filedata)
-        REGEX=r'wazuh_version=\"(\d+\.\d+\.\d+)\"'
-        filedata=re.sub(REGEX, f'wazuh_version=\"{version}\"', filedata)
-
-    with open(install_variables_file, 'w', encoding="utf-8") as file:
-        file.write(filedata)
-
-## Bump version in CHANGELOG.md files
-
-for changelog_md_file in changelog_md_files:
-    with open(changelog_md_file, 'r', encoding="utf-8") as file:
-        print('Bumping version in ' + changelog_md_file)
-        filedata=file.read()
-        # Add new version to changelog
-        REGEX=(r'All notable changes to this project '
-               r'will be documented in this file.')
-        changelog_string=(f"## [{version}]\n\n- https://github.com/wazuh/"
-                          f"wazuh-packages/releases/tag/v{version}\n")
-        filedata=re.sub(REGEX, REGEX + '\n' + changelog_string,
-                          filedata)
-
-    with open(changelog_md_file, 'w', encoding="utf-8") as file:
-        file.write(filedata)
-
-## Bump version in VERSION files
-
-for VERSION_file in VERSION_files:
-    with open(VERSION_file, 'r', encoding="utf-8") as file:
-        print('Bumping version in ' + VERSION_file)
-        filedata=file.read()
-        # Replace version and revision
-        REGEX=r'(\d+\.\d+\.\d+)'
-        filedata=re.sub(REGEX, f'{version}', filedata)
-
-    with open(VERSION_file, 'w', encoding="utf-8") as file:
-        file.write(filedata)
+bump_file_list(spec_files,spec_files_dict)
+bump_file_list(copyright_files,copyright_files_dict)
+bump_file_list(pkginfo_files,pkginfo_files_dict)
+bump_file_list(pkgproj_files,pkgproj_files_dict)
+bump_file_list(test_files,test_files_dict)
+bump_file_list(install_variables_files,install_variables_files_dict)
+bump_file_list(changelog_md_files,changelog_md_files_dict)
+bump_file_list(VERSION_files,VERSION_files_dict)
+bump_file_list(builder_files,builder_files_dict)
