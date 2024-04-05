@@ -97,8 +97,8 @@ function cert_generateCertificateconfiguration() {
     cat > "${cert_tmp_path}/${1}.conf" <<- EOF
         [ req ]
         prompt = no
-        default_bits = 2048
-        default_md = sha256
+        default_bits = 4096
+        default_md = sha512
         distinguished_name = req_distinguished_name
         x509_extensions = v3_req
 
