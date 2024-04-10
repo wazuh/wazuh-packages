@@ -224,8 +224,6 @@ function check_dist() {
 
 function checks_health() {
 
-    common_logger "Verifying that your system meets the recommended minimum hardware requirements."
-
     checks_specifications
 
     common_logger -d "CPU cores detected: ${cores}"

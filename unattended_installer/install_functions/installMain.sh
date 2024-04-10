@@ -228,7 +228,15 @@ function main() {
         exit 0
     fi
 
-# -------------- Preliminary checks  --------------------------------
+    checks_arch
+    if [ -n "${ignore}" ]; then
+        common_logger -w "Hardware and system checks ignored."
+    else
+        common_logger "Verifying that your system meets the recommended minimum hardware requirements."
+        checks_health
+    fi
+
+# -------------- Preliminary checks and Prerequisites --------------------------------
 
     if [ -z "${uninstall}" ]; then
         installCommon_installCheckDependencies
@@ -236,12 +244,6 @@ function main() {
 
     if [ -z "${configurations}" ] && [ -z "${AIO}" ] && [ -z "${download}" ]; then
         checks_previousCertificate
-    fi
-    checks_arch
-    if [ -n "${ignore}" ]; then
-        common_logger -w "Hardware and system checks ignored."
-    else
-        checks_health
     fi
 
     if [ -n "${port_specified}" ]; then
