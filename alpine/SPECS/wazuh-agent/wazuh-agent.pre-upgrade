@@ -4,6 +4,11 @@
 
 directory_base="DIRECTORY_BASE"
 
+if [ ! -d "${directory_base}" ]; then
+    echo "Error: Directory ${directory_base} does not exist. Cannot perform upgrade" >&2
+    exit 1
+fi
+
 if [ -f /var/ossec/var/run/wazuh-execd-*.pid ]; then
     touch ${directory_base}/tmp/wazuh.restart
     ${directory_base}/bin/wazuh-control stop > /dev/null 2>&1
