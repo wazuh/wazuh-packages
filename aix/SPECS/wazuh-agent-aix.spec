@@ -14,6 +14,7 @@ Source0: %{name}-%{version}.tar.gz
 Conflicts: ossec-hids ossec-hids-agent wazuh-manager wazuh-local
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
+Requires: bash
 BuildRequires: coreutils automake autoconf libtool
 
 %description
