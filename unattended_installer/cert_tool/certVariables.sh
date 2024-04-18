@@ -6,8 +6,7 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
-base_path="$(dirname "$(readlink -f "$0")")"
-readonly base_path
+readonly base_path="$(dirname "$(readlink -f "$0")")"
 readonly config_file="${base_path}/config.yml"
 readonly logfile="${base_path}/wazuh-certificates-tool.log"
 cert_tmp_path="/tmp/wazuh-certificates"
