@@ -56,7 +56,7 @@ function common_logger() {
     fi
 
     if [ -z "${debugLogger}" ] || { [ -n "${debugLogger}" ] && [ -n "${debugEnabled}" ]; }; then
-        if { [ "$EUID" -eq 0 ] && [ -z "${nolog}" ]; } || [[ "$(basename "$0")" =~ $cert_tool_script_name ]]; then
+        if [ -z "${nolog}" ] && { [ "$EUID" -eq 0 ] || [[ "$(basename "$0")" =~ $cert_tool_script_name ]]; }; then
             printf "%s\n" "${now} ${mtype} ${message}" | tee -a ${logfile}
         else
             printf "%b\n" "${now} ${mtype} ${message}"
