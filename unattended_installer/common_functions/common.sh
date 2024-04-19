@@ -146,7 +146,7 @@ function common_checkSystem() {
         sep="="
         common_logger -d "APT package manager will be used."
     else
-        common_logger -e "Couldn't find type of system"
+        common_logger -e "Couldn't find YUM or APT package manager. Try to install one of them with your current package manager. Then, launch the installation assistant again."
         exit 1
     fi
 
