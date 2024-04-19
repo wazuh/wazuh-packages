@@ -105,7 +105,6 @@ function main() {
     local CONTAINER_NAME=""
     local PKG_NAME=""
     local OUT_NAME=""
-    local NO_COMPILE=false
     local CHECKSUMDIR=""
     local WPK_KEY=""
     local WPK_CERT=""
