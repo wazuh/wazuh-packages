@@ -1444,7 +1444,7 @@ rm -fr %{buildroot}
 
 
 %changelog
-* Wed Apr 24 2024 support <info@wazuh.com> - 4.7.4
+* Thu Apr 25 2024 support <info@wazuh.com> - 4.7.4
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-7-4.html
 * Tue Feb 27 2024 support <info@wazuh.com> - 4.7.3
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-7-3.html
