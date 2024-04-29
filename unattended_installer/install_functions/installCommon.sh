@@ -590,7 +590,8 @@ function installCommon_rollBack() {
             common_checkYumLock
             if [ "${attempt}" -ne "${max_attempts}" ]; then
                 eval "yum remove wazuh-manager -y ${debug}"
-                eval "rpm -q wazuh-manager --quiet && manager_installed=1"
+                eval "rpm -q wazuh-manager --quiet"
+                manager_installed=${PIPESTATUS[0]}
             fi
         elif [ "${sys_type}" == "apt-get" ]; then
             common_checkAptLock
@@ -616,7 +617,8 @@ function installCommon_rollBack() {
             common_checkYumLock
             if [ "${attempt}" -ne "${max_attempts}" ]; then
                 eval "yum remove wazuh-indexer -y ${debug}"
-                eval "rpm -q wazuh-indexer --quiet && indexer_installed=1"
+                eval "rpm -q wazuh-indexer --quiet"
+                indexer_installed=${PIPESTATUS[0]}
             fi
         elif [ "${sys_type}" == "apt-get" ]; then
             common_checkAptLock
@@ -643,7 +645,8 @@ function installCommon_rollBack() {
             common_checkYumLock
             if [ "${attempt}" -ne "${max_attempts}" ]; then
                 eval "yum remove filebeat -y ${debug}"
-                eval "rpm -q filebeat --quiet && filebeat_installed=1"
+                eval "rpm -q filebeat --quiet"
+                filebeat_installed=${PIPESTATUS[0]}
             fi
         elif [ "${sys_type}" == "apt-get" ]; then
             common_checkAptLock
@@ -670,7 +673,8 @@ function installCommon_rollBack() {
             common_checkYumLock
             if [ "${attempt}" -ne "${max_attempts}" ]; then
                 eval "yum remove wazuh-dashboard -y ${debug}"
-                eval "rpm -q wazuh-dashboard --quiet && dashboard_installed=1"
+                eval "rpm -q wazuh-dashboard --quiet"
+                dashboard_installed=${PIPESTATUS[0]}
             fi
         elif [ "${sys_type}" == "apt-get" ]; then
             common_checkAptLock
