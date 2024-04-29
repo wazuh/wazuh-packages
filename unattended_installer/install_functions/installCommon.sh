@@ -599,7 +599,7 @@ function installCommon_rollBack() {
             manager_installed=$(apt list --installed 2>/dev/null | grep wazuh-manager)
         fi
 
-        if [ -n "${manager_installed}" ]; then
+        if [ "${manager_installed}" -eq 0 ]; then
             common_logger -w "The Wazuh manager package could not be removed."
         else
             common_logger "Wazuh manager removed."
@@ -626,7 +626,7 @@ function installCommon_rollBack() {
             indexer_installed=$(apt list --installed 2>/dev/null | grep wazuh-indexer)
         fi
 
-        if [ -n "${indexer_installed}" ]; then
+        if [ "${indexer_installed}" -eq 0 ]; then
             common_logger -w "The Wazuh indexer package could not be removed."
         else
             common_logger "Wazuh indexer removed."
@@ -654,7 +654,7 @@ function installCommon_rollBack() {
             filebeat_installed=$(apt list --installed 2>/dev/null | grep filebeat)
         fi
 
-        if [ -n "${filebeat_installed}" ]; then
+        if [ "${filebeat_installed}" -eq 0 ]; then
             common_logger -w "The Filebeat package could not be removed."
         else
             common_logger "Filebeat removed."
@@ -682,7 +682,7 @@ function installCommon_rollBack() {
             dashboard_installed=$(apt list --installed 2>/dev/null | grep wazuh-dashboard)
         fi
 
-        if [ -n "${dashboard_installed}" ]; then
+        if [ "${dashboard_installed}" -eq 0 ]; then
             common_logger -w "The Wazuh dashboard package could not be removed."
         else
             common_logger "Wazuh dashboard removed."
