@@ -597,7 +597,7 @@ function installCommon_rollBack() {
             common_checkAptLock
             eval "apt-get remove --purge wazuh-manager -y ${debug}"
             eval "apt list --installed 2>/dev/null | grep wazuh-manager"
-            manager_installed="${PIPESTATUS[1]}"
+            manager_installed=${PIPESTATUS[0]}
         fi
 
         if [ "${manager_installed}" -eq 0 ]; then
@@ -625,7 +625,7 @@ function installCommon_rollBack() {
             common_checkAptLock
             eval "apt-get remove --purge wazuh-indexer -y ${debug}"
             eval "apt list --installed 2>/dev/null | grep wazuh-indexer"
-            indexer_installed="${PIPESTATUS[1]}"
+            indexer_installed=${PIPESTATUS[0]}
         fi
 
         if [ "${indexer_installed}" -eq 0 ]; then
@@ -654,7 +654,7 @@ function installCommon_rollBack() {
             common_checkAptLock
             eval "apt-get remove --purge filebeat -y ${debug}"
             eval "apt list --installed 2>/dev/null | grep filebeat"
-            filebeat_installed="${PIPESTATUS[1]}"
+            filebeat_installed=${PIPESTATUS[0]}
         fi
 
         if [ "${filebeat_installed}" -eq 0 ]; then
@@ -683,7 +683,7 @@ function installCommon_rollBack() {
             common_checkAptLock
             eval "apt-get remove --purge wazuh-dashboard -y ${debug}"
             eval "apt list --installed 2>/dev/null | grep wazuh-dashboard"
-            dashboard_installed="${PIPESTATUS[1]}"
+            dashboard_installed=${PIPESTATUS[0]}
         fi
 
         if [ "${dashboard_installed}" -eq 0 ]; then
