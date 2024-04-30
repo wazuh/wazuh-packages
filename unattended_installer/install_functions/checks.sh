@@ -242,8 +242,6 @@ function check_dist() {
 
 function checks_health() {
 
-    common_logger "Verifying that your system meets the recommended minimum hardware requirements."
-
     checks_specifications
 
     common_logger -d "CPU cores detected: ${cores}"
@@ -365,7 +363,7 @@ function checks_specialDepsAL2023() {
 function checks_specifications() {
 
     cores=$(grep -c processor /proc/cpuinfo)
-    ram_gb=$(free -m | awk '/^Mem:/{print $2}')
+    ram_gb=$(free -m | awk 'FNR == 2 {print $2}')
 
 }
 

@@ -158,6 +158,8 @@ function main() {
             esac
         done
 
+        common_logger "Verbose logging redirected to ${logfile}"
+
         if [[ -d "${base_path}"/wazuh-certificates ]]; then
             if [ -n "$(ls -A "${base_path}"/wazuh-certificates)" ]; then
                 common_logger -e "Directory wazuh-certificates already exists in the same path as the script. Please, remove the certs directory to create new certificates."

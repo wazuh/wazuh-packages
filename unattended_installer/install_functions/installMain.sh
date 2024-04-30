@@ -233,7 +233,7 @@ function main() {
     elif [ -n "${offline_install}" ]; then
         offline_checkDependencies
     fi
-    
+
     common_checkInstalled
     checks_arguments
     if [ -n "${uninstall}" ]; then
@@ -241,16 +241,22 @@ function main() {
         exit 0
     fi
 
-# -------------- Preliminary checks and Prerequisites --------------------------------
-
-    if [ -z "${configurations}" ] && [ -z "${AIO}" ] && [ -z "${download}" ]; then
-        checks_previousCertificate
-    fi
     checks_arch
     if [ -n "${ignore}" ]; then
         common_logger -w "Hardware and system checks ignored."
     else
+        common_logger "Verifying that your system meets the recommended minimum hardware requirements."
         checks_health
+    fi
+
+# -------------- Preliminary checks and Prerequisites --------------------------------
+
+    if [ -z "${uninstall}" ]; then
+        installCommon_installCheckDependencies
+    fi
+
+    if [ -z "${configurations}" ] && [ -z "${AIO}" ] && [ -z "${download}" ]; then
+        checks_previousCertificate
     fi
 
     if [ -n "${port_specified}" ]; then
