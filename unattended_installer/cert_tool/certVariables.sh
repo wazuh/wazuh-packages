@@ -12,3 +12,4 @@ readonly logfile="${base_path}/wazuh-certificates-tool.log"
 cert_tmp_path="/tmp/wazuh-certificates"
 debug=">> ${logfile} 2>&1"
 readonly cert_tool_script_name=".*certs.*\.sh"
+
