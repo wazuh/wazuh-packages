@@ -139,7 +139,7 @@ compile() {
     cd ${source_directory}/src
     config
     check_version
-    gmake deps RESOURCES_URL=http://packages.wazuh.com/deps/${deps_version} TARGET=agent
+    gmake deps RESOURCES_URL=http://packages-dev.wazuh.com/deps/${deps_version} TARGET=agent
     gmake TARGET=agent USE_SELINUX=no
     bash ${source_directory}/install.sh
     # Install std libs needed to run the agent
@@ -225,7 +225,7 @@ build_package() {
     download_source
     compile
     create_package
-    clean 0
+    # clean 0
 }
 
 # Main function, processes user input
