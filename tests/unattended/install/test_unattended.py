@@ -171,7 +171,7 @@ def test_check_wazuh_manager_modulesd():
 
 @pytest.mark.wazuh
 def test_check_wazuh_manager_apid():
-    assert check_call("ps -xa | grep wazuh-apid | grep -v grep", shell=True) != ""
+    assert check_call("ps -xa | grep wazuh_apid | grep -v grep", shell=True) != ""
 
 @pytest.mark.wazuh_cluster
 def test_check_wazuh_manager_clusterd():
