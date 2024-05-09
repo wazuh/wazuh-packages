@@ -108,6 +108,17 @@ find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -type f -perm 755 -exec chmod 750
 find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -type d -exec chmod 750 {} \;
 find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -type f -perm 744 -exec chmod 740 {} \;
 
+find %{buildroot}%{INSTALL_DIR}/plugins/wazuhCheckUpdates/ -exec chown %{USER}:%{GROUP} {} \;
+find %{buildroot}%{INSTALL_DIR}/plugins/wazuhCheckUpdates/ -type f -perm 644 -exec chmod 640 {} \;
+find %{buildroot}%{INSTALL_DIR}/plugins/wazuhCheckUpdates/ -type f -perm 755 -exec chmod 750 {} \;
+find %{buildroot}%{INSTALL_DIR}/plugins/wazuhCheckUpdates/ -type d -exec chmod 750 {} \;
+find %{buildroot}%{INSTALL_DIR}/plugins/wazuhCheckUpdates/ -type f -perm 744 -exec chmod 740 {} \;
+
+find %{buildroot}%{INSTALL_DIR}/plugins/wazuhCore/ -exec chown %{USER}:%{GROUP} {} \;
+find %{buildroot}%{INSTALL_DIR}/plugins/wazuhCore/ -type f -perm 644 -exec chmod 640 {} \;
+find %{buildroot}%{INSTALL_DIR}/plugins/wazuhCore/ -type f -perm 755 -exec chmod 750 {} \;
+find %{buildroot}%{INSTALL_DIR}/plugins/wazuhCore/ -type d -exec chmod 750 {} \;
+find %{buildroot}%{INSTALL_DIR}/plugins/wazuhCore/ -type f -perm 744 -exec chmod 740 {} \;
 # -----------------------------------------------------------------------------
 
 %pre
