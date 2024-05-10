@@ -82,6 +82,7 @@ function passwords_changePassword() {
 function passwords_changePasswordApi() {
     #Change API password tool
     if [ -n "${changeall}" ]; then
+        wazuh_yml_user=$(grep "username:" /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml | awk -F ': ' '{print $2}')
         for i in "${!api_passwords[@]}"; do
             if [ -n "${wazuh_installed}" ]; then
                 passwords_getApiUserId "${api_users[i]}"
@@ -96,7 +97,7 @@ function passwords_changePasswordApi() {
                     common_logger -nl $"The password for Wazuh API user ${api_users[i]} is ${api_passwords[i]}"
                 fi
             fi
-            if [ "${api_users[i]}" == "wazuh-wui" ] && [ -n "${dashboard_installed}" ]; then
+            if [ "${api_users[i]}" == "${wazuh_yml_user}" ] && [ -n "${dashboard_installed}" ]; then
                 passwords_changeDashboardApiPassword "${api_passwords[i]}"
             fi
         done
@@ -109,7 +110,7 @@ function passwords_changePasswordApi() {
                 common_logger -nl $"The password for Wazuh API user ${nuser} is ${password}"
             fi
         fi
-        if [ "${nuser}" == "wazuh-wui" ] && [ -n "${dashboard_installed}" ]; then
+        if [ "${nuser}" == "${wazuh_yml_user}" ] && [ -n "${dashboard_installed}" ]; then
                 passwords_changeDashboardApiPassword "${password}"
         fi
     fi
@@ -120,7 +121,7 @@ function passwords_changeDashboardApiPassword() {
     j=0
     until [ -n "${file_exists}" ] || [ "${j}" -eq "12" ]; do
         if [ -f "/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml" ]; then
-            eval "sed -i -e 's|username: .*|username: wazuh-wui|g' -e 's|password: .*|password: \"${1}\"|g' /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml ${debug}"
+            eval "sed -i 's|password: .*|password: \"${1}\"|g' /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml ${debug}"
             if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_indexer_cluster}" ]; then
                 common_logger "Updated wazuh-wui user password in wazuh dashboard. Remember to restart the service."
             fi
