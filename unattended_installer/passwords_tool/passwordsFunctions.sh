@@ -82,7 +82,7 @@ function passwords_changePassword() {
 function passwords_changePasswordApi() {
     #Change API password tool
     if [ -n "${changeall}" ]; then
-        wazuh_yml_user=$(grep "username:" /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml | awk -F ': ' '{print $2}')
+        wazuh_yml_user=$(awk '/- default:/ {flag=1} flag && /username:/ {print $2; exit} /hosts:/ {flag=0}' /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml)
         for i in "${!api_passwords[@]}"; do
             if [ -n "${wazuh_installed}" ]; then
                 passwords_getApiUserId "${api_users[i]}"
