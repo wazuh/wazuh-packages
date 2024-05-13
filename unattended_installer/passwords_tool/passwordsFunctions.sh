@@ -82,6 +82,7 @@ function passwords_changePassword() {
 function passwords_changePasswordApi() {
     #Change API password tool
     if [ -n "${changeall}" ]; then
+        wazuh_yml_user=$(awk '/- default:/ {found=1} found && /username:/ {print $2}' /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml)
         for i in "${!api_passwords[@]}"; do
             if [ -n "${wazuh_installed}" ]; then
                 passwords_getApiUserId "${api_users[i]}"
@@ -96,7 +97,7 @@ function passwords_changePasswordApi() {
                     common_logger -nl $"The password for Wazuh API user ${api_users[i]} is ${api_passwords[i]}"
                 fi
             fi
-            if [ "${api_users[i]}" == "wazuh-wui" ] && [ -n "${dashboard_installed}" ]; then
+            if [ "${api_users[i]}" == "${wazuh_yml_user}" ] && [ -n "${dashboard_installed}" ]; then
                 passwords_changeDashboardApiPassword "${api_passwords[i]}"
             fi
         done
@@ -109,7 +110,7 @@ function passwords_changePasswordApi() {
                 common_logger -nl $"The password for Wazuh API user ${nuser} is ${password}"
             fi
         fi
-        if [ "${nuser}" == "wazuh-wui" ] && [ -n "${dashboard_installed}" ]; then
+        if [ "${nuser}" == "${wazuh_yml_user}" ] && [ -n "${dashboard_installed}" ]; then
                 passwords_changeDashboardApiPassword "${password}"
         fi
     fi
