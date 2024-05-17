@@ -4473,7 +4473,7 @@ input:focus {
   margin-top: 32px;
 }
 
-div.euiFormRow > div.euiFormRow__fieldWrapper > button {
+.wz-login .btn-login {
   background-color: #3595F9!important;
   border-color: #3595F9!important;
   color: #fff;
