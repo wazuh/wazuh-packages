@@ -526,8 +526,10 @@ function passwords_restartService() {
 
     if [[ -d /run/systemd/system ]]; then
         eval "systemctl daemon-reload ${debug}"
-        eval "systemctl restart ${1}.service ${debug}"
-        if [  "${PIPESTATUS[0]}" != 0  ]; then
+        service_output=$(eval "systemctl restart ${1}.service 2>&1")
+        e_code="${PIPESTATUS[0]}"
+        [ -n "${service_output}" ] && eval "echo \${service_output} ${debug}"
+        if [  "${e_code}" != 0  ]; then
             common_logger -e "${1} could not be started."
             if [ -n "$(command -v journalctl)" ]; then
                 eval "journalctl -u ${1} >> ${logfile}"
