@@ -178,6 +178,14 @@ function installCommon_changePasswordApi() {
         fi
     fi
 
+    if [ -n "${wazuh}" ] || [ -n "${AIO}" ]; then
+        for i in "${!api_users[@]}"; do
+            if [ "${api_users[i]}" == "wazuh" ] || [ "${api_users[i]}" == "wazuh-wui" ]; then
+                common_logger "The password for user ${api_users[i]} is ${api_passwords[i]}"
+            fi
+        done
+    fi
+
 }
 
 function installCommon_createCertificates() {
