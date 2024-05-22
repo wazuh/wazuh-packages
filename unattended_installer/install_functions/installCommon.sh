@@ -180,7 +180,7 @@ function installCommon_changePasswordApi() {
 
     for i in "${!api_users[@]}"; do
         if [ "${api_users[i]}" == "wazuh" ] || [ "${api_users[i]}" == "wazuh-wui" ]; then
-            common_logger "The password for user ${api_users[i]} is ${api_passwords[i]}"
+            common_logger "The password for the ${api_users[i]} user is ${api_passwords[i]}"
         fi
     done
 
