@@ -37,6 +37,9 @@ function getHelp() {
     echo -e "        -i,  --ignore-check"
     echo -e "                Ignore the check for system compatibility and minimum hardware requirements."
     echo -e ""
+    echo -e "        -id,  --install-dependencies"
+    echo -e "                Installs automatically the necessary dependencies for the installation."
+    echo -e ""
     echo -e "        -o,  --overwrite"
     echo -e "                Overwrites previously installed components. This will erase all the existing configuration and data."
     echo -e ""
@@ -111,6 +114,10 @@ function main() {
                 ;;
             "-i"|"--ignore-check")
                 ignore=1
+                shift 1
+                ;;
+            "-id"|"--install-dependencies")
+                install_dependencies=1
                 shift 1
                 ;;
             "-o"|"--overwrite")
