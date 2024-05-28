@@ -377,7 +377,7 @@ function checks_ports() {
     fi
     
     if [ "${#not_installed[@]}" -gt 0 ]; then
-            wia_dependencies_installed+=("${dep}")
+        wia_dependencies_installed+=("${dep}")
     fi
     
     common_logger -d "Checking ports availability."

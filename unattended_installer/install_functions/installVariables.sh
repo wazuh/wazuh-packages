@@ -56,9 +56,8 @@ wazuh_aio_ports=( 9200 9300 1514 1515 1516 55000 "${http_port}")
 readonly wazuh_indexer_ports=( 9200 9300 )
 readonly wazuh_manager_ports=( 1514 1515 1516 55000 )
 wazuh_dashboard_port="${http_port}"
-# `lsof` and `openssl` are installed separately
-wia_yum_dependencies=( systemd grep tar coreutils sed procps-ng gawk curl )
-readonly wia_apt_dependencies=( systemd grep tar coreutils sed procps gawk curl )
+wia_yum_dependencies=( systemd grep tar coreutils sed procps-ng gawk curl lsof openssl )
+readonly wia_apt_dependencies=( systemd grep tar coreutils sed procps gawk curl lsof openssl )
 readonly wazuh_yum_dependencies=( libcap )
 readonly wazuh_apt_dependencies=( apt-transport-https libcap2-bin software-properties-common gnupg )
 readonly indexer_yum_dependencies=( coreutils )

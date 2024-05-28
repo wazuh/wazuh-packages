@@ -118,22 +118,9 @@ function installCommon_aptInstall() {
 function installCommon_aptInstallList(){
 
     dependencies=("$@")
-    not_installed=()
-
-    for dep in "${dependencies[@]}"; do
-        if ! apt list --installed 2>/dev/null | grep -q -E ^"${dep}"\/; then
-            not_installed+=("${dep}")
-            for wia_dep in "${wia_apt_dependencies[@]}"; do
-                if [ "${wia_dep}" == "${dep}" ]; then
-                    wia_dependencies_installed+=("${dep}")
-                fi
-            done
-        fi
-    done
-
-    if [ "${#not_installed[@]}" -gt 0 ]; then
+    if [ "${#dependencies[@]}" -gt 0 ]; then
         common_logger "--- Dependencies ----"
-        for dep in "${not_installed[@]}"; do
+        for dep in "${dependencies[@]}"; do
             common_logger "Installing $dep."
             installCommon_aptInstall "${dep}"
             if [ "${install_result}" != 0 ]; then
@@ -222,18 +209,6 @@ function installCommon_createInstallFiles() {
 
     if eval "mkdir /tmp/wazuh-install-files ${debug}"; then
         common_logger "Generating configuration files."
-
-        dep="openssl"
-        if [ "${sys_type}" == "yum" ]; then
-            installCommon_yumInstallList "${dep}"
-        elif [ "${sys_type}" == "apt-get" ]; then
-            installCommon_aptInstallList "${dep}"
-        fi
-        
-        if [ "${#not_installed[@]}" -gt 0 ]; then
-            wia_dependencies_installed+=("${dep}")
-        fi
-        
         if [ -n "${configurations}" ]; then
             cert_checkOpenSSL
         fi
@@ -247,7 +222,7 @@ function installCommon_createInstallFiles() {
         eval "chown root:root /tmp/wazuh-install-files/* ${debug}"
         eval "tar -zcf '${tar_file}' -C '/tmp/' wazuh-install-files/ ${debug}"
         eval "rm -rf '/tmp/wazuh-install-files' ${debug}"
-	    eval "rm -rf ${config_file} ${debug}"
+        eval "rm -rf ${config_file} ${debug}"
         common_logger "Created ${tar_file_name}. It contains the Wazuh cluster key, certificates, and passwords necessary for installation."
     else
         common_logger -e "Unable to create /tmp/wazuh-install-files"
@@ -380,6 +355,90 @@ function installCommon_installCheckDependencies() {
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "apt-get update -q ${debug}"
         installCommon_aptInstallList "${wia_apt_dependencies[@]}"
+    fi
+
+}
+
+function installCommon_scanDependencies() {
+
+    wazuh_deps=()
+    if [ -n "${AIO}" ]; then
+        if [ "${sys_type}" == "yum" ]; then
+            wazuh_deps+=( "${indexer_yum_dependencies[@]}" "${wazuh_yum_dependencies[@]}" "${dashboard_yum_dependencies[@]}" )
+        else 
+            wazuh_deps+=( "${indexer_apt_dependencies[@]}" "${wazuh_apt_dependencies[@]}" "${dashboard_apt_dependencies[@]}" )
+        fi
+    elif [ -n "${indexer}" ]; then
+        if [ "${sys_type}" == "yum" ]; then
+            wazuh_deps+=( "${indexer_yum_dependencies[@]}" )
+        else 
+            wazuh_deps+=( "${indexer_apt_dependencies[@]}" )
+        fi
+    elif [ -n "${wazuh}" ]; then
+        if [ "${sys_type}" == "yum" ]; then
+            wazuh_deps+=( "${wazuh_yum_dependencies[@]}" )
+        else 
+            wazuh_deps+=( "${wazuh_apt_dependencies[@]}" )
+        fi
+    elif [ -n "${dashboard}" ]; then
+        if [ "${sys_type}" == "yum" ]; then
+            wazuh_deps+=( "${dashboard_yum_dependencies[@]}" )
+        else 
+            wazuh_deps+=( "${dashboard_apt_dependencies[@]}" )
+        fi
+    fi
+
+    all_deps=( "${wazuh_deps[@]}" )
+    if [ "${sys_type}" == "apt-get" ]; then
+        all_deps+=( "${wia_apt_dependencies[@]}" )
+    else 
+        all_deps+=( "${wia_yum_dependencies[@]}" )
+    fi
+
+    # Delete duplicates and sort
+    all_deps=($(echo "${all_deps[@]}" | tr ' ' '\n' | sort -u))
+    not_installed=()
+
+    if [ "${sys_type}" = "apt-get" ]; then
+        command='! apt list --installed 2>/dev/null | grep -q -E ^"${dep}"\/'
+        assistant_deps=("${wia_apt_dependencies[@]}")
+    else
+        command='! rpm -q ${dep} --quiet'
+        assistant_deps=("${wia_yum_dependencies[@]}")
+    fi
+
+    # Remove openssl dependency if not necessary
+    if [ -n "${configurations}" ] || [ -n "${AIO}" ]; then
+        assistant_deps=( "${assistant_deps[@]/openssl}" )
+    fi
+
+    # Get not installed dependencies
+    for dep in "${all_deps[@]}"; do
+        if eval "${command}";then
+            not_installed+=("${dep}")
+            for wia_dep in "${assistant_deps[@]}"; do
+                if [ "${wia_dep}" == "${dep}" ]; then
+                    wia_dependencies_installed+=("${dep}")
+                fi
+            done
+        fi
+    done
+
+    # Format and print the message if the option is not specified
+    if [ -z "${install_dependencies}" ] && [ "${#not_installed[@]}" -gt 0 ]; then
+        printf -v joined_not_installed '%s, ' "${not_installed[@]}"
+        printf -v joined_wia_not_installed '%s, ' "${wia_dependencies_installed[@]}"
+        joined_not_installed="${joined_not_installed%, }"
+        joined_wia_not_installed="${joined_wia_not_installed%, }"
+
+        message="To perform the installation, the following package/s must be installed: ${joined_not_installed}."
+        if [ "${#wia_dependencies_installed[@]}" -gt 0 ]; then
+            message+=" The following package/s will be removed after the installation: ${joined_wia_not_installed}."
+        fi
+        message+=" Add the -id|--install-dependencies parameter to install them automatically or install them manually."
+        common_logger -w "${message}"
+        
+        exit 0
     fi
 
 }
@@ -791,21 +850,9 @@ function installCommon_startService() {
 function installCommon_yumInstallList(){
 
     dependencies=("$@")
-    not_installed=()
-    for dep in "${dependencies[@]}"; do
-        if ! rpm -q "${dep}" --quiet;then
-            not_installed+=("${dep}")
-            for wia_dep in "${wia_yum_dependencies[@]}"; do
-                if [ "${wia_dep}" == "${dep}" ]; then
-                    wia_dependencies_installed+=("${dep}")
-                fi
-            done
-        fi
-    done
-
-    if [ "${#not_installed[@]}" -gt 0 ]; then
+    if [ "${#dependencies[@]}" -gt 0 ]; then
         common_logger "--- Dependencies ---"
-        for dep in "${not_installed[@]}"; do
+        for dep in "${dependencies[@]}"; do
             common_logger "Installing $dep."
             installCommon_yumInstall "${dep}"
             yum_code="${PIPESTATUS[0]}"
