@@ -345,7 +345,7 @@ function installCommon_installCheckDependencies() {
         if [[ "${DIST_NAME}" == "rhel" ]] && [[ "${DIST_VER}" == "8" || "${DIST_VER}" == "9" ]]; then
             installCommon_configureCentOSRepositories
         fi
-        installCommon_yumInstallList "${wia_yum_dependencies[@]}"
+        installCommon_yumInstallList "${assistant_yum_dependencies[@]}"
 
         # In RHEL cases, remove the CentOS repositories configuration
         if [ "${centos_repos_configured}" == 1 ]; then
@@ -354,7 +354,7 @@ function installCommon_installCheckDependencies() {
 
     elif [ "${sys_type}" == "apt-get" ]; then
         eval "apt-get update -q ${debug}"
-        installCommon_aptInstallList "${wia_apt_dependencies[@]}"
+        installCommon_aptInstallList "${assistant_apt_dependencies[@]}"
     fi
 
 }
@@ -390,9 +390,9 @@ function installCommon_scanDependencies() {
 
     all_deps=( "${wazuh_deps[@]}" )
     if [ "${sys_type}" == "apt-get" ]; then
-        all_deps+=( "${wia_apt_dependencies[@]}" )
+        all_deps+=( "${assistant_apt_dependencies[@]}" )
     else 
-        all_deps+=( "${wia_yum_dependencies[@]}" )
+        all_deps+=( "${assistant_yum_dependencies[@]}" )
     fi
 
     # Delete duplicates and sort
@@ -401,10 +401,10 @@ function installCommon_scanDependencies() {
 
     if [ "${sys_type}" = "apt-get" ]; then
         command='! apt list --installed 2>/dev/null | grep -q -E ^"${dep}"\/'
-        assistant_deps=("${wia_apt_dependencies[@]}")
+        assistant_deps=("${assistant_apt_dependencies[@]}")
     else
         command='! rpm -q ${dep} --quiet'
-        assistant_deps=("${wia_yum_dependencies[@]}")
+        assistant_deps=("${assistant_yum_dependencies[@]}")
     fi
 
     # Remove openssl dependency if not necessary
@@ -418,7 +418,7 @@ function installCommon_scanDependencies() {
             not_installed+=("${dep}")
             for wia_dep in "${assistant_deps[@]}"; do
                 if [ "${wia_dep}" == "${dep}" ]; then
-                    wia_dependencies_installed+=("${dep}")
+                    assistant_dependencies_installed+=("${dep}")
                 fi
             done
         fi
@@ -427,12 +427,12 @@ function installCommon_scanDependencies() {
     # Format and print the message if the option is not specified
     if [ -z "${install_dependencies}" ] && [ "${#not_installed[@]}" -gt 0 ]; then
         printf -v joined_not_installed '%s, ' "${not_installed[@]}"
-        printf -v joined_wia_not_installed '%s, ' "${wia_dependencies_installed[@]}"
+        printf -v joined_wia_not_installed '%s, ' "${assistant_dependencies_installed[@]}"
         joined_not_installed="${joined_not_installed%, }"
         joined_wia_not_installed="${joined_wia_not_installed%, }"
 
         message="To perform the installation, the following package/s must be installed: ${joined_not_installed}."
-        if [ "${#wia_dependencies_installed[@]}" -gt 0 ]; then
+        if [ "${#assistant_dependencies_installed[@]}" -gt 0 ]; then
             message+=" The following package/s will be removed after the installation: ${joined_wia_not_installed}."
         fi
         message+=" Add the -id|--install-dependencies parameter to install them automatically or install them manually."
@@ -880,9 +880,9 @@ function installCommon_removeWIADependencies() {
 
 function installCommon_yumRemoveWIADependencies(){
 
-    if [ "${#wia_dependencies_installed[@]}" -gt 0 ]; then
+    if [ "${#assistant_dependencies_installed[@]}" -gt 0 ]; then
         common_logger "--- Dependencies ---"
-        for dep in "${wia_dependencies_installed[@]}"; do
+        for dep in "${assistant_dependencies_installed[@]}"; do
             if [ "${dep}" != "systemd" ]; then
                 common_logger "Removing $dep."
                 yum_output=$(yum remove ${dep} -y 2>&1)
@@ -901,9 +901,9 @@ function installCommon_yumRemoveWIADependencies(){
 
 function installCommon_aptRemoveWIADependencies(){
 
-    if [ "${#wia_dependencies_installed[@]}" -gt 0 ]; then
+    if [ "${#assistant_dependencies_installed[@]}" -gt 0 ]; then
         common_logger "--- Dependencies ----"
-        for dep in "${wia_dependencies_installed[@]}"; do
+        for dep in "${assistant_dependencies_installed[@]}"; do
             if [ "${dep}" != "systemd" ]; then
                 common_logger "Removing $dep."
                 apt_output=$(apt-get remove --purge ${dep} -y 2>&1)

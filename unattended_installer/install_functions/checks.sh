@@ -352,11 +352,11 @@ function checks_previousCertificate() {
 function checks_specialDepsAL2023() {
 
     # Change curl for curl-minimal
-    wia_yum_dependencies=( "${wia_yum_dependencies[@]/curl/curl-minimal}" )
+    assistant_yum_dependencies=( "${assistant_yum_dependencies[@]/curl/curl-minimal}" )
 
     # In containers, coreutils is replaced for coreutils-single
     if [ -f "/.dockerenv" ]; then
-        wia_yum_dependencies=( "${wia_yum_dependencies[@]/coreutils/coreutils-single}" )
+        assistant_yum_dependencies=( "${assistant_yum_dependencies[@]/coreutils/coreutils-single}" )
     fi
 }
 
@@ -377,7 +377,7 @@ function checks_ports() {
     fi
     
     if [ "${#not_installed[@]}" -gt 0 ]; then
-        wia_dependencies_installed+=("${dep}")
+        assistant_dependencies_installed+=("${dep}")
     fi
     
     common_logger -d "Checking ports availability."
