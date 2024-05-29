@@ -245,6 +245,7 @@ function main() {
     checks_arch
 
     if [ -z "${uninstall}" ] && [ -z "${offline_install}" ]; then
+        installCommon_scanDependencies
         installCommon_installDependencies "assistant"
     elif [ -n "${offline_install}" ]; then
         offline_checkDependencies

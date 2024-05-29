@@ -759,6 +759,11 @@ function installCommon_scanDependencies() {
         assistant_deps=( "${assistant_deps[@]/openssl}" )
     fi
 
+    # Remove lsof dependency if not necessary
+    if [ -z "${AIO}" ] && [ -z "${wazuh}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ]; then
+        assistant_deps=( "${assistant_deps[@]/lsof}" )
+    fi
+
     # Get not installed dependencies of Assistant and Wazuh
     for dep in "${all_deps[@]}"; do
         if eval "${command}"; then
