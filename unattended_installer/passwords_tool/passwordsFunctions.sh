@@ -13,7 +13,10 @@ function passwords_changePassword() {
             eval "mkdir /etc/wazuh-indexer/backup/ ${debug}"
             eval "cp /etc/wazuh-indexer/opensearch-security/* /etc/wazuh-indexer/backup/ ${debug}"
             passwords_createBackUp
+        elif [ -n "${adminUser}" ] && [ -n "${adminPassword}" ]; then
+            adminpass=$1
         fi
+
         for i in "${!passwords[@]}"
         do
             if [ -n "${indexer_installed}" ] && [ -f "/etc/wazuh-indexer/backup/internal_users.yml" ]; then
@@ -45,8 +48,11 @@ function passwords_changePassword() {
 
     fi
 
-    if [ "${nuser}" == "admin" ] || [ -n "${changeall}" ]; then
+    if [ "${nuser}" == "admin" ] || [ "${nuser}" == "filebeat" ] || [ -n "${changeall}" ]; then
         if [ -n "${filebeat_installed}" ]; then
+            if [ -n "${adminUser}" ] && [ -n "${adminPassword}" ]; then
+                adminpass=$1
+            fi
             if filebeat keystore list | grep -q password ; then
                 eval "(echo ${adminpass} | filebeat keystore add password --force --stdin)" "${debug}"
             else
@@ -57,7 +63,9 @@ function passwords_changePassword() {
                 echo "${conf}" > /etc/filebeat/filebeat.yml
             fi
             passwords_restartService "filebeat"
-            eval "/var/ossec/bin/wazuh-keystore -f indexer -k password -v ${adminpass}"
+            if [ -n "${indexer_installed}" ]; then
+                eval "/var/ossec/bin/wazuh-keystore -f indexer -k password -v ${adminpass}"
+            fi
             passwords_restartService "wazuh-manager"
         fi
     fi
@@ -74,6 +82,7 @@ function passwords_changePassword() {
                 echo "${conf}" > /etc/wazuh-dashboard/opensearch_dashboards.yml
             fi
             passwords_restartService "wazuh-dashboard"
+            common_logger -nl $"The password for the kibanaserver user in the dashboard has been updated to $dashpass"
         fi
     fi
 
@@ -82,19 +91,26 @@ function passwords_changePassword() {
 function passwords_changePasswordApi() {
     #Change API password tool
     if [ -n "${changeall}" ]; then
-        wazuh_yml_user=$(awk '/- default:/ {found=1} found && /username:/ {print $2}' /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml)
+        if [ -f "/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml" ]; then
+            wazuh_yml_user=$(awk '/- default:/ {found=1} found && /username:/ {print $2}' /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml)
+        fi
         for i in "${!api_passwords[@]}"; do
             if [ -n "${wazuh_installed}" ]; then
-                passwords_getApiUserId "${api_users[i]}"
-                WAZUH_PASS_API='{\"password\":\"'"${api_passwords[i]}"'\"}'
-                eval 'common_curl -s -k -X PUT -H \"Authorization: Bearer $TOKEN_API\" -H \"Content-Type: application/json\" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null --max-time 300 --retry 5 --retry-delay 5 --fail'
-                if [ "${api_users[i]}" == "${adminUser}" ]; then
-                    sleep 1
-                    adminPassword="${api_passwords[i]}"
-                    passwords_getApiToken
-                fi
-                if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_indexer_cluster}" ]; then
-                    common_logger -nl $"The password for Wazuh API user ${api_users[i]} is ${api_passwords[i]}"
+                if [ "${api_users[i]}" == "filebeat" ]; then
+                    passwords_changePassword "${api_passwords[i]}"
+                    common_logger -nl $"The new password for Filebeat is ${api_passwords[i]}"
+                else
+                    passwords_getApiUserId "${api_users[i]}"
+                    WAZUH_PASS_API='{\"password\":\"'"${api_passwords[i]}"'\"}'
+                    eval 'common_curl -s -k -X PUT -H \"Authorization: Bearer $TOKEN_API\" -H \"Content-Type: application/json\" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null --max-time 300 --retry 5 --retry-delay 5 --fail'
+                    if [ "${api_users[i]}" == "${adminUser}" ]; then
+                        sleep 1
+                        adminPassword="${api_passwords[i]}"
+                        passwords_getApiToken
+                    fi
+                    if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_indexer_cluster}" ]; then
+                        common_logger -nl $"The password for Wazuh API user ${api_users[i]} is ${api_passwords[i]}"
+                    fi
                 fi
             fi
             if [ "${api_users[i]}" == "${wazuh_yml_user}" ] && [ -n "${dashboard_installed}" ]; then
@@ -103,11 +119,16 @@ function passwords_changePasswordApi() {
         done
     else
         if [ -n "${wazuh_installed}" ]; then
-            passwords_getApiUserId "${nuser}"
-            WAZUH_PASS_API='{\"password\":\"'"${password}"'\"}'
-            eval 'common_curl -s -k -X PUT -H \"Authorization: Bearer $TOKEN_API\" -H \"Content-Type: application/json\" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null --max-time 300 --retry 5 --retry-delay 5 --fail'
-            if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_indexer_cluster}" ]; then
-                common_logger -nl $"The password for Wazuh API user ${nuser} is ${password}"
+            if [ "${nuser}" == "filebeat" ]; then
+                passwords_changePassword "${password}"
+                common_logger -nl $"The new password for Filebeat is ${password}"
+            else
+                passwords_getApiUserId "${nuser}"
+                WAZUH_PASS_API='{\"password\":\"'"${password}"'\"}'
+                eval 'common_curl -s -k -X PUT -H \"Authorization: Bearer $TOKEN_API\" -H \"Content-Type: application/json\" -d "$WAZUH_PASS_API" "https://localhost:55000/security/users/${user_id}" -o /dev/null --max-time 300 --retry 5 --retry-delay 5 --fail'
+                if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_indexer_cluster}" ]; then
+                    common_logger -nl $"The password for Wazuh API user ${nuser} is ${password}"
+                fi
             fi
         fi
         if [ "${nuser}" == "${wazuh_yml_user}" ] && [ -n "${dashboard_installed}" ]; then
@@ -123,7 +144,7 @@ function passwords_changeDashboardApiPassword() {
         if [ -f "/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml" ]; then
             eval "sed -i 's|password: .*|password: \"${1}\"|g' /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml ${debug}"
             if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_indexer_cluster}" ]; then
-                common_logger "Updated wazuh-wui user password in wazuh dashboard. Remember to restart the service."
+                common_logger "Updated wazuh-wui user password in wazuh dashboard to '${1}'. Remember to restart the service."
             fi
             file_exists=1
         fi
@@ -135,13 +156,15 @@ function passwords_changeDashboardApiPassword() {
 
 function passwords_checkUser() {
 
-    if [ -n "${adminUser}" ] && [ -n "${adminPassword}" ]; then
+    if { [ -n "${adminUser}" ] && [ -n "${adminPassword}" ]; } || { [ -z "${wazuh_installed}" ] && [ -n "${dashboard_installed}" ]; }; then
         for i in "${!api_users[@]}"; do
             if [ "${api_users[i]}" == "${nuser}" ]; then
                 exists=1
             fi
         done
-    else
+    fi
+
+    if [ -n "${indexer_installed}" ] || { [ -z "${wazuh_installed}" ] && [ -n "${dashboard_installed}" ]; }; then
         for i in "${!users[@]}"; do
             if [ "${users[i]}" == "${nuser}" ]; then
                 exists=1
@@ -269,6 +292,12 @@ function passwords_generatePassword() {
                 exit 1;
             fi
         done
+
+        # if the password of the user "admin" exists, it will be used as the password for the user "filebeat"
+        if [ -n "${passwords[0]}" ]; then
+            api_users+=("filebeat")
+            api_passwords+=("${passwords[0]}")
+        fi
     fi
 }
 
@@ -290,6 +319,7 @@ function passwords_generatePasswordFile() {
     api_user_description=(
         "Password for wazuh API user"
         "Password for wazuh-wui API user"
+        "Password for Filebeat user"
     )
     passwords_generatePassword
 
@@ -345,6 +375,8 @@ function passwords_getApiUsers() {
 
     mapfile -t api_users < <(common_curl -s -k -X GET -H \"Authorization: Bearer $TOKEN_API\" -H \"Content-Type: application/json\"  \"https://localhost:55000/security/users?pretty=true\" --max-time 300 --retry 5 --retry-delay 5 | grep username | awk -F': ' '{print $2}' | sed -e "s/[\'\",]//g")
 
+    # Add filebeat user for comunication with Wazuh indexer
+    api_users+=("filebeat")
 }
 
 function passwords_getApiIds() {
@@ -442,7 +474,7 @@ For Wazuh API users, the file must have this format:
             fi
         done
 
-        if [ -n "${adminUser}" ] && [ -n "${adminPassword}" ]; then
+        if { [ -n "${adminUser}" ] && [ -n "${adminPassword}" ]; } || { [ -z "${wazuh_installed}" ] && [ -n "${dashboard_installed}" ]; } then
             for j in "${!fileapiusers[@]}"; do
                 supported=false
                 for i in "${!api_users[@]}"; do
@@ -479,7 +511,7 @@ For Wazuh API users, the file must have this format:
             fi
         done
 
-        if [ -n "${adminUser}" ] && [ -n "${adminPassword}" ]; then
+        if { [ -n "${adminUser}" ] && [ -n "${adminPassword}" ]; } || { [ -z "${wazuh_installed}" ] && [ -n "${dashboard_installed}" ]; } then
             for j in "${!fileapiusers[@]}"; do
                 supported=false
                 for i in "${!api_users[@]}"; do
@@ -507,7 +539,17 @@ For Wazuh API users, the file must have this format:
     fi
 
 }
+function passwords_readDashboardUsers() {
 
+    wazuh_yml_user=$(awk '/- default:/ {found=1} found && /username:/ {print $2}' /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml)
+
+    api_users=("$wazuh_yml_user")
+
+    if [ -z "${indexer_installed}" ]; then
+        users=("kibanaserver")
+    fi
+
+}
 function passwords_readUsers() {
 
     passwords_updateInternalUsers

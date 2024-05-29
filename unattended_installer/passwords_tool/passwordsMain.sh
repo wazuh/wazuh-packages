@@ -222,6 +222,8 @@ function main() {
                 passwords_getApiToken
                 passwords_getApiUsers
                 passwords_getApiIds
+            elif [ -z "${wazuh_installed}" ] && [ -n "${dashboard_installed}" ]; then
+                passwords_readDashboardUsers
             elif [ -n "${indexer_installed}" ]; then
                 passwords_readUsers
             fi
@@ -242,12 +244,17 @@ function main() {
             if [ -n "${indexer_installed}" ]; then
                 passwords_readUsers
             fi
-            if [ -n "${adminUser}" ] && [ -n "${adminPassword}" ]; then
-                passwords_getApiToken
-                passwords_getApiUsers
-                passwords_getApiIds
-            else
-                common_logger "Wazuh API admin credentials not provided, Wazuh API passwords not changed."
+
+            if [ -n "${wazuh_installed}" ]; then
+                if [ -n "${adminUser}" ] && [ -n "${adminPassword}" ]; then
+                    passwords_getApiToken
+                    passwords_getApiUsers
+                    passwords_getApiIds
+                else
+                    common_logger "Wazuh API admin credentials not provided, Wazuh API passwords not changed."
+                fi
+            elif  [ -n "${dashboard_installed}" ]; then
+                passwords_readDashboardUsers
             fi
             if [ -n "${changeall}" ]; then
                 passwords_generatePassword
@@ -266,9 +273,12 @@ function main() {
             passwords_runSecurityAdmin
         fi
 
-        if [ -n "${api}" ] || [ -n "${changeall}" ]; then
-            if [ -n "${adminUser}" ] && [ -n "${adminPassword}" ]; then
+        if [ -n "${api}" ] || [ -n "${changeall}" ] || { [ -z "${wazuh_installed}" ] && [ -n "${dashboard_installed}" ]; }; then
+            if { [ -n "${adminUser}" ] && [ -n "${adminPassword}" ]; } || { [ -z "${wazuh_installed}" ] && [ -n "${dashboard_installed}" ]; }; then
                 passwords_changePasswordApi
+            fi
+            if [ -z "${wazuh_installed}" ] && [ -z "${indexer_installed}" ] && [ -n "${dashboard_installed}" ]; then
+                passwords_changePassword
             fi
         fi
 
