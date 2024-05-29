@@ -235,12 +235,6 @@ function main() {
         check_dist
     fi
 
-    if [ -z "${uninstall}" ] && [ -z "${offline_install}" ]; then
-        installCommon_installCheckDependencies
-    elif [ -n "${offline_install}" ]; then
-        offline_checkDependencies
-    fi
-
     common_checkInstalled
     checks_arguments
     if [ -n "${uninstall}" ]; then
@@ -249,6 +243,13 @@ function main() {
     fi
 
     checks_arch
+
+    if [ -z "${uninstall}" ] && [ -z "${offline_install}" ]; then
+        installCommon_installDependencies "assistant"
+    elif [ -n "${offline_install}" ]; then
+        offline_checkDependencies
+    fi
+
     if [ -n "${ignore}" ]; then
         common_logger -w "Hardware and system checks ignored."
     else
@@ -257,10 +258,6 @@ function main() {
     fi
 
 # -------------- Preliminary checks and Prerequisites --------------------------------
-
-    if [ -z "${uninstall}" ]; then
-        installCommon_installCheckDependencies
-    fi
 
     if [ -z "${configurations}" ] && [ -z "${AIO}" ] && [ -z "${download}" ]; then
         checks_previousCertificate

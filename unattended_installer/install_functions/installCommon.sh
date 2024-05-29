@@ -115,24 +115,6 @@ function installCommon_aptInstall() {
 
 }
 
-function installCommon_aptInstallList(){
-
-    dependencies=("$@")
-    if [ "${#dependencies[@]}" -gt 0 ]; then
-        common_logger "--- Dependencies ----"
-        for dep in "${dependencies[@]}"; do
-            common_logger "Installing $dep."
-            installCommon_aptInstall "${dep}"
-            if [ "${install_result}" != 0 ]; then
-                common_logger -e "Cannot install dependency: ${dep}."
-                installCommon_rollBack
-                exit 1
-            fi
-        done
-    fi
-
-}
-
 function installCommon_changePasswordApi() {
 
     common_logger -d "Changing API passwords."
@@ -277,7 +259,6 @@ function installCommon_changePasswords() {
 # Adds the CentOS repository to install lsof.
 function installCommon_configureCentOSRepositories() {
 
-    centos_repos_configured=1
     centos_key="/etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial"
     eval "common_curl -sLo ${centos_key} 'https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official' --max-time 300 --retry 5 --retry-delay 5 --fail"
 
@@ -338,107 +319,44 @@ function installCommon_getPass() {
     done
 }
 
-function installCommon_installCheckDependencies() {
+function installCommon_installDependencies() {
 
-    common_logger -d "Installing check dependencies."
-    if [ "${sys_type}" == "yum" ]; then
-        if [[ "${DIST_NAME}" == "rhel" ]] && [[ "${DIST_VER}" == "8" || "${DIST_VER}" == "9" ]]; then
-            installCommon_configureCentOSRepositories
-        fi
-        installCommon_yumInstallList "${assistant_yum_dependencies[@]}"
-
-        # In RHEL cases, remove the CentOS repositories configuration
-        if [ "${centos_repos_configured}" == 1 ]; then
-            installCommon_removeCentOSrepositories
-        fi
-
-    elif [ "${sys_type}" == "apt-get" ]; then
-        eval "apt-get update -q ${debug}"
-        installCommon_aptInstallList "${assistant_apt_dependencies[@]}"
+    if [ -n "${need_centos_repos}" ]; then
+        installCommon_configureCentOSRepositories
     fi
 
+    # Assistant dependencies
+    if [ "${1}" == "assistant" ]; then
+    # Wazuh dependencies
+        installCommon_installList "${assistant_dependencies_installed[@]}"
+    else
+        installCommon_installList "${assistant_deps_to_install[@]}"
+    fi
+
+    # In RHEL cases, remove the CentOS repositories configuration
+    if [ -n "${need_centos_repos}" ]; then
+        installCommon_removeCentOSrepositories
+    fi
 }
 
-function installCommon_scanDependencies() {
+function installCommon_installList(){
 
-    wazuh_deps=()
-    if [ -n "${AIO}" ]; then
-        if [ "${sys_type}" == "yum" ]; then
-            wazuh_deps+=( "${indexer_yum_dependencies[@]}" "${wazuh_yum_dependencies[@]}" "${dashboard_yum_dependencies[@]}" )
-        else 
-            wazuh_deps+=( "${indexer_apt_dependencies[@]}" "${wazuh_apt_dependencies[@]}" "${dashboard_apt_dependencies[@]}" )
-        fi
-    elif [ -n "${indexer}" ]; then
-        if [ "${sys_type}" == "yum" ]; then
-            wazuh_deps+=( "${indexer_yum_dependencies[@]}" )
-        else 
-            wazuh_deps+=( "${indexer_apt_dependencies[@]}" )
-        fi
-    elif [ -n "${wazuh}" ]; then
-        if [ "${sys_type}" == "yum" ]; then
-            wazuh_deps+=( "${wazuh_yum_dependencies[@]}" )
-        else 
-            wazuh_deps+=( "${wazuh_apt_dependencies[@]}" )
-        fi
-    elif [ -n "${dashboard}" ]; then
-        if [ "${sys_type}" == "yum" ]; then
-            wazuh_deps+=( "${dashboard_yum_dependencies[@]}" )
-        else 
-            wazuh_deps+=( "${dashboard_apt_dependencies[@]}" )
-        fi
-    fi
-
-    all_deps=( "${wazuh_deps[@]}" )
-    if [ "${sys_type}" == "apt-get" ]; then
-        all_deps+=( "${assistant_apt_dependencies[@]}" )
-    else 
-        all_deps+=( "${assistant_yum_dependencies[@]}" )
-    fi
-
-    # Delete duplicates and sort
-    all_deps=($(echo "${all_deps[@]}" | tr ' ' '\n' | sort -u))
-    not_installed=()
-
-    if [ "${sys_type}" = "apt-get" ]; then
-        command='! apt list --installed 2>/dev/null | grep -q -E ^"${dep}"\/'
-        assistant_deps=("${assistant_apt_dependencies[@]}")
-    else
-        command='! rpm -q ${dep} --quiet'
-        assistant_deps=("${assistant_yum_dependencies[@]}")
-    fi
-
-    # Remove openssl dependency if not necessary
-    if [ -n "${configurations}" ] || [ -n "${AIO}" ]; then
-        assistant_deps=( "${assistant_deps[@]/openssl}" )
-    fi
-
-    # Get not installed dependencies
-    for dep in "${all_deps[@]}"; do
-        if eval "${command}";then
-            not_installed+=("${dep}")
-            for wia_dep in "${assistant_deps[@]}"; do
-                if [ "${wia_dep}" == "${dep}" ]; then
-                    assistant_dependencies_installed+=("${dep}")
-                fi
-            done
-        fi
-    done
-
-    # Format and print the message if the option is not specified
-    if [ -z "${install_dependencies}" ] && [ "${#not_installed[@]}" -gt 0 ]; then
-        printf -v joined_not_installed '%s, ' "${not_installed[@]}"
-        printf -v joined_wia_not_installed '%s, ' "${assistant_dependencies_installed[@]}"
-        joined_not_installed="${joined_not_installed%, }"
-        joined_wia_not_installed="${joined_wia_not_installed%, }"
-
-        message="To perform the installation, the following package/s must be installed: ${joined_not_installed}."
-        if [ "${#assistant_dependencies_installed[@]}" -gt 0 ]; then
-            message+=" The following package/s will be removed after the installation: ${joined_wia_not_installed}."
-        fi
-        message+=" Add the -id|--install-dependencies parameter to install them automatically or install them manually."
-        common_logger -w "${message}"
-        
-        exit 0
+    dependencies=("$@")
+    if [ "${#dependencies[@]}" -gt 0 ]; then
+        common_logger "--- Dependencies ----"
+        for dep in "${dependencies[@]}"; do
+            common_logger "Installing $dep."
+            if [ "${sys_type}" = "apt-get" ]; then
+                installCommon_aptInstall "${dep}"
+            else
+                installCommon_yumInstall "${dep}"
+            fi
+            if [ "${install_result}" != 0 ]; then
+                common_logger -e "Cannot install dependency: ${dep}."
+                installCommon_rollBack
+                exit 1
+            fi
+        done
     fi
 
 }
@@ -624,7 +542,6 @@ function installCommon_removeCentOSrepositories() {
     eval "rm -f ${centos_repo} ${debug}"
     eval "rm -f ${centos_key} ${debug}"
     eval "yum clean all ${debug}"
-    centos_repos_configured=0
     common_logger -d "CentOS repositories and key deleted."
 
 }
@@ -789,6 +706,90 @@ function installCommon_rollBack() {
 
 }
 
+function installCommon_scanDependencies() {
+
+    wazuh_deps=()
+    if [ -n "${AIO}" ]; then
+        if [ "${sys_type}" == "yum" ]; then
+            wazuh_deps+=( "${indexer_yum_dependencies[@]}" "${wazuh_yum_dependencies[@]}" "${dashboard_yum_dependencies[@]}" )
+        else 
+            wazuh_deps+=( "${indexer_apt_dependencies[@]}" "${wazuh_apt_dependencies[@]}" "${dashboard_apt_dependencies[@]}" )
+        fi
+    elif [ -n "${indexer}" ]; then
+        if [ "${sys_type}" == "yum" ]; then
+            wazuh_deps+=( "${indexer_yum_dependencies[@]}" )
+        else 
+            wazuh_deps+=( "${indexer_apt_dependencies[@]}" )
+        fi
+    elif [ -n "${wazuh}" ]; then
+        if [ "${sys_type}" == "yum" ]; then
+            wazuh_deps+=( "${wazuh_yum_dependencies[@]}" )
+        else 
+            wazuh_deps+=( "${wazuh_apt_dependencies[@]}" )
+        fi
+    elif [ -n "${dashboard}" ]; then
+        if [ "${sys_type}" == "yum" ]; then
+            wazuh_deps+=( "${dashboard_yum_dependencies[@]}" )
+        else 
+            wazuh_deps+=( "${dashboard_apt_dependencies[@]}" )
+        fi
+    fi
+
+    all_deps=( "${wazuh_deps[@]}" )
+    if [ "${sys_type}" == "apt-get" ]; then
+        all_deps+=( "${assistant_apt_dependencies[@]}" )
+    else 
+        all_deps+=( "${assistant_yum_dependencies[@]}" )
+    fi
+
+    # Delete duplicates and sort
+    all_deps=( $(echo "${all_deps[@]}" | tr ' ' '\n' | sort -u) )
+    assistant_deps_to_install=()
+
+    if [ "${sys_type}" = "apt-get" ]; then
+        command='! apt list --installed 2>/dev/null | grep -q -E ^"${dep}"\/'
+        assistant_deps=( "${assistant_apt_dependencies[@]}" )
+    else
+        command='! rpm -q ${dep} --quiet'
+        assistant_deps=( "${assistant_yum_dependencies[@]}" )
+    fi
+
+    # Remove openssl dependency if not necessary
+    if [ -z "${configurations}" ] || [ -z "${AIO}" ]; then
+        assistant_deps=( "${assistant_deps[@]/openssl}" )
+    fi
+
+    # Get not installed dependencies of Assistant and Wazuh
+    for dep in "${all_deps[@]}"; do
+        if eval "${command}"; then
+            if [[ "${assistant_deps[*]}" =~ "${dep}" ]]; then
+                assistant_deps_to_install+=("${dep}")
+            else
+                assistant_deps_to_install+=("${dep}")
+            fi
+        fi
+    done
+
+
+    # Format and print the message if the option is not specified
+    if [ -z "${install_dependencies}" ] && [ "${#assistant_deps_to_install[@]}" -gt 0 ]; then
+        printf -v joined_not_installed '%s, ' "${assistant_deps_to_install[@]}"
+        printf -v joined_wia_not_installed '%s, ' "${assistant_deps_to_install[@]}"
+        joined_not_installed="${joined_not_installed%, }"
+        joined_wia_not_installed="${joined_wia_not_installed%, }"
+
+        message="To perform the installation, the following package/s must be installed: ${joined_not_installed}."
+        if [ "${#assistant_deps_to_install[@]}" -gt 0 ]; then
+            message+=" The following package/s will be removed after the installation: ${joined_wia_not_installed}."
+        fi
+        message+=" Add the -id|--install-dependencies parameter to install them automatically or install them manually."
+        common_logger -w "${message}"
+        
+        exit 0
+    fi
+
+}
+
 function installCommon_startService() {
 
     if [ "$#" -ne 1 ]; then
@@ -847,27 +848,6 @@ function installCommon_startService() {
 
 }
 
-function installCommon_yumInstallList(){
-
-    dependencies=("$@")
-    if [ "${#dependencies[@]}" -gt 0 ]; then
-        common_logger "--- Dependencies ---"
-        for dep in "${dependencies[@]}"; do
-            common_logger "Installing $dep."
-            installCommon_yumInstall "${dep}"
-            yum_code="${PIPESTATUS[0]}"
-
-            eval "echo \${yum_output} ${debug}"
-            if [  "${yum_code}" != 0  ]; then
-                common_logger -e "Cannot install dependency: ${dep}."
-                installCommon_rollBack
-                exit 1
-            fi
-        done
-    fi
-
-}
-
 function installCommon_removeWIADependencies() {
 
     if [ "${sys_type}" == "yum" ]; then
@@ -880,9 +860,9 @@ function installCommon_removeWIADependencies() {
 
 function installCommon_yumRemoveWIADependencies(){
 
-    if [ "${#assistant_dependencies_installed[@]}" -gt 0 ]; then
+    if [ "${#assistant_deps_to_install[@]}" -gt 0 ]; then
         common_logger "--- Dependencies ---"
-        for dep in "${assistant_dependencies_installed[@]}"; do
+        for dep in "${assistant_deps_to_install[@]}"; do
             if [ "${dep}" != "systemd" ]; then
                 common_logger "Removing $dep."
                 yum_output=$(yum remove ${dep} -y 2>&1)
@@ -901,9 +881,9 @@ function installCommon_yumRemoveWIADependencies(){
 
 function installCommon_aptRemoveWIADependencies(){
 
-    if [ "${#assistant_dependencies_installed[@]}" -gt 0 ]; then
+    if [ "${#assistant_deps_to_install[@]}" -gt 0 ]; then
         common_logger "--- Dependencies ----"
-        for dep in "${assistant_dependencies_installed[@]}"; do
+        for dep in "${assistant_deps_to_install[@]}"; do
             if [ "${dep}" != "systemd" ]; then
                 common_logger "Removing $dep."
                 apt_output=$(apt-get remove --purge ${dep} -y 2>&1)

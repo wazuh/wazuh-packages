@@ -206,8 +206,12 @@ function check_dist() {
     if [ "${DIST_NAME}" == "centos" ] && { [ "${DIST_VER}" -ne "7" ] && [ "${DIST_VER}" -ne "8" ]; }; then
         notsupported=1
     fi
-    if [ "${DIST_NAME}" == "rhel" ] && { [ "${DIST_VER}" -ne "7" ] && [ "${DIST_VER}" -ne "8" ] && [ "${DIST_VER}" -ne "9" ]; }; then
-        notsupported=1
+
+    if [ "${DIST_NAME}" == "rhel" ]; then
+        if [ "${DIST_VER}" -ne "7" ] && [ "${DIST_VER}" -ne "8" ] && [ "${DIST_VER}" -ne "9" ]; then
+            notsupported=1
+        fi
+        need_centos_repos=1  # Asigna need_centos_repos a 1 si el sistema es rhel
     fi
 
     if [ "${DIST_NAME}" == "amzn" ]; then
@@ -368,17 +372,6 @@ function checks_specifications() {
 }
 
 function checks_ports() {
-
-    dep="lsof"
-    if [ "${sys_type}" == "yum" ]; then
-        installCommon_yumInstallList "${dep}"
-    elif [ "${sys_type}" == "apt-get" ]; then
-        installCommon_aptInstallList "${dep}"
-    fi
-    
-    if [ "${#not_installed[@]}" -gt 0 ]; then
-        assistant_dependencies_installed+=("${dep}")
-    fi
     
     common_logger -d "Checking ports availability."
     used_port=0
