@@ -205,7 +205,8 @@ function check_dist() {
     fi
     if [ "${DIST_NAME}" == "ubuntu" ]; then
         if  [ "${DIST_VER}" == "16" ] || [ "${DIST_VER}" == "18" ] ||
-            [ "${DIST_VER}" == "20" ] || [ "${DIST_VER}" == "22" ]; then
+            [ "${DIST_VER}" == "20" ] || [ "${DIST_VER}" == "22" ] ||
+            [ "${DIST_VER}" == "24" ]; then
             if [ "${DIST_SUBVER}" != "04" ]; then
                 notsupported=1
             fi
@@ -219,7 +220,7 @@ function check_dist() {
     fi
     common_logger -d "Detected distribution name: ${DIST_NAME}"
     common_logger -d "Detected distribution version: ${DIST_VER}"
-    
+
 }
 
 function checks_health() {
