@@ -625,7 +625,7 @@ rm -fr %{buildroot}
 %dir %attr(770, root, wazuh) %{_localstatedir}/api/configuration/security
 %dir %attr(770, root, wazuh) %{_localstatedir}/api/configuration/ssl
 %dir %attr(750, root, wazuh) %{_localstatedir}/api/scripts
-%attr(640, root, wazuh) %{_localstatedir}/api/scripts/wazuh-apid.py
+%attr(640, root, wazuh) %{_localstatedir}/api/scripts/*.py
 %dir %attr(750, root, wazuh) %{_localstatedir}/backup
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/backup/db
 %dir %attr(750, wazuh, wazuh) %{_localstatedir}/backup/agents
@@ -889,10 +889,12 @@ rm -fr %{buildroot}
 %changelog
 * Thu Dec 12 2024 support <info@wazuh.com> - 5.0.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-5-0-0.html
-* Tue May 14 2024 support <info@wazuh.com> - 4.9.0
+* Wed Jul 10 2024 support <info@wazuh.com> - 4.9.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-9-0.html
-* Thu May 09 2024 support <info@wazuh.com> - 4.8.0
+* Wed Jun 05 2024 support <info@wazuh.com> - 4.8.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-8-0.html
+* Thu May 30 2024 support <info@wazuh.com> - 4.7.5
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-7-5.html
 * Thu Apr 25 2024 support <info@wazuh.com> - 4.7.4
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-7-4.html
 * Tue Feb 27 2024 support <info@wazuh.com> - 4.7.3

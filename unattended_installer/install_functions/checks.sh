@@ -200,7 +200,8 @@ function check_curlVersion() {
 function check_dist() {
     common_logger -d "Checking system distribution."
     dist_detect
-    if [ "${DIST_NAME}" != "centos" ] && [ "${DIST_NAME}" != "rhel" ] && [ "${DIST_NAME}" != "amzn" ] && [ "${DIST_NAME}" != "ubuntu" ]; then
+    if  [ "${DIST_NAME}" != "centos" ] && [ "${DIST_NAME}" != "rhel" ] &&
+        [ "${DIST_NAME}" != "amzn" ]   && [ "${DIST_NAME}" != "ubuntu" ] && [ "${DIST_NAME}" != "rocky" ]; then
         notsupported=1
     fi
     if [ "${DIST_NAME}" == "centos" ] && { [ "${DIST_VER}" -ne "7" ] && [ "${DIST_VER}" -ne "8" ]; }; then
@@ -211,9 +212,9 @@ function check_dist() {
     fi
 
     if [ "${DIST_NAME}" == "amzn" ]; then
-        if [ "${DIST_VER}" != "2" ] &&
-           [ "${DIST_VER}" != "2023" ] &&
-           [ "${DIST_VER}" != "2018.03" ]; then
+        if  [ "${DIST_VER}" != "2" ] &&
+            [ "${DIST_VER}" != "2023" ] &&
+            [ "${DIST_VER}" != "2018.03" ]; then
             notsupported=1
         fi
         if [ "${DIST_VER}" -eq "2023" ]; then
@@ -223,7 +224,8 @@ function check_dist() {
 
     if [ "${DIST_NAME}" == "ubuntu" ]; then
         if  [ "${DIST_VER}" == "16" ] || [ "${DIST_VER}" == "18" ] ||
-            [ "${DIST_VER}" == "20" ] || [ "${DIST_VER}" == "22" ]; then
+            [ "${DIST_VER}" == "20" ] || [ "${DIST_VER}" == "22" ] ||
+            [ "${DIST_VER}" == "24" ]; then
             if [ "${DIST_SUBVER}" != "04" ]; then
                 notsupported=1
             fi
@@ -231,13 +233,20 @@ function check_dist() {
             notsupported=1
         fi
     fi
+
+    if [ "${DIST_NAME}" == "rocky" ]; then
+        if [ "${DIST_VER}" != "9" ] || [ "${DIST_SUBVER}" != "4" ]; then
+            notsupported=1
+        fi
+    fi
+
     if [ -n "${notsupported}" ] && [ -z "${ignore}" ]; then
         common_logger -e "The recommended systems are: Red Hat Enterprise Linux 7, 8, 9; CentOS 7, 8; Amazon Linux 2; Ubuntu 16.04, 18.04, 20.04, 22.04. The current system does not match this list. Use -i|--ignore-check to skip this check."
         exit 1
     fi
     common_logger -d "Detected distribution name: ${DIST_NAME}"
     common_logger -d "Detected distribution version: ${DIST_VER}"
-    
+
 }
 
 function checks_health() {
@@ -375,11 +384,11 @@ function checks_ports() {
     elif [ "${sys_type}" == "apt-get" ]; then
         installCommon_aptInstallList "${dep}"
     fi
-    
+
     if [ "${#not_installed[@]}" -gt 0 ]; then
             wia_dependencies_installed+=("${dep}")
     fi
-    
+
     common_logger -d "Checking ports availability."
     used_port=0
     ports=("$@")

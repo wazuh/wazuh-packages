@@ -108,6 +108,17 @@ find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -type f -perm 755 -exec chmod 750
 find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -type d -exec chmod 750 {} \;
 find %{buildroot}%{INSTALL_DIR}/plugins/wazuh/ -type f -perm 744 -exec chmod 740 {} \;
 
+find %{buildroot}%{INSTALL_DIR}/plugins/wazuhCheckUpdates/ -exec chown %{USER}:%{GROUP} {} \;
+find %{buildroot}%{INSTALL_DIR}/plugins/wazuhCheckUpdates/ -type f -perm 644 -exec chmod 640 {} \;
+find %{buildroot}%{INSTALL_DIR}/plugins/wazuhCheckUpdates/ -type f -perm 755 -exec chmod 750 {} \;
+find %{buildroot}%{INSTALL_DIR}/plugins/wazuhCheckUpdates/ -type d -exec chmod 750 {} \;
+find %{buildroot}%{INSTALL_DIR}/plugins/wazuhCheckUpdates/ -type f -perm 744 -exec chmod 740 {} \;
+
+find %{buildroot}%{INSTALL_DIR}/plugins/wazuhCore/ -exec chown %{USER}:%{GROUP} {} \;
+find %{buildroot}%{INSTALL_DIR}/plugins/wazuhCore/ -type f -perm 644 -exec chmod 640 {} \;
+find %{buildroot}%{INSTALL_DIR}/plugins/wazuhCore/ -type f -perm 755 -exec chmod 750 {} \;
+find %{buildroot}%{INSTALL_DIR}/plugins/wazuhCore/ -type d -exec chmod 750 {} \;
+find %{buildroot}%{INSTALL_DIR}/plugins/wazuhCore/ -type f -perm 744 -exec chmod 740 {} \;
 # -----------------------------------------------------------------------------
 
 %pre
@@ -337,10 +348,12 @@ rm -fr %{buildroot}
 %changelog
 * Thu Dec 12 2024 support <info@wazuh.com> - 5.0.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-5-0-0.html
-* Tue May 14 2024 support <info@wazuh.com> - 4.9.0
+* Wed Jul 10 2024 support <info@wazuh.com> - 4.9.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-9-0.html
-* Thu May 09 2024 support <info@wazuh.com> - 4.8.0
+* Wed Jun 05 2024 support <info@wazuh.com> - 4.8.0
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-8-0.html
+* Thu May 30 2024 support <info@wazuh.com> - 4.7.5
+- More info: https://documentation.wazuh.com/current/release-notes/release-4-7-5.html
 * Thu Apr 25 2024 support <info@wazuh.com> - 4.7.4
 - More info: https://documentation.wazuh.com/current/release-notes/release-4-7-4.html
 * Tue Feb 27 2024 support <info@wazuh.com> - 4.7.3

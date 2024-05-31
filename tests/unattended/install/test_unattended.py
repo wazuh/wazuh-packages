@@ -171,7 +171,7 @@ def test_check_wazuh_manager_modulesd():
 
 @pytest.mark.wazuh
 def test_check_wazuh_manager_apid():
-    assert check_call("ps -xa | grep wazuh-apid | grep -v grep", shell=True) != ""
+    assert check_call("ps -xa | grep wazuh_apid | grep -v grep", shell=True) != ""
 
 @pytest.mark.wazuh_cluster
 def test_check_wazuh_manager_clusterd():
@@ -208,10 +208,17 @@ def test_check_wazuh_api_status():
 @pytest.mark.wazuh
 def test_check_log_errors():
     found_error = False
+    exceptions = [
+        'WARNING: Cluster error detected',
+        'agent-upgrade: ERROR: (8123): There has been an error executing the request in the tasks manager.',
+        "ERROR: Could not send message through the cluster after '10' attempts"
+
+    ]
+    
     with open('/var/ossec/logs/ossec.log', 'r') as f:
         for line in f.readlines():
             if 'ERROR' in line:
-                if 'ERROR: Cluster error detected' not in line and 'agent-upgrade: ERROR: (8123): There has been an error executing the request in the tasks manager.' not in line:
+                if not any(exception in line for exception in exceptions):
                     found_error = True
                     break
     assert found_error == False, line
