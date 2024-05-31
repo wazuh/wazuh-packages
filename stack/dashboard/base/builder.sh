@@ -110,6 +110,11 @@ cp ./etc/styles.js ./src/core/server/rendering/views/styles.js
 # Customize OpenSearch Dashboards with Wazuh
 # -----------------------------------------------------------------------------
 
+# Set v7 theme as default
+sed -i "s|value: 'Next (preview)',|value: 'v7',|g" ./src/core/server/ui_settings/settings/theme.js
+sed -i "s|defaultValue: 'v8'|defaultValue: 'v7'|g" ./src/core/server/ui_settings/ui_settings_config.js
+
+
 # Replace App Title
 sed -i "s|defaultValue: ''|defaultValue: \'Wazuh\'|g" ./src/core/server/opensearch_dashboards_config.js
 sed -i "90s|defaultValue: true|defaultValue: false|g" ./src/core/server/opensearch_dashboards_config.js
