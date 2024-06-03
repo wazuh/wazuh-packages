@@ -283,6 +283,21 @@ function installCommon_configureCentOSRepositories() {
 
 }
 
+function installCommon_determinePorts {
+
+    used_ports=()
+    
+    if [ -n "${AIO}" ]; then
+        used_ports+=( "${wazuh_aio_ports[@]}" )
+    elif [ -n "${wazuh}" ]; then
+        used_ports+=( "${wazuh_indexer_ports[@]}" )
+    elif [ -n "${indexer}" ]; then
+        used_ports+=( "${wazuh_manager_ports[@]}" )
+    elif [ -n "${dashboard}" ]; then
+        used_ports+=( "${wazuh_dashboard_port[@]}" )
+    fi
+}
+
 function installCommon_extractConfig() {
 
     common_logger -d "Extracting Wazuh configuration."

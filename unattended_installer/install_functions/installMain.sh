@@ -247,6 +247,7 @@ function main() {
     if [ -z "${uninstall}" ] && [ -z "${offline_install}" ]; then
         installCommon_scanDependencies
         installCommon_installDependencies "assistant"
+        installCommon_determinePorts
     elif [ -n "${offline_install}" ]; then
         offline_checkDependencies
     fi
