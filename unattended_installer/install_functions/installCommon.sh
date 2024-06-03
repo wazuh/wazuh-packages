@@ -376,46 +376,6 @@ function installCommon_installList(){
 
 }
 
-function installCommon_installPrerequisites() {
-
-    message="Installing prerequisites dependencies."
-    if [ "${sys_type}" == "yum" ]; then
-        if [ "${1}" == "AIO" ]; then
-            deps=($(echo "${indexer_yum_dependencies[@]}" "${dashboard_yum_dependencies[@]}" | tr ' ' '\n' | sort -u))
-            common_logger -d "${message}"
-            installCommon_yumInstallList "${deps[@]}"
-        fi
-        if [ "${1}" == "indexer" ]; then
-            common_logger -d "${message}"
-            installCommon_yumInstallList "${indexer_yum_dependencies[@]}"
-        fi
-        if [ "${1}" == "dashboard" ]; then
-            common_logger -d "${message}"
-            installCommon_yumInstallList "${dashboard_yum_dependencies[@]}"
-        fi
-    elif [ "${sys_type}" == "apt-get" ]; then
-        eval "apt-get update -q ${debug}"
-        if [ "${1}" == "AIO" ]; then
-            deps=($(echo "${wazuh_apt_dependencies[@]}" "${indexer_apt_dependencies[@]}" "${dashboard_apt_dependencies[@]}" | tr ' ' '\n' | sort -u))
-            common_logger -d "${message}"
-            installCommon_aptInstallList "${deps[@]}"
-        fi
-        if [ "${1}" == "indexer" ]; then
-            common_logger -d "${message}"
-            installCommon_aptInstallList "${indexer_apt_dependencies[@]}"
-        fi
-        if [ "${1}" == "dashboard" ]; then
-            common_logger -d "${message}"
-            installCommon_aptInstallList "${dashboard_apt_dependencies[@]}"
-        fi
-        if [ "${1}" == "wazuh" ]; then
-            common_logger -d "${message}"
-            installCommon_aptInstallList "${wazuh_apt_dependencies[@]}"
-        fi
-    fi
-
-}
-
 function installCommon_readPasswordFileUsers() {
 
     filecorrect=$(grep -Ev '^#|^\s*$' "${p_file}" | grep -Pzc "\A(\s*(indexer_username|api_username|indexer_password|api_password):[ \t]+[\'\"]?[\w.*+?-]+[\'\"]?)+\Z")

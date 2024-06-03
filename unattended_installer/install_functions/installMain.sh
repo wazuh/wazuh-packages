@@ -272,27 +272,14 @@ function main() {
         dashboard_changePort "${http_port}"
     fi
 
-    if [ -n "${AIO}" ]; then
-        rm -f "${tar_file}"
-        checks_ports "${wazuh_aio_ports[@]}"
-        installCommon_installPrerequisites "AIO"
-    fi
+    if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${wazuh}" ] || [ -n "${dashboard}" ]; then
+        if [ -n "${AIO}" ]; then
+            rm -f "${tar_file}"
+        fi
 
-    if [ -n "${indexer}" ]; then
-        checks_ports "${wazuh_indexer_ports[@]}"
-        installCommon_installPrerequisites "indexer"
+        checks_ports "${used_ports[@]}"
+        installCommon_installDependencies
     fi
-
-    if [ -n "${wazuh}" ]; then
-        checks_ports "${wazuh_manager_ports[@]}"
-        installCommon_installPrerequisites "wazuh"
-    fi
-
-    if [ -n "${dashboard}" ]; then
-        checks_ports "${wazuh_dashboard_port}"
-        installCommon_installPrerequisites "dashboard"
-    fi
-
 
 # --------------  Wazuh repo  ----------------------
 
