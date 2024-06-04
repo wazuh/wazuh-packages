@@ -290,9 +290,9 @@ function installCommon_determinePorts {
     if [ -n "${AIO}" ]; then
         used_ports+=( "${wazuh_aio_ports[@]}" )
     elif [ -n "${wazuh}" ]; then
-        used_ports+=( "${wazuh_indexer_ports[@]}" )
-    elif [ -n "${indexer}" ]; then
         used_ports+=( "${wazuh_manager_ports[@]}" )
+    elif [ -n "${indexer}" ]; then
+        used_ports+=( "${wazuh_indexer_ports[@]}" )
     elif [ -n "${dashboard}" ]; then
         used_ports+=( "${wazuh_dashboard_port[@]}" )
     fi
@@ -336,26 +336,25 @@ function installCommon_getPass() {
 
 function installCommon_installDependencies() {
 
-    if [ -n "${need_centos_repos}" ]; then
-        installCommon_configureCentOSRepositories
-    fi
-
     if [ "${1}" == "assistant" ]; then
         installCommon_installList "${assistant_deps_to_install[@]}"
     else
         installCommon_installList "${wazuh_deps_to_install[@]}"
     fi
-
-    # In RHEL cases, remove the CentOS repositories configuration
-    if [ -n "${need_centos_repos}" ]; then
-        installCommon_removeCentOSrepositories
-    fi
 }
 
 function installCommon_installList(){
-
+    
     dependencies=("$@")
     if [ "${#dependencies[@]}" -gt 0 ]; then
+
+        if [ -n "${need_centos_repos}" ]; then
+            installCommon_configureCentOSRepositories
+        fi
+        if [ "${sys_type}" == "apt-get" ]; then
+            eval "apt-get update -q ${debug}"
+        fi
+    
         common_logger "--- Dependencies ----"
         for dep in "${dependencies[@]}"; do
             common_logger "Installing $dep."
@@ -370,6 +369,10 @@ function installCommon_installList(){
                 exit 1
             fi
         done
+        # In RHEL cases, remove the CentOS repositories configuration
+        if [ -n "${need_centos_repos}" ]; then
+            installCommon_removeCentOSrepositories
+        fi
     fi
 
 }
@@ -531,6 +534,11 @@ function installCommon_rollBack() {
         eval "rm /etc/zypp/repos.d/wazuh.repo ${debug}"
     elif [ -f "/etc/apt/sources.list.d/wazuh.list" ]; then
         eval "rm /etc/apt/sources.list.d/wazuh.list ${debug}"
+    fi
+
+    # In RHEL cases, remove the CentOS repositories configuration
+    if [ -n "${need_centos_repos}" ]; then
+        installCommon_removeCentOSrepositories
     fi
 
     if [[ -n "${wazuh_installed}" && ( -n "${wazuh}" || -n "${AIO}" || -n "${uninstall}" ) ]];then
