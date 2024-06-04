@@ -211,7 +211,7 @@ function check_dist() {
         if [ "${DIST_VER}" -ne "7" ] && [ "${DIST_VER}" -ne "8" ] && [ "${DIST_VER}" -ne "9" ]; then
             notsupported=1
         fi
-        need_centos_repos=1  # Asigna need_centos_repos a 1 si el sistema es rhel
+        need_centos_repos=1 
     fi
 
     if [ "${DIST_NAME}" == "amzn" ]; then

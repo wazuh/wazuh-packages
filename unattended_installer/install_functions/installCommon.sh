@@ -340,12 +340,10 @@ function installCommon_installDependencies() {
         installCommon_configureCentOSRepositories
     fi
 
-    # Assistant dependencies
     if [ "${1}" == "assistant" ]; then
-    # Wazuh dependencies
-        installCommon_installList "${assistant_dependencies_installed[@]}"
-    else
         installCommon_installList "${assistant_deps_to_install[@]}"
+    else
+        installCommon_installList "${wazuh_deps_to_install[@]}"
     fi
 
     # In RHEL cases, remove the CentOS repositories configuration
@@ -712,25 +710,15 @@ function installCommon_scanDependencies() {
 
     all_deps=( "${wazuh_deps[@]}" )
     if [ "${sys_type}" == "apt-get" ]; then
-        all_deps+=( "${assistant_apt_dependencies[@]}" )
-    else 
-        all_deps+=( "${assistant_yum_dependencies[@]}" )
-    fi
-
-    # Delete duplicates and sort
-    all_deps=( $(echo "${all_deps[@]}" | tr ' ' '\n' | sort -u) )
-    assistant_deps_to_install=()
-
-    if [ "${sys_type}" = "apt-get" ]; then
+        assistant_deps+=( "${assistant_apt_dependencies[@]}" )
         command='! apt list --installed 2>/dev/null | grep -q -E ^"${dep}"\/'
-        assistant_deps=( "${assistant_apt_dependencies[@]}" )
-    else
+    else 
+        assistant_deps+=( "${assistant_yum_dependencies[@]}" )
         command='! rpm -q ${dep} --quiet'
-        assistant_deps=( "${assistant_yum_dependencies[@]}" )
     fi
 
     # Remove openssl dependency if not necessary
-    if [ -z "${configurations}" ] || [ -z "${AIO}" ]; then
+    if [ -z "${configurations}" ] && [ -z "${AIO}" ]; then
         assistant_deps=( "${assistant_deps[@]/openssl}" )
     fi
 
@@ -738,34 +726,41 @@ function installCommon_scanDependencies() {
     if [ -z "${AIO}" ] && [ -z "${wazuh}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ]; then
         assistant_deps=( "${assistant_deps[@]/lsof}" )
     fi
+    
+    # Delete duplicates and sort
+    all_deps+=( "${assistant_deps[@]}" )
+    all_deps=( $(echo "${all_deps[@]}" | tr ' ' '\n' | sort -u) )
+    assistant_deps_to_install=()
+    deps_to_install=()
 
     # Get not installed dependencies of Assistant and Wazuh
     for dep in "${all_deps[@]}"; do
         if eval "${command}"; then
+            deps_to_install+=("${dep}")
             if [[ "${assistant_deps[*]}" =~ "${dep}" ]]; then
                 assistant_deps_to_install+=("${dep}")
             else
-                assistant_deps_to_install+=("${dep}")
+                wazuh_deps_to_install+=("${dep}")
             fi
         fi
     done
 
 
     # Format and print the message if the option is not specified
-    if [ -z "${install_dependencies}" ] && [ "${#assistant_deps_to_install[@]}" -gt 0 ]; then
-        printf -v joined_not_installed '%s, ' "${assistant_deps_to_install[@]}"
-        printf -v joined_wia_not_installed '%s, ' "${assistant_deps_to_install[@]}"
-        joined_not_installed="${joined_not_installed%, }"
-        joined_wia_not_installed="${joined_wia_not_installed%, }"
+    if [ -z "${install_dependencies}" ] && [ "${#deps_to_install[@]}" -gt 0 ]; then
+        printf -v joined_deps_not_installed '%s, ' "${deps_to_install[@]}"
+        printf -v joined_assistant_not_installed '%s, ' "${assistant_deps_to_install[@]}"
+        joined_deps_not_installed="${joined_deps_not_installed%, }"
+        joined_assistant_not_installed="${joined_assistant_not_installed%, }"
 
-        message="To perform the installation, the following package/s must be installed: ${joined_not_installed}."
+        message="To perform the installation, the following package/s must be installed: ${joined_deps_not_installed}."
         if [ "${#assistant_deps_to_install[@]}" -gt 0 ]; then
-            message+=" The following package/s will be removed after the installation: ${joined_wia_not_installed}."
+            message+=" The following package/s will be removed after the installation: ${joined_assistant_not_installed}."
         fi
         message+=" Add the -id|--install-dependencies parameter to install them automatically or install them manually."
         common_logger -w "${message}"
         
-        exit 0
+        exit 1
     fi
 
 }
@@ -828,28 +823,22 @@ function installCommon_startService() {
 
 }
 
-function installCommon_removeWIADependencies() {
-
-    if [ "${sys_type}" == "yum" ]; then
-        installCommon_yumRemoveWIADependencies
-    elif [ "${sys_type}" == "apt-get" ]; then
-        installCommon_aptRemoveWIADependencies
-    fi
-
-}
-
-function installCommon_yumRemoveWIADependencies(){
+function installCommon_removeWIADependencies(){
 
     if [ "${#assistant_deps_to_install[@]}" -gt 0 ]; then
         common_logger "--- Dependencies ---"
         for dep in "${assistant_deps_to_install[@]}"; do
             if [ "${dep}" != "systemd" ]; then
                 common_logger "Removing $dep."
-                yum_output=$(yum remove ${dep} -y 2>&1)
-                yum_code="${PIPESTATUS[0]}"
 
-                eval "echo \${yum_output} ${debug}"
-                if [  "${yum_code}" != 0  ]; then
+                if [ "${sys_type}" == "yum" ]; then
+                    pm_output=$(yum remove ${dep} -y 2>&1)
+                else
+                    pm_output=$(apt-get remove --purge ${dep} -y 2>&1)
+                fi
+                pm_code="${PIPESTATUS[0]}"
+                eval "echo \${pm_output} ${debug}"
+                if [  "${pm_code}" != 0  ]; then
                     common_logger -e "Cannot remove dependency: ${dep}."
                     exit 1
                 fi
@@ -859,26 +848,6 @@ function installCommon_yumRemoveWIADependencies(){
 
 }
 
-function installCommon_aptRemoveWIADependencies(){
-
-    if [ "${#assistant_deps_to_install[@]}" -gt 0 ]; then
-        common_logger "--- Dependencies ----"
-        for dep in "${assistant_deps_to_install[@]}"; do
-            if [ "${dep}" != "systemd" ]; then
-                common_logger "Removing $dep."
-                apt_output=$(apt-get remove --purge ${dep} -y 2>&1)
-                apt_code="${PIPESTATUS[0]}"
-
-                eval "echo \${apt_output} ${debug}"
-                if [  "${apt_code}" != 0  ]; then
-                    common_logger -e "Cannot remove dependency: ${dep}."
-                    exit 1
-                fi
-            fi
-        done
-    fi
-
-}
 function installCommon_yumInstall() {
 
     package="${1}"
