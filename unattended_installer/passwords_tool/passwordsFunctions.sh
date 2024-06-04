@@ -50,7 +50,8 @@ function passwords_changePassword() {
 
     if [ "${nuser}" == "admin" ] || [ "${nuser}" == "filebeat" ] || [ -n "${changeall}" ]; then
         if [ -n "${filebeat_installed}" ]; then
-            if [ -n "${adminUser}" ] && [ -n "${adminPassword}" ]; then
+            # If the indexer is installed, we take the password from it.
+            if [ -n "${adminUser}" ] && [ -n "${adminPassword}" ] && [ -z "${indexer_installed}" ]; then
                 adminpass=$1
             fi
             if filebeat keystore list | grep -q password ; then
@@ -63,9 +64,7 @@ function passwords_changePassword() {
                 echo "${conf}" > /etc/filebeat/filebeat.yml
             fi
             passwords_restartService "filebeat"
-            if [ -n "${indexer_installed}" ]; then
-                eval "/var/ossec/bin/wazuh-keystore -f indexer -k password -v ${adminpass}"
-            fi
+            eval "/var/ossec/bin/wazuh-keystore -f indexer -k password -v ${adminpass}"
             passwords_restartService "wazuh-manager"
         fi
     fi
@@ -82,7 +81,11 @@ function passwords_changePassword() {
                 echo "${conf}" > /etc/wazuh-dashboard/opensearch_dashboards.yml
             fi
             passwords_restartService "wazuh-dashboard"
-            common_logger -nl $"The password for the kibanaserver user in the dashboard has been updated to $dashpass"
+
+            if [ -z "${indexer_installed}" ]; then
+                # only for when the indexer is not installed, so as not to put the same information several times.
+                common_logger -nl $"The password for the kibanaserver user in the dashboard has been updated to $dashpass"
+            fi
         fi
     fi
 
@@ -90,15 +93,18 @@ function passwords_changePassword() {
 
 function passwords_changePasswordApi() {
     #Change API password tool
+    if [ -f "/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml" ]; then
+        wazuh_yml_user=$(awk '/- default:/ {found=1} found && /username:/ {print $2}' /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml)
+    fi
     if [ -n "${changeall}" ]; then
-        if [ -f "/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml" ]; then
-            wazuh_yml_user=$(awk '/- default:/ {found=1} found && /username:/ {print $2}' /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml)
-        fi
         for i in "${!api_passwords[@]}"; do
             if [ -n "${wazuh_installed}" ]; then
                 if [ "${api_users[i]}" == "filebeat" ]; then
-                    passwords_changePassword "${api_passwords[i]}"
-                    common_logger -nl $"The new password for Filebeat is ${api_passwords[i]}"
+                    # If the indexer is installed, the indexer takes care of it. 
+                    if [ -z "${indexer_installed}" ]; then
+                        passwords_changePassword "${api_passwords[i]}"
+                        common_logger -nl $"The new password for Filebeat is ${api_passwords[i]}"
+                    fi 
                 else
                     passwords_getApiUserId "${api_users[i]}"
                     WAZUH_PASS_API='{\"password\":\"'"${api_passwords[i]}"'\"}'
@@ -144,7 +150,11 @@ function passwords_changeDashboardApiPassword() {
         if [ -f "/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml" ]; then
             eval "sed -i 's|password: .*|password: \"${1}\"|g' /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml ${debug}"
             if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_indexer_cluster}" ]; then
-                common_logger "Updated wazuh-wui user password in wazuh dashboard to '${1}'. Remember to restart the service."
+                if [ -z "${wazuh_installed}" ]; then
+                    common_logger "Updated wazuh-wui user password in wazuh dashboard to '${1}'. Remember to restart the service."
+                else
+                    common_logger "Updated wazuh-wui user password in wazuh dashboard. Remember to restart the service."
+                fi
             fi
             file_exists=1
         fi
