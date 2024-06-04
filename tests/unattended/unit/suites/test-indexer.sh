@@ -49,7 +49,7 @@ test-03-indexer_install-yum() {
     load-indexer_install
     sys_type="yum"
     sep="-"
-    wazuh_version="4.8.0"
+    wazuh_version="4.8.1"
     wazuh_revision="1"
     indexer_install
 }
@@ -63,7 +63,7 @@ test-ASSERT-FAIL-04-indexer_install-yum-error() {
     load-indexer_install
     sys_type="yum"
     sep="-"
-    wazuh_version="4.8.0"
+    wazuh_version="4.8.1"
     wazuh_revision="1"
     @mockfalse yum install wazuh-indexer-1.13.2-1 -y
     indexer_install
@@ -73,7 +73,7 @@ test-05-indexer_install-apt() {
     load-indexer_install
     sys_type="apt-get"
     sep="="
-    wazuh_version="4.8.0"
+    wazuh_version="4.8.1"
     wazuh_revision="1"
     indexer_install
 }
@@ -87,7 +87,7 @@ test-ASSERT-FAIL-06-indexer_install-apt-error() {
     load-indexer_install
     sys_type="apt-get"
     sep="="
-    wazuh_version="4.8.0"
+    wazuh_version="4.8.1"
     wazuh_revision="1"
     @mockfalse apt install wazuh-indexer=1.13.2-1 -y
     indexer_install
