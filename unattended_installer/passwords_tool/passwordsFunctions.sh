@@ -48,7 +48,7 @@ function passwords_changePassword() {
 
     fi
 
-    if [ "${nuser}" == "admin" ] || [ "${nuser}" == "filebeat" ] || [ -n "${changeall}" ]; then
+    if [ "${nuser}" == "admin" ] || [ -n "${changeall}" ]; then
         if [ -n "${filebeat_installed}" ]; then
             # If the indexer is installed, we take the password from it.
             if [ -n "${adminUser}" ] && [ -n "${adminPassword}" ] && [ -z "${indexer_installed}" ]; then
@@ -99,7 +99,7 @@ function passwords_changePasswordApi() {
     if [ -n "${changeall}" ]; then
         for i in "${!api_passwords[@]}"; do
             if [ -n "${wazuh_installed}" ]; then
-                if [ "${api_users[i]}" == "filebeat" ]; then
+                if [ "${api_users[i]}" == "admin" ]; then
                     # If the indexer is installed, the indexer takes care of it. 
                     if [ -z "${indexer_installed}" ]; then
                         passwords_changePassword "${api_passwords[i]}"
@@ -125,7 +125,7 @@ function passwords_changePasswordApi() {
         done
     else
         if [ -n "${wazuh_installed}" ]; then
-            if [ "${nuser}" == "filebeat" ]; then
+            if [ "${nuser}" == "admin" ]; then
                 passwords_changePassword "${password}"
                 common_logger -nl $"The new password for Filebeat is ${password}"
             else
@@ -149,11 +149,12 @@ function passwords_changeDashboardApiPassword() {
     until [ -n "${file_exists}" ] || [ "${j}" -eq "12" ]; do
         if [ -f "/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml" ]; then
             eval "sed -i 's|password: .*|password: \"${1}\"|g' /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml ${debug}"
+            passwords_restartService "wazuh-dashboard"
             if [ -z "${AIO}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ] && [ -z "${wazuh}" ] && [ -z "${start_indexer_cluster}" ]; then
                 if [ -z "${wazuh_installed}" ]; then
-                    common_logger "Updated wazuh-wui user password in wazuh dashboard to '${1}'. Remember to restart the service."
+                    common_logger "Updated wazuh-wui user password in wazuh dashboard to '${1}'."
                 else
-                    common_logger "Updated wazuh-wui user password in wazuh dashboard. Remember to restart the service."
+                    common_logger "Updated wazuh-wui user password in wazuh dashboard."
                 fi
             fi
             file_exists=1
@@ -303,9 +304,9 @@ function passwords_generatePassword() {
             fi
         done
 
-        # if the password of the user "admin" exists, it will be used as the password for the user "filebeat"
+        # if the password of the indexer user "admin" exists, it will be used as the password for the API user "admin"
         if [ -n "${passwords[0]}" ]; then
-            api_users+=("filebeat")
+            api_users+=("admin")
             api_passwords+=("${passwords[0]}")
         fi
     fi
@@ -329,7 +330,7 @@ function passwords_generatePasswordFile() {
     api_user_description=(
         "Password for wazuh API user"
         "Password for wazuh-wui API user"
-        "Password for Filebeat user"
+        "Password for filebeat admin user"
     )
     passwords_generatePassword
 
@@ -385,8 +386,8 @@ function passwords_getApiUsers() {
 
     mapfile -t api_users < <(common_curl -s -k -X GET -H \"Authorization: Bearer $TOKEN_API\" -H \"Content-Type: application/json\"  \"https://localhost:55000/security/users?pretty=true\" --max-time 300 --retry 5 --retry-delay 5 | grep username | awk -F': ' '{print $2}' | sed -e "s/[\'\",]//g")
 
-    # Add filebeat user for comunication with Wazuh indexer
-    api_users+=("filebeat")
+    # Add admin user for comunication with Wazuh indexer
+    api_users+=("admin")
 }
 
 function passwords_getApiIds() {
