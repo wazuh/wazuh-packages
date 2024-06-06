@@ -49,11 +49,14 @@ function passwords_changePassword() {
         if [ -n "${filebeat_installed}" ]; then
             if filebeat keystore list | grep -q password ; then
                 eval "(echo ${adminpass} | filebeat keystore add password --force --stdin)" "${debug}"
+                conf="$(awk '{sub("username: .*", "username: ${username}"); sub("password: .*", "password: ${password}")}1' /etc/filebeat/filebeat.yml)"
+                echo "${conf}" > /etc/filebeat/filebeat.yml
+                common_logger "Updated password for admin user on filebeat keystore. Also updated filebeat.yml file to use keystore username and passwords."
             else
                 wazuhold=$(grep "password:" /etc/filebeat/filebeat.yml )
                 ra="  password: "
                 wazuhold="${wazuhold//$ra}"
-                conf="$(awk '{sub("password: .*", "password: '"${adminpass}"'")}1' /etc/filebeat/filebeat.yml)"
+                conf="$(awk '{sub("username: .*", "username: admin"); sub("password: .*", "password: '"${adminpass}"'")}1' /etc/filebeat/filebeat.yml)"
                 echo "${conf}" > /etc/filebeat/filebeat.yml
             fi
             passwords_restartService "filebeat"
