@@ -224,7 +224,7 @@ function main() {
                 passwords_getApiIds
             elif [ -z "${wazuh_installed}" ] && [ -n "${dashboard_installed}" ]; then
                 passwords_readDashboardUsers
-            elif [ -n "${indexer_installed}" ]; then
+            elif [ -n "${indexer_installed}" ] || [ -n "${wazuh_installed}" ]; then
                 passwords_readUsers
             fi
             passwords_checkUser
@@ -241,7 +241,7 @@ function main() {
         
 
         if [ -n "${changeall}" ] || [ -n "${p_file}" ]; then
-            if [ -n "${indexer_installed}" ]; then
+            if [ -n "${indexer_installed}" ] || [ -n "${wazuh_installed}" ]; then
                 passwords_readUsers
             fi
 
@@ -273,12 +273,15 @@ function main() {
             passwords_runSecurityAdmin
         fi
 
-        if [ -n "${api}" ] || [ -n "${changeall}" ] || { [ -z "${wazuh_installed}" ] && [ -n "${dashboard_installed}" ]; }; then
+        # Call the function to change the password for filebeat and/or kibanaserver
+        if [ -z "${indexer_installed}" ] && { [ -n "${wazuh_installed}" ] || [ -n "${dashboard_installed}" ]; }; then
+            passwords_changePassword
+        fi
+
+        if [ -n "${api}" ] || [ -n "${changeall}" ]; then
             if { [ -n "${adminUser}" ] && [ -n "${adminPassword}" ]; } || { [ -z "${wazuh_installed}" ] && [ -n "${dashboard_installed}" ]; }; then
                 passwords_changePasswordApi
-            fi
-            if [ -z "${wazuh_installed}" ] && [ -z "${indexer_installed}" ] && [ -n "${dashboard_installed}" ]; then
-                passwords_changePassword
+
             fi
         fi
 
