@@ -337,8 +337,11 @@ function installCommon_getPass() {
 function installCommon_installDependencies() {
 
     if [ "${1}" == "assistant" ]; then
+        installing_assistant_deps=1
+        assistant_deps_installed=()
         installCommon_installList "${assistant_deps_to_install[@]}"
     else
+        installing_assistant_deps=0
         installCommon_installList "${wazuh_deps_to_install[@]}"
     fi
 }
@@ -367,6 +370,9 @@ function installCommon_installList(){
                 common_logger -e "Cannot install dependency: ${dep}."
                 installCommon_rollBack
                 exit 1
+            fi
+            if [ "${installing_assistant_deps}" == 1 ]; then
+                assistant_deps_installed+=("${dep}")
             fi
         done
         # In RHEL cases, remove the CentOS repositories configuration
@@ -833,9 +839,9 @@ function installCommon_startService() {
 
 function installCommon_removeWIADependencies(){
 
-    if [ "${#assistant_deps_to_install[@]}" -gt 0 ]; then
+    if [ "${#assistant_deps_installed[@]}" -gt 0 ]; then
         common_logger "--- Dependencies ---"
-        for dep in "${assistant_deps_to_install[@]}"; do
+        for dep in "${assistant_deps_installed[@]}"; do
             if [ "${dep}" != "systemd" ]; then
                 common_logger "Removing $dep."
 
