@@ -48,10 +48,15 @@ function passwords_changePassword() {
     if [ "${nuser}" == "admin" ] || [ -n "${changeall}" ]; then
         if [ -n "${filebeat_installed}" ]; then
             if filebeat keystore list | grep -q password ; then
-                eval "(echo ${adminpass} | filebeat keystore add password --force --stdin)" "${debug}"
-                conf="$(awk '{sub("username: .*", "username: ${username}"); sub("password: .*", "password: ${password}")}1' /etc/filebeat/filebeat.yml)"
+                eval "echo ${adminpass} | filebeat keystore add password --force --stdin ${debug}"
+                conf="$(awk '{sub("password: .*", "password: ${password}")}1' /etc/filebeat/filebeat.yml)"
                 echo "${conf}" > /etc/filebeat/filebeat.yml
-                common_logger "Updated password for admin user on filebeat keystore. Also updated filebeat.yml file to use keystore username and passwords."
+                common_logger "Updated password on Filebeat Keystore. Also updated filebeat.yml file to use the Keystore password."
+                if filebeat keystore list | grep -q username ; then
+                    conf="$(awk '{sub("username: .*", "username: ${username}")}1' /etc/filebeat/filebeat.yml)"
+                    echo "${conf}" > /etc/filebeat/filebeat.yml
+                    common_logger "Updated filebeat.yml file to use the Keystore username."
+                fi
             else
                 wazuhold=$(grep "password:" /etc/filebeat/filebeat.yml )
                 ra="  password: "
