@@ -35,7 +35,7 @@ function getHelp() {
     echo -e "                Display this help and exit."
     echo -e ""
     echo -e "        -i,  --ignore-check"
-    echo -e "                Ignore the check for system compatibility and minimum hardware requirements."
+    echo -e "                Ignore the check for minimum hardware requirements."
     echo -e ""
     echo -e "        -o,  --overwrite"
     echo -e "                Overwrites previously installed components. This will erase all the existing configuration and data."
@@ -243,7 +243,7 @@ function main() {
 
     checks_arch
     if [ -n "${ignore}" ]; then
-        common_logger -w "Hardware and system checks ignored."
+        common_logger -w "Hardware checks ignored."
     else
         common_logger "Verifying that your system meets the recommended minimum hardware requirements."
         checks_health
