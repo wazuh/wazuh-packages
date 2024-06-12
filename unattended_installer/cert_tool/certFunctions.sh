@@ -456,7 +456,22 @@ function cert_readConfig() {
 }
 
 function cert_setpermisions() {
-    eval "chmod -R 744 ${cert_tmp_path} ${debug}"
+    eval "chmod -R 744 ${1} ${debug}"
+}
+
+function set_certs_directory() {
+
+    if [ -d "${base_path}/wazuh-certificates" ]; then
+        eval "cp -f ${cert_tmp_path}/* ${base_path}/wazuh-certificates ${debug}"
+        eval "rm -R ${cert_tmp_path}"
+        cert_setpermisions "${base_path}/wazuh-certificates"
+        common_logger -d "Wazuh-certificates directory exists. Copied files from '${cert_tmp_path}' to '${base_path}/wazuh-certificates' and removed '${cert_tmp_path}'."
+    else
+        cert_setpermisions "${cert_tmp_path}"
+        eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
+        common_logger -d "Moved '${cert_tmp_path}' to '${base_path}/wazuh-certificates'."
+    fi
+
 }
 
 function cert_convertCRLFtoLF() {
