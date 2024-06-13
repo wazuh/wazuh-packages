@@ -91,7 +91,9 @@ function common_checkInstalled() {
     if [ "${sys_type}" == "yum" ]; then
         eval "rpm -q wazuh-manager --quiet && wazuh_installed=1"
     elif [ "${sys_type}" == "apt-get" ]; then
-        wazuh_installed=$(apt list --installed  2>/dev/null | grep wazuh-manager)
+        if dpkg -l wazuh-manager 2>/dev/null | grep -q -E '^ii\s'; then
+            wazuh_installed=1
+        fi
     fi
 
     if [ -d "/var/ossec" ]; then
@@ -103,7 +105,9 @@ function common_checkInstalled() {
         eval "rpm -q wazuh-indexer --quiet && indexer_installed=1"
 
     elif [ "${sys_type}" == "apt-get" ]; then
-        indexer_installed=$(apt list --installed 2>/dev/null | grep wazuh-indexer)
+        if dpkg -l wazuh-indexer 2>/dev/null | grep -q -E '^ii\s'; then
+            indexer_installed=1
+        fi
     fi
 
     if [ -d "/var/lib/wazuh-indexer/" ] || [ -d "/usr/share/wazuh-indexer" ] || [ -d "/etc/wazuh-indexer" ] || [ -f "${base_path}/search-guard-tlstool*" ]; then
@@ -114,7 +118,9 @@ function common_checkInstalled() {
     if [ "${sys_type}" == "yum" ]; then
         eval "rpm -q filebeat --quiet && filebeat_installed=1"
     elif [ "${sys_type}" == "apt-get" ]; then
-        filebeat_installed=$(apt list --installed  2>/dev/null | grep filebeat)
+        if dpkg -l filebeat 2>/dev/null | grep -q -E '^ii\s'; then
+            filebeat_installed=1
+        fi
     fi
 
     if [ -d "/var/lib/filebeat/" ] || [ -d "/usr/share/filebeat" ] || [ -d "/etc/filebeat" ]; then
@@ -125,7 +131,9 @@ function common_checkInstalled() {
     if [ "${sys_type}" == "yum" ]; then
         eval "rpm -q wazuh-dashboard --quiet && dashboard_installed=1"
     elif [ "${sys_type}" == "apt-get" ]; then
-        dashboard_installed=$(apt list --installed  2>/dev/null | grep wazuh-dashboard)
+        if dpkg -l wazuh-dashboard 2>/dev/null | grep -q -E '^ii\s'; then
+            dashboard_installed=1
+        fi
     fi
 
     if [ -d "/var/lib/wazuh-dashboard/" ] || [ -d "/usr/share/wazuh-dashboard" ] || [ -d "/etc/wazuh-dashboard" ] || [ -d "/run/wazuh-dashboard/" ]; then

@@ -470,10 +470,10 @@ function checks_firewall(){
         eval "rpm -q firewalld --quiet && firewalld_installed=1"
         eval "rpm -q ufw --quiet && ufw_installed=1"
     elif [ "${sys_type}" == "apt-get" ]; then
-        if apt list --installed 2>/dev/null | grep -q -E ^"firewalld"\/; then
+        if dpkg -l "firewalld" 2>/dev/null | grep -q -E '^ii\s'; then
             firewalld_installed=1
         fi
-        if apt list --installed 2>/dev/null | grep -q -E ^"ufw"\/; then
+        if dpkg -l "ufw" 2>/dev/null | grep -q -E '^ii\s'; then
             ufw_installed=1
         fi
     fi
