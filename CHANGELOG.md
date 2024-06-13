@@ -8,10 +8,6 @@ All notable changes to this project will be documented in this file.
 
 - https://github.com/wazuh/wazuh-packages/releases/tag/v4.9.0
 
-## [4.8.2]
-
-- https://github.com/wazuh/wazuh-packages/releases/tag/v4.8.2
-
 ## [4.8.1]
 
 - https://github.com/wazuh/wazuh-packages/releases/tag/v4.8.1
@@ -19,6 +15,10 @@ All notable changes to this project will be documented in this file.
 ## [4.8.0]
 
 - https://github.com/wazuh/wazuh-packages/releases/tag/v4.8.0
+
+## [4.7.5]
+
+- https://github.com/wazuh/wazuh-packages/releases/tag/v4.7.5
 
 ## [4.7.4]
 

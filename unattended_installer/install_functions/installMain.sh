@@ -35,7 +35,7 @@ function getHelp() {
     echo -e "                Display this help and exit."
     echo -e ""
     echo -e "        -i,  --ignore-check"
-    echo -e "                Ignore the check for system compatibility and minimum hardware requirements."
+    echo -e "                Ignore the check for minimum hardware requirements."
     echo -e ""
     echo -e "        -id,  --install-dependencies"
     echo -e "                Installs automatically the necessary dependencies for the installation."
@@ -220,7 +220,7 @@ function main() {
     if [ -n "${showVersion}" ]; then
         common_logger "Wazuh version: ${wazuh_version}"
         common_logger "Filebeat version: ${filebeat_version}"
-        common_logger "Wazuh installation assistant version: ${wazuh_install_vesion}"
+        common_logger "Wazuh installation assistant version: ${wazuh_install_version}"
         exit 0
     fi
 
@@ -259,7 +259,7 @@ function main() {
     fi
 
     if [ -n "${ignore}" ]; then
-        common_logger -w "Hardware and system checks ignored."
+        common_logger -w "Hardware checks ignored."
     else
         common_logger "Verifying that your system meets the recommended minimum hardware requirements."
         checks_health
