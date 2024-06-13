@@ -243,6 +243,12 @@ function main() {
     fi
 
     checks_arch
+    if [ -n "${port_specified}" ]; then
+        checks_available_port "${port_number}" "${wazuh_aio_ports[@]}"
+        dashboard_changePort "${port_number}"
+    elif [ -n "${AIO}" ] || [ -n "${dashboard}" ]; then
+        dashboard_changePort "${http_port}"
+    fi
 
     if [ -z "${uninstall}" ] && [ -z "${offline_install}" ]; then
         installCommon_scanDependencies
@@ -265,18 +271,10 @@ function main() {
         checks_previousCertificate
     fi
 
-    if [ -n "${port_specified}" ]; then
-        checks_available_port "${port_number}" "${wazuh_aio_ports[@]}"
-        dashboard_changePort "${port_number}"
-    elif [ -n "${AIO}" ] || [ -n "${dashboard}" ]; then
-        dashboard_changePort "${http_port}"
-    fi
-
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${wazuh}" ] || [ -n "${dashboard}" ]; then
         if [ -n "${AIO}" ]; then
             rm -f "${tar_file}"
         fi
-
         checks_ports "${used_ports[@]}"
         installCommon_installDependencies
     fi
@@ -316,7 +314,7 @@ function main() {
     fi
 
     if [ -n "${configurations}" ]; then
-        installCommon_removeWIADependencies
+        installCommon_removeAssistantDependencies
     fi
 
 # -------------- Wazuh indexer case -------------------------------
@@ -327,7 +325,7 @@ function main() {
         indexer_configure
         installCommon_startService "wazuh-indexer"
         indexer_initialize
-        installCommon_removeWIADependencies
+        installCommon_removeAssistantDependencies
     fi
 
 # -------------- Start Wazuh indexer cluster case  ------------------
@@ -335,7 +333,7 @@ function main() {
     if [ -n "${start_indexer_cluster}" ]; then
         indexer_startCluster
         installCommon_changePasswords
-        installCommon_removeWIADependencies
+        installCommon_removeAssistantDependencies
     fi
 
 # -------------- Wazuh dashboard case  ------------------------------
@@ -347,7 +345,7 @@ function main() {
         installCommon_startService "wazuh-dashboard"
         installCommon_changePasswords
         dashboard_initialize
-        installCommon_removeWIADependencies
+        installCommon_removeAssistantDependencies
 
     fi
 
@@ -365,7 +363,7 @@ function main() {
         filebeat_configure
         installCommon_changePasswords
         installCommon_startService "filebeat"
-        installCommon_removeWIADependencies
+        installCommon_removeAssistantDependencies
     fi
 
 # -------------- AIO case  ------------------------------------------
@@ -390,7 +388,7 @@ function main() {
         installCommon_startService "wazuh-dashboard"
         installCommon_changePasswords
         dashboard_initializeAIO
-        installCommon_removeWIADependencies
+        installCommon_removeAssistantDependencies
 
     fi
 

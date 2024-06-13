@@ -679,7 +679,7 @@ function installCommon_rollBack() {
 
     common_remove_gpg_key
 
-    installCommon_removeWIADependencies
+    installCommon_removeAssistantDependencies
 
     eval "systemctl daemon-reload ${debug}"
 
@@ -759,7 +759,6 @@ function installCommon_scanDependencies() {
         fi
     done
 
-
     # Format and print the message if the option is not specified
     if [ -z "${install_dependencies}" ] && [ "${#deps_to_install[@]}" -gt 0 ]; then
         printf -v joined_deps_not_installed '%s, ' "${deps_to_install[@]}"
@@ -773,7 +772,6 @@ function installCommon_scanDependencies() {
         fi
         message+=" Add the -id|--install-dependencies parameter to install them automatically or install them manually."
         common_logger -w "${message}"
-        
         exit 1
     fi
 
@@ -837,7 +835,7 @@ function installCommon_startService() {
 
 }
 
-function installCommon_removeWIADependencies(){
+function installCommon_removeAssistantDependencies(){
 
     if [ "${#assistant_deps_installed[@]}" -gt 0 ]; then
         common_logger "--- Dependencies ---"

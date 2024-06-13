@@ -206,7 +206,6 @@ function check_dist() {
     if [ "${DIST_NAME}" == "centos" ] && { [ "${DIST_VER}" -ne "7" ] && [ "${DIST_VER}" -ne "8" ]; }; then
         notsupported=1
     fi
-
     if [ "${DIST_NAME}" == "rhel" ]; then
         if [ "${DIST_VER}" -ne "7" ] && [ "${DIST_VER}" -ne "8" ] && [ "${DIST_VER}" -ne "9" ]; then
             notsupported=1
@@ -215,9 +214,9 @@ function check_dist() {
     fi
 
     if [ "${DIST_NAME}" == "amzn" ]; then
-        if [ "${DIST_VER}" != "2" ] &&
-           [ "${DIST_VER}" != "2023" ] &&
-           [ "${DIST_VER}" != "2018.03" ]; then
+        if  [ "${DIST_VER}" != "2" ] &&
+            [ "${DIST_VER}" != "2023" ] &&
+            [ "${DIST_VER}" != "2018.03" ]; then
             notsupported=1
         fi
         if [ "${DIST_VER}" -eq "2023" ]; then
