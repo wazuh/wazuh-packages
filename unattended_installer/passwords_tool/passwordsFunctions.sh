@@ -47,23 +47,18 @@ function passwords_changePassword() {
 
     if [ "${nuser}" == "admin" ] || [ -n "${changeall}" ]; then
         if [ -n "${filebeat_installed}" ]; then
-            if filebeat keystore list | grep -q password ; then
-                eval "echo ${adminpass} | filebeat keystore add password --force --stdin ${debug}"
-                conf="$(awk '{sub("password: .*", "password: ${password}")}1' /etc/filebeat/filebeat.yml)"
-                echo "${conf}" > /etc/filebeat/filebeat.yml
-                common_logger "Updated password on Filebeat Keystore. Also updated filebeat.yml file to use the Keystore password."
-                if filebeat keystore list | grep -q username ; then
-                    conf="$(awk '{sub("username: .*", "username: ${username}")}1' /etc/filebeat/filebeat.yml)"
-                    echo "${conf}" > /etc/filebeat/filebeat.yml
-                    common_logger "Updated filebeat.yml file to use the Keystore username."
-                fi
-            else
-                wazuhold=$(grep "password:" /etc/filebeat/filebeat.yml )
-                ra="  password: "
-                wazuhold="${wazuhold//$ra}"
-                conf="$(awk '{sub("username: .*", "username: admin"); sub("password: .*", "password: '"${adminpass}"'")}1' /etc/filebeat/filebeat.yml)"
-                echo "${conf}" > /etc/filebeat/filebeat.yml
+            file_username=$(grep "username:" /etc/filebeat/filebeat.yml | awk '{print $2}')
+            file_password=$(grep "password:" /etc/filebeat/filebeat.yml | awk '{print $2}')
+            if [ "$file_username" != "\${username}" ] || [ "$file_password" != "\${password}" ]; then
+                common_logger -w "The user and password configured in the filebeat.yml file will be updated and stored in Filebeat Keystore."
             fi
+            eval "echo ${adminpass} | filebeat keystore add password --force --stdin ${debug}"
+            conf="$(awk '{sub("password: .*", "password: ${password}")}1' /etc/filebeat/filebeat.yml)"
+            echo "${conf}" > /etc/filebeat/filebeat.yml
+            eval "echo admin | filebeat keystore add username --force --stdin ${debug}"
+            conf="$(awk '{sub("username: .*", "username: ${username}")}1' /etc/filebeat/filebeat.yml)"
+            echo "${conf}" > /etc/filebeat/filebeat.yml
+            common_logger "Updated username and password in Filebeat Keystore. Also updated filebeat.yml file to use the Filebeat Keystore username and password."
             passwords_restartService "filebeat"
             eval "/var/ossec/bin/wazuh-keystore -f indexer -k password -v ${adminpass}"
             passwords_restartService "wazuh-manager"
