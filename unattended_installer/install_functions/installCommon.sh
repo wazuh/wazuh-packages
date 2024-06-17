@@ -564,7 +564,7 @@ function installCommon_rollBack() {
         elif [ "${sys_type}" == "apt-get" ]; then
             common_checkAptLock
             eval "apt-get remove --purge wazuh-manager -y ${debug}"
-            eval "apt list --installed 2>/dev/null | grep wazuh-manager"
+            eval "dpkg -l wazuh-manager 2>/dev/null | grep -E '^ii\s'"
         fi
 
         manager_installed=${PIPESTATUS[0]}
@@ -592,7 +592,7 @@ function installCommon_rollBack() {
         elif [ "${sys_type}" == "apt-get" ]; then
             common_checkAptLock
             eval "apt-get remove --purge wazuh-indexer -y ${debug}"
-            eval "apt list --installed 2>/dev/null | grep wazuh-indexer"
+            eval "dpkg -l wazuh-indexer 2>/dev/null | grep -E '^ii\s'"
         fi
 
         indexer_installed=${PIPESTATUS[0]}
@@ -621,7 +621,7 @@ function installCommon_rollBack() {
         elif [ "${sys_type}" == "apt-get" ]; then
             common_checkAptLock
             eval "apt-get remove --purge filebeat -y ${debug}"
-            eval "apt list --installed 2>/dev/null | grep filebeat"
+            eval "dpkg -l filebeat 2>/dev/null | grep -E '^ii\s'"
         fi
 
         filebeat_installed=${PIPESTATUS[0]}
@@ -650,7 +650,7 @@ function installCommon_rollBack() {
         elif [ "${sys_type}" == "apt-get" ]; then
             common_checkAptLock
             eval "apt-get remove --purge wazuh-dashboard -y ${debug}"
-            eval "apt list --installed 2>/dev/null | grep wazuh-dashboard"
+            eval "dpkg -l wazuh-dashboard 2>/dev/null | grep -E '^ii\s'"
         fi
 
         dashboard_installed=${PIPESTATUS[0]}
