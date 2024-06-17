@@ -222,7 +222,9 @@ function main() {
                 passwords_getApiToken
                 passwords_getApiUsers
                 passwords_getApiIds
-            elif [ -n "${indexer_installed}" ]; then
+            elif [ -z "${wazuh_installed}" ] && [ -n "${dashboard_installed}" ]; then
+                passwords_readDashboardUsers
+            elif [ -n "${indexer_installed}" ] || [ -n "${wazuh_installed}" ]; then
                 passwords_readUsers
             fi
             passwords_checkUser
@@ -239,15 +241,20 @@ function main() {
         
 
         if [ -n "${changeall}" ] || [ -n "${p_file}" ]; then
-            if [ -n "${indexer_installed}" ]; then
+            if [ -n "${indexer_installed}" ] || [ -n "${wazuh_installed}" ]; then
                 passwords_readUsers
             fi
-            if [ -n "${adminUser}" ] && [ -n "${adminPassword}" ]; then
-                passwords_getApiToken
-                passwords_getApiUsers
-                passwords_getApiIds
-            else
-                common_logger "Wazuh API admin credentials not provided, Wazuh API passwords not changed."
+
+            if [ -n "${wazuh_installed}" ]; then
+                if [ -n "${adminUser}" ] && [ -n "${adminPassword}" ]; then
+                    passwords_getApiToken
+                    passwords_getApiUsers
+                    passwords_getApiIds
+                else
+                    common_logger "Wazuh API admin credentials not provided, Wazuh API passwords not changed."
+                fi
+            elif  [ -n "${dashboard_installed}" ]; then
+                passwords_readDashboardUsers
             fi
             if [ -n "${changeall}" ]; then
                 passwords_generatePassword
@@ -266,9 +273,15 @@ function main() {
             passwords_runSecurityAdmin
         fi
 
+        # Call the function to change the password for filebeat and/or kibanaserver
+        if [ -z "${indexer_installed}" ] && { [ -n "${wazuh_installed}" ] || [ -n "${dashboard_installed}" ]; }; then
+            passwords_changePassword
+        fi
+
         if [ -n "${api}" ] || [ -n "${changeall}" ]; then
-            if [ -n "${adminUser}" ] && [ -n "${adminPassword}" ]; then
+            if { [ -n "${adminUser}" ] && [ -n "${adminPassword}" ]; } || { [ -z "${wazuh_installed}" ] && [ -n "${dashboard_installed}" ]; }; then
                 passwords_changePasswordApi
+
             fi
         fi
 
