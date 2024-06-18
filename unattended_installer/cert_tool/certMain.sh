@@ -176,7 +176,7 @@ function main() {
             cert_generateAdmincertificate
             common_logger "Admin certificates created."
             cert_cleanFiles
-            set_certs_directory
+            cert_setDirectory
         fi
 
         if [[ -n "${all}" ]]; then
@@ -193,13 +193,13 @@ function main() {
                 common_logger "Wazuh dashboard certificates created."
             fi
             cert_cleanFiles
-            set_certs_directory
+            cert_setDirectory
         fi
 
         if [[ -n "${ca}" ]]; then
             cert_generateRootCAcertificate
             common_logger "Authority certificates created."
-            set_certs_directory
+            cert_setDirectory
         fi
 
         if [[ -n "${cindexer}" ]]; then
@@ -208,7 +208,7 @@ function main() {
                 cert_generateIndexercertificates
                 common_logger "Wazuh indexer certificates created."
                 cert_cleanFiles
-                set_certs_directory
+                cert_setDirectory
             else
                 common_logger -e "Indexer node not present in config.yml."
                 exit 1
@@ -221,7 +221,7 @@ function main() {
                 cert_generateFilebeatcertificates
                 common_logger "Wazuh Filebeat certificates created."
                 cert_cleanFiles
-                set_certs_directory
+                cert_setDirectory
             else
                 common_logger -e "Server node not present in config.yml."
                 exit 1
@@ -234,7 +234,7 @@ function main() {
                 cert_generateDashboardcertificates
                 common_logger "Wazuh dashboard certificates created."
                 cert_cleanFiles
-                set_certs_directory
+                cert_setDirectory
             else
                 common_logger -e "Dashboard node not present in config.yml."
                 exit 1

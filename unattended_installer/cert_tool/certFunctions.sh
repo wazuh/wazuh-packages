@@ -459,7 +459,7 @@ function cert_setpermisions() {
     eval "chmod -R 744 ${1} ${debug}"
 }
 
-function set_certs_directory() {
+function cert_setDirectory() {
 
     if [ -d "${base_path}/wazuh-certificates" ]; then
         eval "cp -f ${cert_tmp_path}/* ${base_path}/wazuh-certificates ${debug}"
