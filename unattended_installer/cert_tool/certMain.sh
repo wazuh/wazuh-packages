@@ -159,13 +159,6 @@ function main() {
         done
 
         common_logger "Verbose logging redirected to ${logfile}"
-
-        if [[ -d "${base_path}"/wazuh-certificates ]]; then
-            if [ -n "$(ls -A "${base_path}"/wazuh-certificates)" ]; then
-                common_logger -e "Directory wazuh-certificates already exists in the same path as the script. Please, remove the certs directory to create new certificates."
-                exit 1
-            fi
-        fi
         
         if [[ ! -d "${cert_tmp_path}" ]]; then
             mkdir -p "${cert_tmp_path}"
@@ -183,8 +176,7 @@ function main() {
             cert_generateAdmincertificate
             common_logger "Admin certificates created."
             cert_cleanFiles
-            cert_setpermisions
-            eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
+            cert_setDirectory
         fi
 
         if [[ -n "${all}" ]]; then
@@ -201,15 +193,13 @@ function main() {
                 common_logger "Wazuh dashboard certificates created."
             fi
             cert_cleanFiles
-            cert_setpermisions
-            eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
+            cert_setDirectory
         fi
 
         if [[ -n "${ca}" ]]; then
             cert_generateRootCAcertificate
             common_logger "Authority certificates created."
-            cert_cleanFiles
-            eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
+            cert_setDirectory
         fi
 
         if [[ -n "${cindexer}" ]]; then
@@ -218,8 +208,7 @@ function main() {
                 cert_generateIndexercertificates
                 common_logger "Wazuh indexer certificates created."
                 cert_cleanFiles
-                cert_setpermisions
-                eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
+                cert_setDirectory
             else
                 common_logger -e "Indexer node not present in config.yml."
                 exit 1
@@ -232,8 +221,7 @@ function main() {
                 cert_generateFilebeatcertificates
                 common_logger "Wazuh Filebeat certificates created."
                 cert_cleanFiles
-                cert_setpermisions
-                eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
+                cert_setDirectory
             else
                 common_logger -e "Server node not present in config.yml."
                 exit 1
@@ -246,8 +234,7 @@ function main() {
                 cert_generateDashboardcertificates
                 common_logger "Wazuh dashboard certificates created."
                 cert_cleanFiles
-                cert_setpermisions
-                eval "mv ${cert_tmp_path} ${base_path}/wazuh-certificates ${debug}"
+                cert_setDirectory
             else
                 common_logger -e "Dashboard node not present in config.yml."
                 exit 1
