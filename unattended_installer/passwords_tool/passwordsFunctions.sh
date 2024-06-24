@@ -58,7 +58,7 @@ function passwords_changePassword() {
             eval "echo admin | filebeat keystore add username --force --stdin ${debug}"
             conf="$(awk '{sub("username: .*", "username: ${username}")}1' /etc/filebeat/filebeat.yml)"
             echo "${conf}" > /etc/filebeat/filebeat.yml
-            common_logger "Updated username and password in Filebeat Keystore. Also updated filebeat.yml file to use the Filebeat Keystore username and password."
+            common_logger "The filebeat.yml file has been updated to use the Filebeat Keystore username and password."
             passwords_restartService "filebeat"
             eval "/var/ossec/bin/wazuh-keystore -f indexer -k password -v ${adminpass}"
             passwords_restartService "wazuh-manager"
@@ -205,7 +205,7 @@ function passwords_generateHash() {
         common_logger -d "Generating password hashes."
         for i in "${!passwords[@]}"
         do
-            nhash=$(bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "${passwords[i]}" | grep -A 2 'issues' | tail -n 1)
+            nhash=$(bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "${passwords[i]}" 2>&1 | grep -A 2 'issues' | tail -n 1)
             if [  "${PIPESTATUS[0]}" != 0  ]; then
                 common_logger -e "Hash generation failed."
                 if [[ $(type -t installCommon_rollBack) == "function" ]]; then
@@ -218,7 +218,7 @@ function passwords_generateHash() {
         common_logger -d "Password hashes generated."
     else
         common_logger "Generating password hash"
-        hash=$(bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "${password}" | grep -A 2 'issues' | tail -n 1)
+        hash=$(bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "${password}" 2>&1 | grep -A 2 'issues' | tail -n 1)
         if [  "${PIPESTATUS[0]}" != 0  ]; then
             common_logger -e "Hash generation failed."
             if [[ $(type -t installCommon_rollBack) == "function" ]]; then
@@ -380,7 +380,7 @@ function passwords_getNetworkHost() {
     IP=$(grep -hr "^network.host:" /etc/wazuh-indexer/opensearch.yml)
     NH="network.host: "
     IP="${IP//$NH}"
-    
+
     # Remove surrounding double quotes if present
     IP="${IP//\"}"
 
