@@ -368,11 +368,15 @@ function cert_readConfig() {
 
         for ip in "${all_ips[@]}"; do
             isIP=$(echo "${ip}" | grep -P "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
+            isDNS=$(echo "${ip}" | grep -P "^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])\.([A-Za-z]{2,})$" )
             if [[ -n "${isIP}" ]]; then
                 if ! cert_checkPrivateIp "$ip"; then
                     common_logger -e "The IP ${ip} is public."
                     exit 1
                 fi
+            elif [[ -n "${isDNS}" ]]; then
+                common_logger -e "The DNS ${ip} is not valid."
+                exit 1
             fi
         done
 
