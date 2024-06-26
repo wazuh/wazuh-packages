@@ -14,7 +14,7 @@ CURRENT_PATH="$( cd $(dirname $0) ; pwd -P )"
 ASSETS_PATH="${CURRENT_PATH}/assets"
 CUSTOM_PATH="${ASSETS_PATH}/custom"
 BUILDER_ARGS="-i"
-INSTALL_ARGS="-a"
+INSTALL_ARGS="-a --install-dependencies"
 
 if [[ "${PACKAGES_REPOSITORY}" == "dev" ]]; then
   BUILDER_ARGS+=" -d"
