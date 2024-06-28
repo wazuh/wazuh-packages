@@ -710,8 +710,8 @@ rm -fr %{buildroot}
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/src/
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/src/REVISION
 %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/src/VERSION
-%dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/src/init/
-%attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/src/init/*
+%dir %attr(750, root, root) %{_localstatedir}/packages_files/manager_installation_scripts/src/init/
+%attr(750, root, root) %{_localstatedir}/packages_files/manager_installation_scripts/src/init/*
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config
 %dir %attr(750, root, root) %config(missingok) %{_localstatedir}/packages_files/manager_installation_scripts/etc/templates/config/generic
