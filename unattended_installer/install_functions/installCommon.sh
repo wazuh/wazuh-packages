@@ -98,6 +98,16 @@ function installCommon_aptInstall() {
         installer=${package}
     fi
 
+    if [ "${package}" == "wazuh-indexer" ]; then
+        eval "common_curl -sO https://packages-dev.wazuh.com/warehouse/test/4.9/deb/wazuh-indexer_4.9.0-1_amd64.deb"
+        package_name=$(ls ${base_path} | grep ${package})
+        installer="${base_path}/${package_name}"
+    elif [ "${package}" == "wazuh-dashboard" ]; then
+        eval "common_curl -sO https://packages-dev.wazuh.com/warehouse/test/4.9/deb/wazuh-dashboard_4.9.0-1_amd64.deb"
+        package_name=$(ls ${base_path} | grep ${package})
+        installer="${base_path}/${package_name}"
+    fi
+
     # Offline installation case: get package name and install it
     if [ -n "${offline_install}" ]; then
         package_name=$(ls ${offline_packages_path} | grep ${package})
