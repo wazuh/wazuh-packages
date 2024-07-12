@@ -872,13 +872,13 @@ function installCommon_yumInstall() {
     else
         installer="${package}"
     fi
-
+set -x
     if [ "${package}" == "wazuh-dashboard" ]; then
         eval "common_curl -sO https://packages-dev.wazuh.com/warehouse/test/4.9/rpm/var/wazuh-dashboard_4.9.0-_idr1261_x86_64_bd30be4.rpm"
         package_name=$(ls ${base_path} | grep ${package})
         installer="${base_path}/${package_name}"
     fi
-
+set +x
     # Offline installation case: get package name and install it
     if [ -n "${offline_install}" ]; then
         package_name=$(ls ${offline_packages_path} | grep ${package})
