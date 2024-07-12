@@ -874,7 +874,7 @@ function installCommon_yumInstall() {
     fi
 set -x
     if [ "${package}" == "wazuh-dashboard" ]; then
-        eval "common_curl -sO https://packages-dev.wazuh.com/warehouse/test/4.9/rpm/var/wazuh-dashboard_4.9.0-_idr1261_x86_64_bd30be4.rpm"
+        eval "common_curl -s -o ${base_path}/wazuh-dashboard.rpm https://packages-dev.wazuh.com/warehouse/test/4.9/rpm/var/wazuh-dashboard_4.9.0-_idr1261_x86_64_bd30be4.rpm"
         package_name=$(ls ${base_path} | grep ${package})
         installer="${base_path}/${package_name}"
     fi
