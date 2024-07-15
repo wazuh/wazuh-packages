@@ -7,7 +7,7 @@ ram="$(( ram_mb / 2 ))"
 if [ "${ram}" -eq "0" ]; then
     ram=1024;
 fi
-
+ram=1024;
 regex="^\-Xmx\K[0-9]+"
 file="/etc/wazuh-indexer/jvm.options"
 value=$(grep -oP ${regex} ${file})
