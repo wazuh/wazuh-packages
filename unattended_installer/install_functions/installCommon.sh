@@ -879,6 +879,12 @@ set -x
         installer="${base_path}/${package_name}"
     fi
 set +x
+    if [ "${package}" == "wazuh-indexer" ]; then
+        eval "common_curl -s -o ${base_path}/wazuh-indexer.rpm https://s3.us-west-1.amazonaws.com/packages-dev.wazuh.com/warehouse/test/4.9/rpm/var/wazuh-indexer_4.9.0-0_x86_64_4fd38e6.rpm"
+        package_name=$(ls ${base_path} | grep ${package})
+        installer="${base_path}/${package_name}"
+    fi
+    
     # Offline installation case: get package name and install it
     if [ -n "${offline_install}" ]; then
         package_name=$(ls ${offline_packages_path} | grep ${package})
