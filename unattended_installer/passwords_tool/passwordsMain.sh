@@ -26,9 +26,11 @@ function getHelp() {
     echo -e ""
     echo -e "        -au,  --admin-user <adminUser>"
     echo -e "                Admin user for Wazuh API, Required to change Wazuh API passwords."
+    echo -e "                Requires -A|--api."
     echo -e ""
     echo -e "        -ap,  --admin-password <adminPassword>"
     echo -e "                Password for Wazuh API admin user, Required to change Wazuh API passwords."
+    echo -e "                Requires -A|--api."
     echo -e ""
     echo -e "        -u,  --user <user>"
     echo -e "                Indicates the name of the user whose password will be changed."
@@ -214,6 +216,10 @@ function main() {
         fi
 
         if [ -z "${nuser}" ] && [ -z "${password}" ] && [ -z "${changeall}" ] && [ -z  "${p_file}" ]; then
+            getHelp
+        fi
+
+        if [ -n "${adminUser}" ] && [ -n "${adminPassword}" ] && [ -z "${api}" ]; then
             getHelp
         fi
 
