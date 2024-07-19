@@ -48,16 +48,18 @@ function passwords_changePassword() {
 
     if [ "${nuser}" == "admin" ] || [ -n "${changeall}" ]; then
         if [ -n "${filebeat_installed}" ]; then
-            if filebeat keystore list | grep -q password ; then
-                eval "(echo ${adminpass} | filebeat keystore add password --force --stdin)" "${debug}"
-            else
-                wazuhold=$(grep "password:" /etc/filebeat/filebeat.yml )
-                ra="  password: "
-                wazuhold="${wazuhold//$ra}"
-                conf="$(awk '{sub("password: .*", "password: '"${adminpass}"'")}1' /etc/filebeat/filebeat.yml)"
-                echo "${conf}" > /etc/filebeat/filebeat.yml
+            file_username=$(grep "username:" /etc/filebeat/filebeat.yml | awk '{print $2}')
+            file_password=$(grep "password:" /etc/filebeat/filebeat.yml | awk '{print $2}')
+            if [ "$file_username" != "\${username}" ] || [ "$file_password" != "\${password}" ]; then
+                common_logger -w "The user and password configured in the filebeat.yml file will be updated and stored in Filebeat Keystore."
             fi
-
+            eval "echo ${adminpass} | filebeat keystore add password --force --stdin ${debug}"
+            conf="$(awk '{sub("password: .*", "password: ${password}")}1' /etc/filebeat/filebeat.yml)"
+            echo "${conf}" > /etc/filebeat/filebeat.yml
+            eval "echo admin | filebeat keystore add username --force --stdin ${debug}"
+            conf="$(awk '{sub("username: .*", "username: ${username}")}1' /etc/filebeat/filebeat.yml)"
+            echo "${conf}" > /etc/filebeat/filebeat.yml
+            common_logger "The filebeat.yml file has been updated to use the Filebeat Keystore username and password."
             passwords_restartService "filebeat"
             eval "/var/ossec/bin/wazuh-keystore -f indexer -k password -v ${adminpass}"
             common_logger -nl $"The new password for Filebeat is ${adminpass}"
@@ -222,7 +224,7 @@ function passwords_generateHash() {
         common_logger -d "Generating password hashes."
         for i in "${!passwords[@]}"
         do
-            nhash=$(bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "${passwords[i]}" | grep -A 2 'issues' | tail -n 1)
+            nhash=$(bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "${passwords[i]}" 2>&1 | grep -A 2 'issues' | tail -n 1)
             if [  "${PIPESTATUS[0]}" != 0  ]; then
                 common_logger -e "Hash generation failed."
                 if [[ $(type -t installCommon_rollBack) == "function" ]]; then
@@ -235,7 +237,7 @@ function passwords_generateHash() {
         common_logger -d "Password hashes generated."
     else
         common_logger "Generating password hash"
-        hash=$(bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "${password}" | grep -A 2 'issues' | tail -n 1)
+        hash=$(bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "${password}" 2>&1 | grep -A 2 'issues' | tail -n 1)
         if [  "${PIPESTATUS[0]}" != 0  ]; then
             common_logger -e "Hash generation failed."
             if [[ $(type -t installCommon_rollBack) == "function" ]]; then
@@ -397,7 +399,7 @@ function passwords_getNetworkHost() {
     IP=$(grep -hr "^network.host:" /etc/wazuh-indexer/opensearch.yml)
     NH="network.host: "
     IP="${IP//$NH}"
-    
+
     # Remove surrounding double quotes if present
     IP="${IP//\"}"
 
