@@ -57,7 +57,6 @@ function manager_checkService() {
         installCommon_rollBack
         exit 1
     fi
-    common_logger "End Wazuh API connection"
 }
 
 function manager_configure(){
