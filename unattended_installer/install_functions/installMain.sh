@@ -368,10 +368,12 @@ function main() {
             manager_startCluster
         fi
         installCommon_startService "wazuh-manager"
+        manager_checkService
         filebeat_install
         filebeat_configure
         installCommon_changePasswords
         installCommon_startService "filebeat"
+        filebeat_checkService
         installCommon_removeWIADependencies
     fi
 
@@ -388,9 +390,11 @@ function main() {
         manager_install
         manager_configure
         installCommon_startService "wazuh-manager"
+        manager_checkService
         filebeat_install
         filebeat_configure
         installCommon_startService "filebeat"
+        filebeat_checkService
         common_logger "--- Wazuh dashboard ---"
         dashboard_install
         dashboard_configure

@@ -42,6 +42,24 @@ function manager_startCluster() {
 
 }
 
+function manager_checkService() {
+    common_logger "Checking Wazuh API connection"
+    eval "TOKEN=$(curl -k -s -X POST -u "wazuh-wui:wazuh-wui" https://localhost:55000/security/user/authenticate/run_as?raw=true -d '{"user_name":"wzread"}' -H "content-type:application/json")"
+    wmError=$(curl -k -s -X GET "https://127.0.0.1:55000/agents/outdated?pretty=true" -H "Authorization: Bearer $TOKEN")
+    wmStatus=$(/var/ossec/bin/wazuh-control status)
+    errorMessage='"error": 0'
+    common_logger -d "$wmStatus"
+
+    if  [[ ${wmError,,} = *${errorMessage,,}* ]]; then
+        common_logger "Wazuh API connection successful"
+    else
+        common_logger -e "Wazuh API connection Error. $wmError"
+        installCommon_rollBack
+        exit 1
+    fi
+    common_logger "End Wazuh API connection"
+}
+
 function manager_configure(){
 
     common_logger -d "Configuring Wazuh manager."
