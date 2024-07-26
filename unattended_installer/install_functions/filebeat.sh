@@ -9,20 +9,12 @@
 function filebeat_checkService() {
     common_logger "Checking Filebeat connection"
 
-    fbError=$(filebeat test output | grep ERROR)
-    errorMessage='ERROR'
-    fbOutput=$(filebeat test output)
-
-    if  [[ ${fbError,,} = *${errorMessage,,}* ]]; then
-        common_logger -e "Filebeat connection Error. $fbError"
-        common_logger -d "Full output of Filebeatt test:"
-        common_logger -d "$fbOutput"
+    if  filebeat test output | grep -q -i -w "ERROR"; then
+        common_logger -e "Filebeat connection Error."
         installCommon_rollBack
         exit 1
     else
         common_logger "Filebeat connection successful"
-        common_logger -d "Full output of Filebeatt test:"
-        common_logger -d "$fbOutput"
     fi
 }
 

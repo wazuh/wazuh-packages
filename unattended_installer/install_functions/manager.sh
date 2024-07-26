@@ -45,15 +45,15 @@ function manager_startCluster() {
 function manager_checkService() {
     common_logger "Checking Wazuh API connection"
     eval "TOKEN=$(curl -k -s -X POST -u "wazuh-wui:wazuh-wui" https://127.0.0.1:55000/security/user/authenticate/run_as?raw=true -d '{"user_name":"wzread"}' -H "content-type:application/json")"
-    wmError=$(curl -k -s -X GET "https://127.0.0.1:55000/agents/outdated?pretty=true" -H "Authorization: Bearer $TOKEN")
-    wmStatus=$(/var/ossec/bin/wazuh-control status)
-    errorMessage='"error": 0'
-    common_logger -d "$wmStatus"
+    wm_error=$(curl -k -s -X GET "https://127.0.0.1:55000/agents/outdated?pretty=true" -H "Authorization: Bearer ${TOKEN}")
+    wm_status=$(/var/ossec/bin/wazuh-control status)
+    error_message='"error": 0'
+    common_logger -d "${wm_status}"
 
-    if  [[ ${wmError,,} = *${errorMessage,,}* ]]; then
+    if  [[ ${wm_error,,} = *${error_message,,}* ]]; then
         common_logger "Wazuh API connection successful"
     else
-        common_logger -e "Wazuh API connection Error. $wmError"
+        common_logger -e "Wazuh API connection Error. $wm_error"
         installCommon_rollBack
         exit 1
     fi
