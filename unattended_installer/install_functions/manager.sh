@@ -44,7 +44,7 @@ function manager_startCluster() {
 
 function manager_checkService() {
     common_logger "Checking Wazuh API connection"
-    eval "TOKEN=$(curl -k -s -X POST -u "wazuh-wui:wazuh-wui" https://localhost:55000/security/user/authenticate/run_as?raw=true -d '{"user_name":"wzread"}' -H "content-type:application/json")"
+    eval "TOKEN=$(curl -k -s -X POST -u "wazuh-wui:wazuh-wui" https://127.0.0.1:55000/security/user/authenticate/run_as?raw=true -d '{"user_name":"wzread"}' -H "content-type:application/json")"
     wmError=$(curl -k -s -X GET "https://127.0.0.1:55000/agents/outdated?pretty=true" -H "Authorization: Bearer $TOKEN")
     wmStatus=$(/var/ossec/bin/wazuh-control status)
     errorMessage='"error": 0'
