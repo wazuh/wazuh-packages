@@ -10,7 +10,8 @@ function filebeat_checkService() {
     common_logger "Checking Filebeat connection"
 
     if  filebeat test output | grep -q -i -w "ERROR"; then
-        common_logger -e "Filebeat connection Error"
+        common_logger -e "Filebeat connection Error."
+        eval "filebeat test output x ${debug}"
         installCommon_rollBack
         exit 1
     else
