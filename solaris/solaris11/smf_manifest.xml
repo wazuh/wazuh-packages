@@ -1,8 +1,8 @@
 <?xml version="1.0" ?>
 <!DOCTYPE service_bundle
   SYSTEM '/usr/share/lib/xml/dtd/service_bundle.dtd.1'>
-<service_bundle type="manifest" name="site/wazuh-install">
-    <service version="1" type="service" name="site/wazuh-install">
+<service_bundle type="manifest" name="site/wazuh-postinstall">
+    <service version="1" type="service" name="site/wazuh-postinstall">
         <dependency restart_on="none" type="service"
             name="multi_user_dependency" grouping="require_all">
             <service_fmri value="svc:/milestone/multi-user"/>
