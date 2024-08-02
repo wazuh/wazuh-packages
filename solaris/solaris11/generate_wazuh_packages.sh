@@ -180,6 +180,8 @@ create_package() {
 
 
     # Package generation process
+    # Added creation of wazuh-agent.xml service manifest file
+    svcbundle -o wazuh-agent.xml -s service-name=application/wazuh-agent -s start-method="${install_path}/bin/${control_binary} start" -s stop-method="${install_path}/bin/${control_binary} stop" -s refresh-method="${install_path}/bin/${control_binary} restart"
     pkgsend generate ${install_path} | pkgfmt > wazuh-agent.p5m.1
     sed "s|<INSTALL_PATH>|${install_path}|" ${current_path}/postinstall.sh > ${current_path}/postinstall.sh.new
     mv ${current_path}/postinstall.sh.new ${current_path}/postinstall.sh
@@ -192,12 +194,10 @@ create_package() {
         mv wazuh-agent.p5m.1.aux_sed wazuh-agent.p5m.1
     done
     # Add service files
-    echo "file smf_manifest.xml path=lib/svc/manifest/site/post-install.xml owner=root group=sys mode=0744 restart_fmri=svc:/system/manifest-import:default" >> wazuh-agent.p5m.1
+    echo "file smf_manifest.xml path=lib/svc/manifest/site/wazuh-postinstall.xml owner=root group=sys mode=0744 restart_fmri=svc:/system/manifest-import:default" >> wazuh-agent.p5m.1
     echo "dir  path=var/ossec/installation_scripts owner=root group=bin mode=0755" >> wazuh-agent.p5m.1
     echo "file postinstall.sh path=var/ossec/installation_scripts/postinstall.sh owner=root group=bin mode=0744" >> wazuh-agent.p5m.1
-    echo "file wazuh-agent path=etc/init.d/wazuh-agent owner=root group=sys mode=0744" >> wazuh-agent.p5m.1
-    echo "file S97wazuh-agent path=etc/rc2.d/S97wazuh-agent owner=root group=sys mode=0744" >> wazuh-agent.p5m.1
-    echo "file S97wazuh-agent path=etc/rc3.d/S97wazuh-agent owner=root group=sys mode=0744" >> wazuh-agent.p5m.1
+    echo "file wazuh-agent.xml path=lib/svc/manifest/application/wazuh-agent.xml owner=root group=sys mode=0744 restart_fmri=svc:/system/manifest-import:default" >> wazuh-agent.p5m.1
 
     # Add user and group wazuh
     echo "group groupname=wazuh" >> wazuh-agent.p5m.1
