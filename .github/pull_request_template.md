@@ -28,9 +28,6 @@ Paste here related logs
 
 <!-- Minimum checks required -->
 - Build the package in any supported platform
-  - [ ] Linux
-  - [ ] Windows
-  - [ ] macOS
   - [ ] Solaris
   - [ ] AIX
   - [ ] HP-UX
@@ -42,22 +39,6 @@ Paste here related logs
 - [ ] Change added to CHANGELOG.md
 
 <!-- Depending on the affected OS -->
-- Tests for Linux RPM
-  - [ ] Build the package for x86_64
-  - [ ] Build the package for i386
-  - [ ] Build the package for armhf
-  - [ ] Build the package for aarch64
-  - [ ] `%files` section is correctly updated if necessary
-- Tests for Linux deb
-  - [ ] Build the package for x86_64
-  - [ ] Build the package for i386
-  - [ ] Build the package for armhf
-  - [ ] Build the package for aarch64
-  - [ ] Package install/remove/install
-  - [ ] Package install/purge/install
-  - [ ] Check file permissions after installing the package
-- Tests for macOS
-  - [ ] Test the package from macOS Sierra to Mojave
 - Tests for Solaris
   - [ ] Test the package on Solaris 10
   - [ ] Test the package on Solaris 11
