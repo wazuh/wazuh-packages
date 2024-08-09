@@ -19,7 +19,7 @@ download_sources() {
     fi
     mv wazuh-* ${build_dir}
     wazuh_version=$(python -c "import json, os; f=open(\""${package_json}"\"); pkg=json.load(f); f.close(); print(pkg[\"version\"])")
-    splunk_version=$(python -c "import json, os; f=open(\""${package_json}"\"); pkg=json.load(f); f.close(); print(pkg[\"splunk\"])")}
+    splunk_version=$(python -c "import json, os; f=open(\""${package_json}"\"); pkg=json.load(f); f.close(); print(pkg[\"splunk\"].rsplit('.', 1)[0])")
 }
 
 remove_execute_permissions() {
