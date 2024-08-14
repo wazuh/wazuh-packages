@@ -41,7 +41,7 @@ function getHelp() {
     echo -e "                Overwrites previously installed components. This will erase all the existing configuration and data."
     echo -e ""
     echo -e "        -of,  --offline-installation"
-    echo -e "                Perform an offline installation. This option must be used with -a, -ws, -wi, or -wd."
+    echo -e "                Perform an offline installation. This option must be used with -a, -ws, -s, -wi, or -wd."
     echo -e ""
     echo -e "        -p,  --port"
     echo -e "                Specifies the Wazuh web user interface port. By default is the 443 TCP port. Recommended ports are: 8443, 8444, 8080, 8888, 9000."
