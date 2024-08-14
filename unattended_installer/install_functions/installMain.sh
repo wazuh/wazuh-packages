@@ -251,10 +251,6 @@ function main() {
 
 # -------------- Preliminary checks and Prerequisites --------------------------------
 
-    if [ -z "${uninstall}" ]; then
-        installCommon_installCheckDependencies
-    fi
-
     if [ -z "${configurations}" ] && [ -z "${AIO}" ] && [ -z "${download}" ]; then
         checks_previousCertificate
     fi
