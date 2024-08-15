@@ -31,8 +31,8 @@ function checks_arguments() {
     # -------------- Offline installation ---------------------
 
     if [ -n "${offline_install}" ]; then
-        if [ -z "${AIO}" ] && [ -z "${dashboard}" ] && [ -z "${indexer}" ] && [ -z "${wazuh}" ]; then
-            common_logger -e "The -of|--offline-installation option must be used with -a, -ws, -wi, or -wd."
+        if [ -z "${AIO}" ] && [ -z "${dashboard}" ] && [ -z "${indexer}" ] && [ -z "${wazuh}" ] && [ -z "${start_indexer_cluster}" ]; then
+            common_logger -e "The -of|--offline-installation option must be used with -a, -ws, -s, -wi, or -wd."
             exit 1
         fi
     fi
@@ -378,15 +378,17 @@ function checks_specifications() {
 
 function checks_ports() {
 
-    dep="lsof"
-    if [ "${sys_type}" == "yum" ]; then
-        installCommon_yumInstallList "${dep}"
-    elif [ "${sys_type}" == "apt-get" ]; then
-        installCommon_aptInstallList "${dep}"
-    fi
+    if [ -z "${offline_install}" ]; then
+        dep="lsof"
+        if [ "${sys_type}" == "yum" ]; then
+            installCommon_yumInstallList "${dep}"
+        elif [ "${sys_type}" == "apt-get" ]; then
+            installCommon_aptInstallList "${dep}"
+        fi
 
-    if [ "${#not_installed[@]}" -gt 0 ]; then
-            wia_dependencies_installed+=("${dep}")
+        if [ "${#not_installed[@]}" -gt 0 ]; then
+                wia_dependencies_installed+=("${dep}")
+        fi
     fi
 
     common_logger -d "Checking ports availability."
