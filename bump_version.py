@@ -29,7 +29,7 @@ date=datetime.datetime.strptime(args.date, FORMAT_STRING)
 version=Version(args.version)
 
 ## Find files to bump .spec, changelog, pkginfo, .pkgproj, test-*.sh,
-## installVariables.sh, CHANGELOG.md
+## installVariables.sh, unattended_installer/builder.sh, CHANGELOG.md
 spec_files=glob.glob('**/*.spec', recursive=True)
 changelog_files=glob.glob('**/changelog', recursive=True)
 copyright_files=glob.glob('**/copyright', recursive=True)
@@ -37,6 +37,7 @@ pkginfo_files=glob.glob('**/pkginfo', recursive=True)
 pkgproj_files=glob.glob('**/*.pkgproj', recursive=True)
 test_files=glob.glob('**/test-*.sh', recursive=True)
 install_variables_files=glob.glob('**/installVariables.sh', recursive=True)
+unattended_builder_files=glob.glob('**/unattended_installer/builder.sh', recursive=True)
 changelog_md_files=glob.glob('**/CHANGELOG.md', recursive=True)
 VERSION_files=glob.glob('**/VERSION', recursive=True)
 
@@ -169,6 +170,19 @@ for install_variables_file in install_variables_files:
         filedata=re.sub(REGEX, f'wazuh_version=\"{version}\"', filedata)
 
     with open(install_variables_file, 'w', encoding="utf-8") as file:
+        file.write(filedata)
+
+## Bump version in unattended installer build file
+
+for builder_file in unattended_builder_files:
+    with open(builder_file, 'r', encoding="utf-8") as file:
+        print('Bumping version in ' + builder_file)
+        filedata=file.read()
+        # Replace version and revision
+        REGEX=r'source_branch="(\d+\.\d+\.\d+)"'
+        filedata=re.sub(REGEX, f'source_branch="{version}"', filedata)
+
+    with open(builder_file, 'w', encoding="utf-8") as file:
         file.write(filedata)
 
 ## Bump version in CHANGELOG.md files
