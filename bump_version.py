@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """
 This script is used to bump the version of the Wazuh packages repository.
     Copyright (C) 2015-2020, Wazuh Inc.
