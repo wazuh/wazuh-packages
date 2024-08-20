@@ -206,7 +206,7 @@ function indexer_startCluster() {
     if [ -n "${offline_install}" ]; then
         filebeat_wazuh_template="file://${offline_files_path}/wazuh-template.json"
     fi
-    http_status=$(eval "common_curl --silent '${filebeat_wazuh_template}' --max-time 300 --retry 5 --retry-delay 5 ${debug}" | eval "common_curl -X PUT 'https://${indexer_node_ips[pos]}:9200/_template/wazuh' -H \'Content-Type: application/json\' -d @- -uadmin:admin -k --max-time 300 --retry 5 --retry-delay 5 -w "%{http_code}" -o /dev/null")
+    http_status=$(eval "common_curl --silent '${filebeat_wazuh_template}' --max-time 300 --retry 5 --retry-delay 5" | eval "common_curl -X PUT 'https://${indexer_node_ips[pos]}:9200/_template/wazuh' -H \'Content-Type: application/json\' -d @- -uadmin:admin -k --max-time 300 --silent --retry 5 --retry-delay 5 -w "%{http_code}" -o /dev/null")
     if [ "${http_status}" -ne 200 ]; then
         common_logger -e "The wazuh-alerts template could not be inserted into the Wazuh indexer cluster."
         exit 1
