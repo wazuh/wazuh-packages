@@ -6,6 +6,19 @@
 # License (version 2) as published by the FSF - Free Software
 # Foundation.
 
+function filebeat_checkService() {
+    common_logger "Checking Filebeat connection"
+
+    if  filebeat test output | grep -q -i -w "ERROR"; then
+        common_logger -e "Filebeat connection Error."
+        eval "filebeat test output x ${debug}"
+        installCommon_rollBack
+        exit 1
+    else
+        common_logger "Filebeat connection successful"
+    fi
+}
+
 function filebeat_configure(){
 
     common_logger -d "Configuring Filebeat."

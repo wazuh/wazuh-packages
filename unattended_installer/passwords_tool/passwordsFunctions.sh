@@ -18,7 +18,7 @@ function passwords_changePassword() {
         for i in "${!passwords[@]}"
         do
             if [ -n "${indexer_installed}" ] && [ -f "/etc/wazuh-indexer/backup/internal_users.yml" ]; then
-                awk -v new=${hashes[i]} 'prev=="'${users[i]}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /etc/wazuh-indexer/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /etc/wazuh-indexer/backup/internal_users.yml
+                awk -v new='"'"${hashes[i]}"'"' 'prev=="'${users[i]}':"{sub(/\042.*/,""); $0=$0 new} {prev=$1} 1' /etc/wazuh-indexer/backup/internal_users.yml > internal_users.yml_tmp && mv -f internal_users.yml_tmp /etc/wazuh-indexer/backup/internal_users.yml
             fi
 
             if [ "${users[i]}" == "admin" ]; then
@@ -296,10 +296,11 @@ function passwords_generatePassword() {
 function passwords_generatePasswordFile() {
 
     common_logger -d "Generating password file."
-    users=( admin kibanaserver kibanaro logstash readall snapshotrestore )
+    users=( admin anomalyadmin kibanaserver kibanaro logstash readall snapshotrestore )
     api_users=( wazuh wazuh-wui )
     user_description=(
         "Admin user for the web user interface and Wazuh indexer. Use this user to log in to Wazuh dashboard"
+        "Anomaly detection user for the web user interface"
         "Wazuh dashboard user for establishing the connection with Wazuh indexer"
         "Regular Dashboard user, only has read permissions to all indices and all permissions on the .kibana index"
         "Filebeat user for CRUD operations on Wazuh indices"

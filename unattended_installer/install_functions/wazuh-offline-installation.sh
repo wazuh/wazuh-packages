@@ -11,7 +11,7 @@
 # Checks the necessary dependencies for the installation
 function offline_checkDependencies() {
 
-    dependencies=( curl tar gnupg openssl )
+    dependencies=( curl tar gnupg openssl lsof )
 
     common_logger "Checking installed dependencies for Offline installation."
     for dep in "${dependencies[@]}"; do
@@ -28,6 +28,26 @@ function offline_checkDependencies() {
     done
     common_logger -d "Offline dependencies are installed."
 
+}
+
+# Checks the necessary packages needed for a Wazuh component
+function offline_checkPrerequisites(){
+
+    dependencies=("$@")
+    common_logger "Checking prerequisites for Offline installation."
+    for dep in "${dependencies[@]}"; do
+        if [ "${sys_type}" == "yum" ]; then
+            eval "yum list installed 2>/dev/null | grep -q -E ^"${dep}"\\."
+        elif [ "${sys_type}" == "apt-get" ]; then
+            eval "apt list --installed 2>/dev/null | grep -q -E ^"${dep}"\/"
+        fi
+        
+        if [ "${PIPESTATUS[0]}" != 0 ]; then
+            common_logger -e "${dep} is necessary for the offline installation."
+            exit 1
+        fi
+    done
+    common_logger -d "Offline prerequisites are installed."
 }
 
 # Checks the necessary files for the installation

@@ -31,8 +31,8 @@ function checks_arguments() {
     # -------------- Offline installation ---------------------
 
     if [ -n "${offline_install}" ]; then
-        if [ -z "${AIO}" ] && [ -z "${dashboard}" ] && [ -z "${indexer}" ] && [ -z "${wazuh}" ]; then
-            common_logger -e "The -of|--offline-installation option must be used with -a, -ws, -wi, or -wd."
+        if [ -z "${AIO}" ] && [ -z "${dashboard}" ] && [ -z "${indexer}" ] && [ -z "${wazuh}" ] && [ -z "${start_indexer_cluster}" ]; then
+            common_logger -e "The -of|--offline-installation option must be used with -a, -ws, -s, -wi, or -wd."
             exit 1
         fi
     fi
@@ -211,7 +211,7 @@ function check_dist() {
         if [ "${DIST_VER}" -ne "7" ] && [ "${DIST_VER}" -ne "8" ] && [ "${DIST_VER}" -ne "9" ]; then
             notsupported=1
         fi
-        need_centos_repos=1 
+        need_centos_repos=1
     fi
 
     if [ "${DIST_NAME}" == "amzn" ]; then
@@ -380,7 +380,7 @@ function checks_specifications() {
 }
 
 function checks_ports() {
-    
+
     common_logger -d "Checking ports availability."
     used_port=0
     ports=("$@")

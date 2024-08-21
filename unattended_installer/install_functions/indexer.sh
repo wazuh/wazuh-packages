@@ -186,9 +186,28 @@ function indexer_startCluster() {
         common_logger "Wazuh indexer cluster security configuration initialized."
     fi
 
+    # Validate Wazuh indexer security admin it is initialized
+    indexer_security_admin_comm="common_curl -XGET https://"${indexer_node_ips[pos]}":9200/ -uadmin:admin -k --max-time 120 --silent -w \"%{http_code}\" --output /dev/null"
+    http_status=$(eval "${indexer_security_admin_comm}")
+    retries=0
+    max_retries=5
+    while [ "${http_status}" -ne 200 ]; do
+        common_logger -d "Waiting for Wazuh indexer to be ready. wazuh-indexer status: ${http_status}"
+        sleep 5
+        retries=$((retries+1))
+        if [ "${retries}" -eq "${max_retries}" ]; then
+            common_logger -e "The Wazuh indexer cluster security configuration could not be initialized."
+            exit 1
+        fi
+        http_status=$(eval "${indexer_security_admin_comm}")
+    done
+
     # Wazuh alerts template injection
-    eval "common_curl --silent ${filebeat_wazuh_template} --max-time 300 --retry 5 --retry-delay 5 ${debug}" | eval "common_curl -X PUT 'https://${indexer_node_ips[pos]}:9200/_template/wazuh' -H 'Content-Type: application/json' -d @- -uadmin:admin -k --silent --max-time 300 --retry 5 --retry-delay 5 ${debug}"
-    if [  "${PIPESTATUS[0]}" != 0  ]; then
+    if [ -n "${offline_install}" ]; then
+        filebeat_wazuh_template="file://${offline_files_path}/wazuh-template.json"
+    fi
+    http_status=$(eval "common_curl --silent '${filebeat_wazuh_template}' --max-time 300 --retry 5 --retry-delay 5" | eval "common_curl -X PUT 'https://${indexer_node_ips[pos]}:9200/_template/wazuh' -H \'Content-Type: application/json\' -d @- -uadmin:admin -k --max-time 300 --silent --retry 5 --retry-delay 5 -w "%{http_code}" -o /dev/null")
+    if [ "${http_status}" -ne 200 ]; then
         common_logger -e "The wazuh-alerts template could not be inserted into the Wazuh indexer cluster."
         exit 1
     else

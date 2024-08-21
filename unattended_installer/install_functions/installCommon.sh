@@ -292,7 +292,7 @@ function installCommon_configureCentOSRepositories() {
 function installCommon_determinePorts {
 
     used_ports=()
-    
+
     if [ -n "${AIO}" ]; then
         used_ports+=( "${wazuh_aio_ports[@]}" )
     elif [ -n "${wazuh}" ]; then
@@ -353,7 +353,7 @@ function installCommon_installDependencies() {
 }
 
 function installCommon_installList(){
-    
+
     dependencies=("$@")
     if [ "${#dependencies[@]}" -gt 0 ]; then
 
@@ -363,7 +363,7 @@ function installCommon_installList(){
         if [ "${sys_type}" == "apt-get" ]; then
             eval "apt-get update -q ${debug}"
         fi
-    
+
         common_logger "--- Dependencies ----"
         for dep in "${dependencies[@]}"; do
             common_logger "Installing $dep."
@@ -705,25 +705,25 @@ function installCommon_scanDependencies() {
     if [ -n "${AIO}" ]; then
         if [ "${sys_type}" == "yum" ]; then
             wazuh_deps+=( "${indexer_yum_dependencies[@]}" "${wazuh_yum_dependencies[@]}" "${dashboard_yum_dependencies[@]}" )
-        else 
+        else
             wazuh_deps+=( "${indexer_apt_dependencies[@]}" "${wazuh_apt_dependencies[@]}" "${dashboard_apt_dependencies[@]}" )
         fi
     elif [ -n "${indexer}" ]; then
         if [ "${sys_type}" == "yum" ]; then
             wazuh_deps+=( "${indexer_yum_dependencies[@]}" )
-        else 
+        else
             wazuh_deps+=( "${indexer_apt_dependencies[@]}" )
         fi
     elif [ -n "${wazuh}" ]; then
         if [ "${sys_type}" == "yum" ]; then
             wazuh_deps+=( "${wazuh_yum_dependencies[@]}" )
-        else 
+        else
             wazuh_deps+=( "${wazuh_apt_dependencies[@]}" )
         fi
     elif [ -n "${dashboard}" ]; then
         if [ "${sys_type}" == "yum" ]; then
             wazuh_deps+=( "${dashboard_yum_dependencies[@]}" )
-        else 
+        else
             wazuh_deps+=( "${dashboard_apt_dependencies[@]}" )
         fi
     fi
@@ -732,7 +732,7 @@ function installCommon_scanDependencies() {
     if [ "${sys_type}" == "apt-get" ]; then
         assistant_deps+=( "${assistant_apt_dependencies[@]}" )
         command='! apt list --installed 2>/dev/null | grep -q -E ^"${dep}"\/'
-    else 
+    else
         assistant_deps+=( "${assistant_yum_dependencies[@]}" )
         command='! rpm -q ${dep} --quiet'
     fi
@@ -746,7 +746,7 @@ function installCommon_scanDependencies() {
     if [ -z "${AIO}" ] && [ -z "${wazuh}" ] && [ -z "${indexer}" ] && [ -z "${dashboard}" ]; then
         assistant_deps=( "${assistant_deps[@]/lsof}" )
     fi
-    
+
     # Delete duplicates and sort
     all_deps+=( "${assistant_deps[@]}" )
     all_deps=( $(echo "${all_deps[@]}" | tr ' ' '\n' | sort -u) )
