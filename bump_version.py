@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """
 This script is used to bump the version of the Wazuh packages repository.
     Copyright (C) 2015-2020, Wazuh Inc.
@@ -29,7 +31,7 @@ date=datetime.datetime.strptime(args.date, FORMAT_STRING)
 version=Version(args.version)
 
 ## Find files to bump .spec, changelog, pkginfo, .pkgproj, test-*.sh,
-## installVariables.sh, CHANGELOG.md
+## installVariables.sh, unattended_installer/builder.sh, CHANGELOG.md
 spec_files=glob.glob('**/*.spec', recursive=True)
 changelog_files=glob.glob('**/changelog', recursive=True)
 copyright_files=glob.glob('**/copyright', recursive=True)
@@ -37,6 +39,7 @@ pkginfo_files=glob.glob('**/pkginfo', recursive=True)
 pkgproj_files=glob.glob('**/*.pkgproj', recursive=True)
 test_files=glob.glob('**/test-*.sh', recursive=True)
 install_variables_files=glob.glob('**/installVariables.sh', recursive=True)
+unattended_builder_files=glob.glob('**/unattended_installer/builder.sh', recursive=True)
 changelog_md_files=glob.glob('**/CHANGELOG.md', recursive=True)
 VERSION_files=glob.glob('**/VERSION', recursive=True)
 builder_files=glob.glob('**/unattended_installer/builder.sh', recursive=True)
@@ -50,9 +53,9 @@ PKGINFO_FORMAT_STRING="%d%b%Y"
 
 #Regex-replacement dicts for each file
 spec_files_dict = {
-    r'Version:\s*(\d+\.\d+\.\d+)':f"Version:     {version}",    
+    r'Version:\s*(\d+\.\d+\.\d+)':f"Version:     {version}",
     r'Revision:\s*(\d+)':'Revision:     ' + str(args.revision),
-    r'%changelog':'%changelog\n' 
+    r'%changelog':'%changelog\n'
         + (f"* {spec_date} support <info@wazuh.com> - {version}"
         "\n- More info: https://documentation.wazuh.com/current/release-"
         f"notes/release-{version.major}-{version.minor}-"
@@ -84,11 +87,14 @@ install_variables_files_dict = {
     f'wazuh_major=\"{version.major}.{version.minor}\"',
     r'wazuh_version=\"(\d+\.\d+\.\d+)\"':f'wazuh_version=\"{version}\"'}
 
+unattended_builder_files_dict = {
+    r'source_branch="(\d+\.\d+\.\d+)"':f'source_branch="{version}"'}
+
 changelog_md_files_dict = {
     (r'All notable changes to this project '
     r'will be documented in this file.'):
     (r'All notable changes to this project '
-    r'will be documented in this file.') + '\n'  
+    r'will be documented in this file.') + '\n'
     + (f"## [{version}]\n\n- https://github.com/wazuh/"
     f"wazuh-packages/releases/tag/v{version}\n")}
 
@@ -145,6 +151,7 @@ bump_file_list(pkginfo_files,pkginfo_files_dict)
 bump_file_list(pkgproj_files,pkgproj_files_dict)
 bump_file_list(test_files,test_files_dict)
 bump_file_list(install_variables_files,install_variables_files_dict)
+bump_file_list(unattended_builder_files,unattended_builder_files_dict)
 bump_file_list(changelog_md_files,changelog_md_files_dict)
 bump_file_list(VERSION_files,VERSION_files_dict)
 bump_file_list(builder_files,builder_files_dict)
