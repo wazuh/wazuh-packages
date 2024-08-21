@@ -5,8 +5,6 @@ ova/Config_files/filebeat.yml
 *.ovf
 *.vmdk
 *.wpk
-*.deb
-*.rpm
 *.zip
 *.tar.gz
 *.pkg
@@ -19,11 +17,8 @@ ova/Config_files/filebeat.yml
 *.pkg.tar.zst
 .gradle
 .java
-stack/indexer/rpm/output
-stack/indexer/deb/output
 .cache
 .m2
-wpk/versions
 solaris/packer/builds/
 solaris/packer/packer-solaris11_3-virtualbox/
 solaris/packer/packer-solaris10-virtualbox/
