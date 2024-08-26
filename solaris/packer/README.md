@@ -22,7 +22,6 @@ To build a Wazuh package you need to install the following tools:
 
 - [AIX](/aix/README.md)
 - [HP-UX](/hp-ux/README.md)
-- [OVA](/ova/README.md)
 - [RPM](/rpms/README.md)
 
 ## References

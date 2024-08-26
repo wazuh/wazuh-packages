@@ -10,7 +10,6 @@ Please, visit the following link for the full AIX packages building documentatio
 ## More Packages
 
 - [HP-UX](/hp-ux/README.md)
-- [OVA](/ova/README.md)
 - [Solaris](/solaris/README.md)
 
 ## Contribute
