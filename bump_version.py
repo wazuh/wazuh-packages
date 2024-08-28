@@ -85,9 +85,6 @@ changelog_md_files_dict = {
     + (f"## [{version}]\n\n- https://github.com/wazuh/"
     f"wazuh-packages/releases/tag/v{version}\n")}
 
-builder_files_dict = {
-    r'source_branch=\"(\d+\.\d+\.\d+)\"': f'source_branch=\"{version}\"'}
-
 VERSION_files_dict = {
     r'(\d+\.\d+\.\d+)': f'{version}'}
 
@@ -139,4 +136,3 @@ bump_file_list(pkgproj_files,pkgproj_files_dict)
 bump_file_list(test_files,test_files_dict)
 bump_file_list(changelog_md_files,changelog_md_files_dict)
 bump_file_list(VERSION_files,VERSION_files_dict)
-bump_file_list(builder_files,builder_files_dict)
