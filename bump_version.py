@@ -36,6 +36,7 @@ changelog_files=glob.glob('**/changelog', recursive=True)
 copyright_files=glob.glob('**/copyright', recursive=True)
 pkginfo_files=glob.glob('**/pkginfo', recursive=True)
 pkgproj_files=glob.glob('**/*.pkgproj', recursive=True)
+test_files=glob.glob('**/test-*.sh', recursive=True)
 changelog_md_files=glob.glob('**/CHANGELOG.md', recursive=True)
 VERSION_files=glob.glob('**/VERSION', recursive=True)
 
