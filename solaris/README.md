@@ -13,7 +13,6 @@ Please, visit the following link for the full Solaris packages building document
 
 - [AIX](/aix/README.md)
 - [HP-UX](/hp-ux/README.md)
-- [OVA](/ova/README.md)
 
 ## Contribute
 

@@ -7,11 +7,10 @@
 
 Wazuh is an Open Source Host-based Intrusion Detection System that performs log analysis, file integrity monitoring, policy monitoring, rootkit detection, real-time alerting, active response, vulnerability detector, etc.
 
-In this repository, you can find the necessary tools to build a Wazuh package for IBM AIX, HP-UX, Solaris Intel/SPARC, OVA, Puppet module, and Wazuh installation scripts.
+In this repository, you can find the necessary tools to build a Wazuh package for IBM AIX, HP-UX, Solaris Intel/SPARC, Puppet module, and Wazuh installation scripts.
 
 - [AIX](/aix/README.md)
 - [HP-UX](/hp-ux/README.md)
-- [OVA](/ova/README.md)
 - [Solaris](/solaris/README.md)
 
 ## Branches

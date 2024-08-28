@@ -9,5 +9,4 @@ Please, visit the following link for the full HPUX packages building documentati
 ## More Packages
 
 - [AIX](/aix/README.md)
-- [OVA](/ova/README.md)
 - [Solaris](/solaris/README.md)
