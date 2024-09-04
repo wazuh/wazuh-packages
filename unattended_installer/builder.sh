@@ -76,7 +76,12 @@ function buildInstaller() {
         echo 'readonly filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.4.tar.gz"' >> "${output_script_path}"
         echo 'readonly bucket="packages-dev.wazuh.com"' >> "${output_script_path}"
         echo 'readonly repository="'"${devrepo}"'"' >> "${output_script_path}"
-        sed -i 's|v${wazuh_version}|${wazuh_version}|g' "${resources_installer}/installVariables.sh"
+        if [[ ! $(grep -E "source_branch=" "${resources_installer}/installVariables.sh" | sed -E 's/.*source_branch="([^"]+)"/\1/') =~ "-" ]]; then
+            sed -i 's|v${wazuh_version}|${wazuh_version}|g' "${resources_installer}/installVariables.sh"
+        else
+            eval "$(grep -E "wazuh_version=" "${resources_installer}/installVariables.sh")"
+            eval "$(grep -E "source_branch=" "${resources_installer}/installVariables.sh")"
+        fi
     else
         echo 'readonly repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"' >> "${output_script_path}"
         echo 'readonly repobaseurl="https://packages.wazuh.com/4.x"' >> "${output_script_path}"
@@ -267,9 +272,6 @@ function builder_main() {
         if [ -n "${change_filebeat_url}" ]; then
             sed -i -E "s|(https.+)master(.+wazuh-template.json)|\1\\$\\{source_branch\\}\2|"  "${resources_installer}/installVariables.sh"
         fi
-        if [ -n "${development}" ]; then
-            sed -i 's|${wazuh_version}|v${wazuh_version}|g' "${resources_installer}/installVariables.sh"
-        fi
     fi
 
     if [ -n "${passwordsTool}" ]; then
@@ -285,8 +287,8 @@ function builder_main() {
 
 function checkDistDetectURL() {
 
-    urls=("https://raw.githubusercontent.com/wazuh/wazuh/${source_branch}/src/init/dist-detect.sh"
-          "https://raw.githubusercontent.com/wazuh/wazuh/v${source_branch}/src/init/dist-detect.sh"
+    urls=("https://raw.githubusercontent.com/wazuh/wazuh/v${source_branch}/src/init/dist-detect.sh"
+          "https://raw.githubusercontent.com/wazuh/wazuh/${source_branch}/src/init/dist-detect.sh"
           "https://raw.githubusercontent.com/wazuh/wazuh/master/src/init/dist-detect.sh")
 
     for url in "${urls[@]}"; do
