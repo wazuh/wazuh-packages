@@ -16,7 +16,7 @@ readonly resources_certs="${base_path_builder}/cert_tool"
 readonly resources_passwords="${base_path_builder}/passwords_tool"
 readonly resources_common="${base_path_builder}/common_functions"
 readonly resources_download="${base_path_builder}/downloader"
-source_branch="4.9.0"
+source_branch="v4.9.0"
 
 function getHelp() {
 
@@ -76,7 +76,9 @@ function buildInstaller() {
         echo 'readonly filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.4.tar.gz"' >> "${output_script_path}"
         echo 'readonly bucket="packages-dev.wazuh.com"' >> "${output_script_path}"
         echo 'readonly repository="'"${devrepo}"'"' >> "${output_script_path}"
-        sed -i 's|v${wazuh_version}|${wazuh_version}|g' "${resources_installer}/installVariables.sh"
+        if [[ ! $source_branch =~ "-" ]]; then
+            sed -i 's|v${wazuh_version}|${wazuh_version}|g' "${resources_installer}/installVariables.sh"
+        fi
     else
         echo 'readonly repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"' >> "${output_script_path}"
         echo 'readonly repobaseurl="https://packages.wazuh.com/4.x"' >> "${output_script_path}"
@@ -309,7 +311,6 @@ function checkDistDetectURL() {
 function checkFilebeatURL() {
 
     # Import variables
-    eval "$(grep -E "wazuh_version_tag=" "${resources_installer}/installVariables.sh")"
     eval "$(grep -E "filebeat_wazuh_template=" "${resources_installer}/installVariables.sh")"
     new_filebeat_url="https://raw.githubusercontent.com/wazuh/wazuh/master/extensions/elasticsearch/7.x/wazuh-template.json"
 
