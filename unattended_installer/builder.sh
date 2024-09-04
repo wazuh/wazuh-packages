@@ -309,6 +309,7 @@ function checkDistDetectURL() {
 function checkFilebeatURL() {
 
     # Import variables
+    eval "$(grep -E "wazuh_version_tag=" "${resources_installer}/installVariables.sh")"
     eval "$(grep -E "filebeat_wazuh_template=" "${resources_installer}/installVariables.sh")"
     new_filebeat_url="https://raw.githubusercontent.com/wazuh/wazuh/master/extensions/elasticsearch/7.x/wazuh-template.json"
 
