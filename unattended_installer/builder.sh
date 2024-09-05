@@ -76,6 +76,8 @@ function buildInstaller() {
         echo 'readonly repository="'"${devrepo}"'"' >> "${output_script_path}"
         if [[ ! $(grep -E "source_branch=" "${resources_installer}/installVariables.sh" | sed -E 's/.*source_branch="([^"]+)"/\1/') =~ "-" ]]; then
             sed -i 's|v${wazuh_version}|${wazuh_version}|g' "${resources_installer}/installVariables.sh"
+            pre_release_tag=1
+        fi
     else
         echo 'readonly repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"' >> "${output_script_path}"
         echo 'readonly repobaseurl="https://packages.wazuh.com/4.x"' >> "${output_script_path}"
@@ -266,6 +268,9 @@ function builder_main() {
         chmod 500 ${output_script_path}
         if [ -n "${change_filebeat_url}" ]; then
             sed -i -E "s|(https.+)master(.+wazuh-template.json)|\1\\$\\{source_branch\\}\2|"  "${resources_installer}/installVariables.sh"
+        fi
+        if [[ -n "${development}" && -n "${pre_release_tag}" ]]; then
+            sed -i 's|${wazuh_version}|v${wazuh_version}|g' "${resources_installer}/installVariables.sh"
         fi
     fi
 
