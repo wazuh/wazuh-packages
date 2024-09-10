@@ -290,6 +290,7 @@ function main() {
     if [ -n "${offline_install}" ]; then
         offline_checkPreinstallation
         offline_extractFiles
+        offline_importGPGKey
     fi
 
     if [ -n "${AIO}" ] || [ -n "${indexer}" ] || [ -n "${dashboard}" ] || [ -n "${wazuh}" ]; then

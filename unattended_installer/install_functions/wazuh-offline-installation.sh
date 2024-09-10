@@ -101,3 +101,24 @@ function offline_extractFiles() {
 
     common_logger -d "Offline files extracted successfully."
 }
+
+# Imports the GPG key from the extracted tar file
+function offline_importGPGKey() {
+
+    common_logger -d "Importing Wazuh GPG key."
+    if [ "${sys_type}" == "yum" ]; then
+        eval "rpm --import ${offline_files_path}/GPG-KEY-WAZUH ${debug}"
+        if [ "${PIPESTATUS[0]}" != 0 ]; then
+            common_logger -e "Cannot import Wazuh GPG key"
+            exit 1
+        fi
+    elif [ "${sys_type}" == "apt-get" ]; then
+        eval "gpg --import ${offline_files_path}/GPG-KEY-WAZUH ${debug}"
+        if [ "${PIPESTATUS[0]}" != 0 ]; then
+            common_logger -e "Cannot import Wazuh GPG key"
+            exit 1
+        fi
+        eval "chmod 644 ${offline_files_path}/GPG-KEY-WAZUH ${debug}"
+    fi
+    
+}
