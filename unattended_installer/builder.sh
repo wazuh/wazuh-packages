@@ -86,6 +86,7 @@ function buildInstaller() {
         echo 'readonly repository="4.x"' >> "${output_script_path}"
     fi
     echo >> "${output_script_path}"
+    checkFilebeatURL
     grep -Ev '^#|^\s*$' ${resources_common}/commonVariables.sh >> "${output_script_path}"
     grep -Ev '^#|^\s*$' ${resources_installer}/installVariables.sh >> "${output_script_path}"
     echo >> "${output_script_path}"
@@ -132,9 +133,6 @@ function buildInstaller() {
     ## Main function and call to it
     echo >> "${output_script_path}"
     echo "main \"\$@\"" >> "${output_script_path}"
-
-    checkFilebeatURL
-
 }
 
 function buildPasswordsTool() {
@@ -309,7 +307,10 @@ function checkDistDetectURL() {
 function checkFilebeatURL() {
 
     # Import variables
-    eval "$(grep -E "filebeat_wazuh_template=" "${resources_installer}/installVariables.sh")"
+    eval "$(grep -E "wazuh_version=" "${resources_installer}/installVariables.sh")"
+    eval "$(grep -E "source_branch=" "${resources_installer}/installVariables.sh" | sed 's/source_branch=/install_variables_source_branch=/')"
+    eval "$(grep -E "filebeat_wazuh_template=" "${resources_installer}/installVariables.sh" | sed "s/\${source_branch}/$install_variables_source_branch/")"
+
     new_filebeat_url="https://raw.githubusercontent.com/wazuh/wazuh/master/extensions/elasticsearch/7.x/wazuh-template.json"
 
     # Get the response of the URL and check it
