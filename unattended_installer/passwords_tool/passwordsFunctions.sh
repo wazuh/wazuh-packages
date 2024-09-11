@@ -46,7 +46,7 @@ function passwords_changePassword() {
     fi
 
     if [ "${nuser}" == "admin" ] || [ -n "${changeall}" ]; then
-        if [ -n "${filebeat_installed}" ]; then
+        if [ -n "${filebeat_installed}" ] && [ -z "${dashboard}" ]; then
             file_username=$(grep "username:" /etc/filebeat/filebeat.yml | awk '{print $2}')
             file_password=$(grep "password:" /etc/filebeat/filebeat.yml | awk '{print $2}')
             if [ "$file_username" != "\${username}" ] || [ "$file_password" != "\${password}" ]; then
