@@ -16,7 +16,7 @@ readonly resources_certs="${base_path_builder}/cert_tool"
 readonly resources_passwords="${base_path_builder}/passwords_tool"
 readonly resources_common="${base_path_builder}/common_functions"
 readonly resources_download="${base_path_builder}/downloader"
-source_branch="4.9.1"
+source_branch="v4.9.1"
 
 function getHelp() {
 
@@ -48,8 +48,6 @@ function getHelp() {
 
 function buildInstaller() {
 
-    checkDistDetectURL
-
     output_script_path="${base_path_builder}/wazuh-install.sh"
 
     ## Create installer script
@@ -76,7 +74,10 @@ function buildInstaller() {
         echo 'readonly filebeat_wazuh_module="${repobaseurl}/filebeat/wazuh-filebeat-0.4.tar.gz"' >> "${output_script_path}"
         echo 'readonly bucket="packages-dev.wazuh.com"' >> "${output_script_path}"
         echo 'readonly repository="'"${devrepo}"'"' >> "${output_script_path}"
-        sed -i 's|v${wazuh_version}|${wazuh_version}|g' "${resources_installer}/installVariables.sh"
+        if [[ ! $(grep -E "source_branch=" "${resources_installer}/installVariables.sh" | sed -E 's/.*source_branch="([^"]+)"/\1/') =~ "-" ]]; then
+            sed -i 's|v${wazuh_version}|${wazuh_version}|g' "${resources_installer}/installVariables.sh"
+            pre_release_tag=1
+        fi
     else
         echo 'readonly repogpg="https://packages.wazuh.com/key/GPG-KEY-WAZUH"' >> "${output_script_path}"
         echo 'readonly repobaseurl="https://packages.wazuh.com/4.x"' >> "${output_script_path}"
@@ -86,6 +87,7 @@ function buildInstaller() {
         echo 'readonly repository="4.x"' >> "${output_script_path}"
     fi
     echo >> "${output_script_path}"
+    checkFilebeatURL
     grep -Ev '^#|^\s*$' ${resources_common}/commonVariables.sh >> "${output_script_path}"
     grep -Ev '^#|^\s*$' ${resources_installer}/installVariables.sh >> "${output_script_path}"
     echo >> "${output_script_path}"
@@ -116,6 +118,7 @@ function buildInstaller() {
     done
 
     ## dist-detect.sh
+    checkDistDetectURL
     echo "function dist_detect() {" >> "${output_script_path}"
     curl -s "https://raw.githubusercontent.com/wazuh/wazuh/${source_branch}/src/init/dist-detect.sh" | sed '/^#/d' >> "${output_script_path}"
     echo "}" >> "${output_script_path}"
@@ -132,9 +135,6 @@ function buildInstaller() {
     ## Main function and call to it
     echo >> "${output_script_path}"
     echo "main \"\$@\"" >> "${output_script_path}"
-
-    checkFilebeatURL
-
 }
 
 function buildPasswordsTool() {
@@ -267,7 +267,7 @@ function builder_main() {
         if [ -n "${change_filebeat_url}" ]; then
             sed -i -E "s|(https.+)master(.+wazuh-template.json)|\1\\$\\{source_branch\\}\2|"  "${resources_installer}/installVariables.sh"
         fi
-        if [ -n "${development}" ]; then
+        if [[ -n "${development}" && -n "${pre_release_tag}" ]]; then
             sed -i 's|${wazuh_version}|v${wazuh_version}|g' "${resources_installer}/installVariables.sh"
         fi
     fi
@@ -286,7 +286,6 @@ function builder_main() {
 function checkDistDetectURL() {
 
     urls=("https://raw.githubusercontent.com/wazuh/wazuh/${source_branch}/src/init/dist-detect.sh"
-          "https://raw.githubusercontent.com/wazuh/wazuh/v${source_branch}/src/init/dist-detect.sh"
           "https://raw.githubusercontent.com/wazuh/wazuh/master/src/init/dist-detect.sh")
 
     for url in "${urls[@]}"; do
@@ -309,7 +308,10 @@ function checkDistDetectURL() {
 function checkFilebeatURL() {
 
     # Import variables
-    eval "$(grep -E "filebeat_wazuh_template=" "${resources_installer}/installVariables.sh")"
+    eval "$(grep -E "wazuh_version=" "${resources_installer}/installVariables.sh")"
+    eval "$(grep -E "source_branch=" "${resources_installer}/installVariables.sh" | sed 's/source_branch=/install_variables_source_branch=/')"
+    eval "$(grep -E "filebeat_wazuh_template=" "${resources_installer}/installVariables.sh" | sed "s/\${source_branch}/$install_variables_source_branch/")"
+
     new_filebeat_url="https://raw.githubusercontent.com/wazuh/wazuh/master/extensions/elasticsearch/7.x/wazuh-template.json"
 
     # Get the response of the URL and check it
