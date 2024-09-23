@@ -22,6 +22,9 @@ arg_parser.add_argument('-v', '--version', action='store', dest='version',
                         help='Version to bump to', required=True)
 arg_parser.add_argument('-r', '--revision', action='store', dest='revision',
                         help='Revision to bump to. Default: 1', default=1)
+arg_parser.add_argument('-s', '--stage', action='store', dest='stage',
+                        help='Stage to bump to. Default: none',
+                        default='')
 arg_parser.add_argument('-d', '--date', action='store', dest='date',
                         help='Date to bump to. Format: m-d-Y. Default: today',
                         default=datetime.date.today().strftime(FORMAT_STRING))
@@ -111,6 +114,24 @@ def bump_file_list(file_list, regex_replacement):
             file.write(filedata)
 
 
+def check_version_in_changelog_md():
+    for changelog_md_file in changelog_md_files:
+        with open(changelog_md_file, 'r', encoding="utf-8") as file:
+            filedata = file.read()
+            if re.search(rf'## \[{version}\]', filedata):
+                return True
+    return False
+
+
+def check_version_in_spec_files():
+    for spec_file in spec_files:
+        with open(spec_file, 'r', encoding="utf-8") as file:
+            filedata = file.read()
+            if re.search(rf'support <info@wazuh.com> - {version}', filedata):
+                return True
+    return False
+
+
 ## Bump version in deb changelog files
 for changelog_file in changelog_files:
     with open(changelog_file, 'r', encoding="utf-8") as file:
@@ -130,10 +151,10 @@ for changelog_file in changelog_files:
         file.write(filedata)
 
 
-bump_file_list(spec_files,spec_files_dict)
+None if check_version_in_spec_files() else bump_file_list(spec_files,spec_files_dict)
 bump_file_list(copyright_files,copyright_files_dict)
 bump_file_list(pkginfo_files,pkginfo_files_dict)
 bump_file_list(pkgproj_files,pkgproj_files_dict)
 bump_file_list(test_files,test_files_dict)
-bump_file_list(changelog_md_files,changelog_md_files_dict)
+None if check_version_in_changelog_md() else bump_file_list(changelog_md_files,changelog_md_files_dict)
 bump_file_list(VERSION_files,VERSION_files_dict)
