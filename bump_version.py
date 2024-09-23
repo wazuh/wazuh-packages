@@ -22,9 +22,6 @@ arg_parser.add_argument('-v', '--version', action='store', dest='version',
                         help='Version to bump to', required=True)
 arg_parser.add_argument('-r', '--revision', action='store', dest='revision',
                         help='Revision to bump to. Default: 1', default=1)
-arg_parser.add_argument('-s', '--stage', action='store', dest='stage',
-                        help='Stage to bump to. Default: none',
-                        default='')
 arg_parser.add_argument('-d', '--date', action='store', dest='date',
                         help='Date to bump to. Format: m-d-Y. Default: today',
                         default=datetime.date.today().strftime(FORMAT_STRING))
