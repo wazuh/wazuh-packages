@@ -75,7 +75,7 @@ jobs:
         if: steps.changes.outputs.deb_packages == 'true' || (steps.changes.outputs.deb_images_agent_i386 == 'true' && matrix.ARCHITECTURE == 'i386') || (steps.changes.outputs.deb_images_amd64 == 'true' && matrix.ARCHITECTURE == 'amd64')
         id: download-artifact
         continue-on-error: true
-        uses: dawidd6/action-download-artifact@v2
+        uses: dawidd6/action-download-artifact@v6
         with:
           workflow: build-deb-packages.yml
           workflow_conclusion: success
