@@ -60,4 +60,9 @@ rm -rf ${SCA_TMP_DIR}
 
 # Remove upgrade files after install/upgrade
 rm -rf ${install_path}/installation_scripts/
-rm -rf /lib/svc/manifest/site/post-install.xml
+
+# Disable the wazuh-postinstall service
+svcadm disable site/wazuh-postinstall
+
+# Remove the wazuh-postinstall service manifest
+rm -rf /lib/svc/manifest/site/wazuh-postinstall.xml
